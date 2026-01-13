@@ -1,0 +1,170 @@
+// Giant 大標題 (僅桌機版)
+@mixin font-giant {
+  @media (min-width: 1200px) {
+    font-size: $d-size-giant;
+    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: 3px;
+  }
+}
+
+// Primary 主標題 (例如 Banner Title)-桌機36px手機28px
+@mixin font-primary {
+  font-size: $m-size-primary;
+  line-height: 1.3;
+  font-weight: 700;
+  letter-spacing: 2px;
+
+  @media (min-width: 1200px) {
+    font-size: $d-size-primary;
+    line-height: 1.2;
+    letter-spacing: 3px;
+  }
+}
+
+// Secondary次要標題 (例如 Section Title)-桌機32px手機24px
+@mixin font-secondary {
+  font-size: $m-size-secondary;
+  line-height: 1.4;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  @media (min-width: 1200px) {
+    font-size: $d-size-secondary;
+    line-height: 1.3;
+    letter-spacing: 2px;
+  }
+}
+
+// Secondary medium (500) 次要標題
+// (用在未hover的字體,只有font-weight不一樣)
+@mixin font-secondary-md {
+  font-size: $m-size-secondary;
+  line-height: 1.4;
+  font-weight: 500;
+  letter-spacing: 1px;
+
+  @media (min-width: 1200px) {
+    font-size: $d-size-secondary;
+    line-height: 1.3;
+    letter-spacing: 2px;
+  }
+}
+
+// Tertiary 三級標題 (小標題)
+// Tertiary 三級標題 (小標題)-桌機24px手機20px
+@mixin font-tertiary {
+  font-size: $m-size-tertiary;
+  line-height: 1.4;
+  font-weight: 600;
+
+  @media (min-width: 1200px) {
+    line-height: 1.3;
+    font-size: $d-size-tertiary;
+    letter-spacing: 1.5px;
+  }
+}
+
+// Quaternary Bold (700) 四級標題-桌機手機共用20px
+@mixin font-quaternary {
+  font-size: $size-quaternary;
+  line-height: 1.8;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+// Body L Bold (700) 大內文-桌機手機共用18px
+@mixin font-body-l-bold {
+  font-size: $size-body-l;
+  line-height: 1.8;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+// Body L Regular (400) 大內文-桌機手機共用18px
+@mixin font-body-l {
+  font-size: $size-body-l;
+  line-height: 1.8;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+// Body Default Bold (700) 一般預設內文-桌機手機共用16px
+@mixin font-body-bold {
+  font-size: $size-body;
+  line-height: 1.7;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+// Body Default Regular (400) 一般預設內文-桌機手機共用16px
+@mixin font-body {
+  font-size: $size-body;
+  line-height: 1.7;
+  font-weight: 400;
+  letter-spacing: 1px;
+}
+
+// Caption 輔助資訊-桌機14px手機12px
+@mixin font-caption {
+  font-size: $m-size-caption;
+  line-height: 1.5;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+
+  @media (min-width: 1200px) {
+    font-size: $d-size-caption;
+  }
+}
+
+// Game 手機遊戲對話框
+@mixin font-game {
+  font-size: $d-size-caption;
+  line-height: 1.5;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+
+  @media (min-width: 1200px) {
+    font-size: $d-size-tertiary;
+    line-height: 1.3;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+  }
+}
+
+// 會員中心頁籤
+@mixin font-member {
+  font-size: $size-body-l;
+  line-height: 1.8;
+  font-weight: 400;
+  letter-spacing: 1px;
+
+  @media (min-width: 768px) {
+    font-size: $d-size-tertiary;
+    line-height: 1.5;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+  }
+}
+
+// icon mixin
+@mixin icon-style(
+  $fill: $icon-default-fill, 
+  $wght: $icon-default-wght, 
+  $size: $icon-default-size, 
+  $color: $icon-default-color
+) {
+  font-family: $icon-font-family;
+  font-variation-settings:
+    'FILL' #{$fill}, 
+    'wght' #{$wght},
+    'GRAD' 0,
+    'opsz' 24;
+  
+  font-size: $size;
+  color: $color;
+  
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}

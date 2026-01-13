@@ -1,0 +1,45 @@
+// px換算成rem的函式
+@function rem($px) {
+  @return ($px / 16px) * 1rem;
+}
+
+// 桌機字體大小
+$d-size-giant:     rem(48px);
+$d-size-primary:   rem(36px);
+$d-size-secondary: rem(32px);
+$d-size-tertiary:  rem(24px);
+$d-size-caption:   rem(14px);
+
+// 手機字體大小
+$m-size-primary:   rem(28px);
+$m-size-secondary: rem(24px);
+$m-size-tertiary:  rem(20px);
+$m-size-caption:   rem(12px);
+
+// 桌機手機共用字體大小
+$size-quaternary: rem(20px);
+$size-body-l: rem(18px);
+$size-body: rem(16px);
+
+
+//英文字型
+@font-face {
+  font-family: 'EnFont';
+  src: url('../../fonts/arvo-v23-latin-regular.woff2'); 
+  font-weight: 400;
+  font-display: swap;
+}
+
+// 中文字型 
+@font-face {
+  font-family: 'ChFont';
+  src: url('../../fonts/noto-sans-tc-v38-latin-regular.woff2')format('woff2'); 
+  font-weight: 400;
+  font-display: swap;
+}
+
+$font-main: 'EnFont', 'ChFont', "Microsoft JhengHei", "PingFang TC", sans-serif;
+
+html {
+  font-family: $font-main;
+}

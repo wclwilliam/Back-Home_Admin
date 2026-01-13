@@ -1,0 +1,56 @@
+// 容器設定
+.container {
+  // 手機版
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 $mobile-margin;
+  max-width: 1440px;
+  // 平板版
+  @media (min-width: 768px) {
+    padding: 0 40px;
+  }
+}
+
+// Row 容器
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: ($mobile-gutter / -2);
+  margin-left: ($mobile-gutter / -2);
+}
+
+// Col 基礎樣式
+[class^='col-'] {
+  position: relative;
+  width: 100%;
+  padding-right: ($mobile-gutter / 2);
+  padding-left: ($mobile-gutter / 2);
+}
+// 手機版 4 欄系統 col-sm-4
+@for $i from 1 through 4 {
+  .col-sm-#{$i} {
+      flex: 0 0 calc(100% / 4 * #{$i});
+      max-width: calc(100% / 4 * #{$i});
+    }
+  }
+
+// 平板/中螢幕用 col-md-6
+@for $i from 1 through 12 {
+  .col-md-#{$i} {
+    @media (min-width: 768px) and (max-width: 1023px) {
+      flex: 0 0 calc(100% / 12 * #{$i});
+      width: calc(100% / 12 * #{$i});
+    }
+  }
+}
+
+// 桌機版 col-lg-4
+@for $i from 1 through 12 {
+  .col-lg-#{$i} {
+    @media (min-width: 1024px) {
+      flex: 0 0 calc(100% / 12 * #{$i});
+      max-width: calc(100% / 12 * #{$i});
+    }
+  }
+}
+

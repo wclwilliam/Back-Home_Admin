@@ -1,0 +1,15 @@
+/* src/assets/_variables.scss */
+//全域變數
+
+// Google Font Icons 預設值 
+$icon-default-fill: 0 !default;
+$icon-default-wght: 400 !default;
+$icon-default-size: 24px !default;
+$icon-default-color: $text-color !default;
+$icon-font-family: 'Material Symbols Outlined' !default;
+
+// 變數定義
+$desktop-margin: 240px;
+$desktop-gutter: 24px;
+$mobile-margin: 20px;
+$mobile-gutter: 20px;
