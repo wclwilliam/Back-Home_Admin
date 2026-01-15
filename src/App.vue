@@ -1,9 +1,9 @@
 <script setup>
-import AdminLayout from './components/layout/AdminLayout.vue'
+import { RouterView } from 'vue-router'
 </script>
 
 <template>
-  <AdminLayout></AdminLayout>
+  <RouterView />
 </template>
 
 <style>
