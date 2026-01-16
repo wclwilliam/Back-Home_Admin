@@ -15,6 +15,7 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     },
   }, 
+  base: '/admin/',  //預設url有admin前缀
 
   css: {
     preprocessorOptions: {

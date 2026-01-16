@@ -21,7 +21,7 @@ const activeMenu = computed(() => route.path)
           <h3 style="color:white; text-align:center; line-height: 50px; margin:0;">Admin</h3>
         </div>
   
-        <el-menu-item index="/admin/account">
+        <el-menu-item index="/account">
           <div class="menu-content">
             <el-icon>
               <Avatar />
@@ -33,7 +33,7 @@ const activeMenu = computed(() => route.path)
           </el-icon>
         </el-menu-item>
   
-        <el-menu-item index="/admin/news">
+        <el-menu-item index="/news">
           <div class="menu-content">
             <el-icon>
               <Bell />
@@ -45,7 +45,7 @@ const activeMenu = computed(() => route.path)
           </el-icon>
         </el-menu-item>
   
-        <el-menu-item index="/admin/activity">
+        <el-menu-item index="/activity">
           <div class="menu-content">
             <el-icon>
               <Calendar />
@@ -57,7 +57,7 @@ const activeMenu = computed(() => route.path)
           </el-icon>
         </el-menu-item>
   
-        <el-menu-item index="/admin/donations">
+        <el-menu-item index="/donations">
           <div class="menu-content">
             <el-icon>
               <Wallet />
@@ -69,7 +69,7 @@ const activeMenu = computed(() => route.path)
           </el-icon>
         </el-menu-item>
   
-        <el-menu-item index="/admin/data">
+        <el-menu-item index="/data">
           <div class="menu-content">
             <el-icon>
               <DataLine />
@@ -81,7 +81,7 @@ const activeMenu = computed(() => route.path)
           </el-icon>
         </el-menu-item>
   
-        <el-menu-item index="/admin/members">
+        <el-menu-item index="/members">
           <div class="menu-content">
             <el-icon>
               <User />
