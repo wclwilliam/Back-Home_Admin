@@ -13,6 +13,9 @@ dist
 dist-ssr
 coverage
 *.local
+admin
+# .env
+# .env.prod
 
 # Editor directories and files
 .vscode/*
@@ -34,3 +37,5 @@ coverage
 
 # Vitest
 __screenshots__/
+
+package-lock.json
