@@ -2,9 +2,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 // 注意：Money 圖標可能不存在，建議改用 Wallet 或 Coin，這裡我替換為 Wallet
-import {
-  User, Bell, Calendar, Wallet, DataLine, ArrowRight, Avatar
-} from '@element-plus/icons-vue'
+import { User, Bell, Calendar, Wallet, DataLine, ArrowRight, Avatar } from '@element-plus/icons-vue'
 
 const route = useRoute()
 
@@ -14,13 +12,12 @@ const activeMenu = computed(() => route.path)
 
 <template>
   <el-container class="layout-container">
-  
     <el-aside width="250px" class="aside-menu">
       <el-menu :default-active="activeMenu" class="el-menu-vertical" :router="true" unique-opened>
         <div class="menu-title">
-          <h3 style="color:white; text-align:center; line-height: 50px; margin:0;">Admin</h3>
+          <h3 style="color: white; text-align: center; line-height: 50px; margin: 0">Admin</h3>
         </div>
-  
+
         <el-menu-item index="/account">
           <div class="menu-content">
             <el-icon>
@@ -32,7 +29,7 @@ const activeMenu = computed(() => route.path)
             <ArrowRight />
           </el-icon>
         </el-menu-item>
-  
+
         <el-menu-item index="/news">
           <div class="menu-content">
             <el-icon>
@@ -44,7 +41,7 @@ const activeMenu = computed(() => route.path)
             <ArrowRight />
           </el-icon>
         </el-menu-item>
-  
+
         <el-menu-item index="/activity">
           <div class="menu-content">
             <el-icon>
@@ -56,7 +53,7 @@ const activeMenu = computed(() => route.path)
             <ArrowRight />
           </el-icon>
         </el-menu-item>
-  
+
         <el-menu-item index="/donations">
           <div class="menu-content">
             <el-icon>
@@ -68,7 +65,7 @@ const activeMenu = computed(() => route.path)
             <ArrowRight />
           </el-icon>
         </el-menu-item>
-  
+
         <el-menu-item index="/data">
           <div class="menu-content">
             <el-icon>
@@ -80,7 +77,7 @@ const activeMenu = computed(() => route.path)
             <ArrowRight />
           </el-icon>
         </el-menu-item>
-  
+
         <el-menu-item index="/members">
           <div class="menu-content">
             <el-icon>
@@ -92,14 +89,12 @@ const activeMenu = computed(() => route.path)
             <ArrowRight />
           </el-icon>
         </el-menu-item>
-  
       </el-menu>
     </el-aside>
-  
+
     <el-main class="main-content">
       <RouterView />
     </el-main>
-  
   </el-container>
 </template>
 
@@ -109,7 +104,7 @@ const activeMenu = computed(() => route.path)
   否則會報錯。為了演示方便，我下面用註解標示變數，實際代碼使用 Hex 顏色。
 */
 
-// $primary-color: #2b303b; 
+// $primary-color: #2b303b;
 // $text-color: #ffffff;
 // $backstage-bar-color: #333744;
 // $backstage-bar-click-color: #409EFF;
@@ -140,9 +135,9 @@ const activeMenu = computed(() => route.path)
 
 .el-menu-item {
   font-size: 16px;
-  border-bottom: 1px solid $backstage-bar-line-color ;
+  border-bottom: 1px solid $backstage-bar-line-color;
   background-color: $card-color;
-  color: $text-color ;
+  color: $text-color;
 
   /* Flex 佈局優化 */
   display: flex;

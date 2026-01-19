@@ -1,61 +1,80 @@
-<template>
-  <el-card>
-    <el-table 
-      :data="tableData" 
-      border 
-      stripe 
-      v-loading="loading" 
-      style="width: 100%"
-    >
-      <el-table-column prop="date" label="建立日期" width="180" sortable />
-      <el-table-column prop="name" label="用戶名稱" width="180" />
-
-      <el-table-column label="狀態" width="100">
-        <template #default="scope">
-          <el-tag :type="scope.row.status === 'Active' ? 'success' : 'danger'">
-            {{ scope.row.status }}
-          </el-tag>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="操作" width="200" fixed="right">
-        <template #default="scope">
-          <el-button size="small" type="primary" @click="handleEdit(scope.row)">
-            編輯
-          </el-button>
-          
-          <el-popconfirm title="確定要刪除嗎？" @confirm="handleDelete(scope.row)">
-            <template #reference>
-              <el-button size="small" type="danger">刪除</el-button>
-            </template>
-          </el-popconfirm>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <div style="margin-top: 20px; display: flex; justify-content: flex-end;">
-      <el-pagination
-        background
-        layout="total, prev, pager, next"
-        :total="100"
-      />
-    </div>
-  </el-card>
-</template>
-
 <script setup>
 import { ref } from 'vue'
+import { ArrowRight } from '@element-plus/icons-vue'
+import ActivityListPanel from '@/components/activity/ActivityListPanel.vue'
 
-const loading = ref(false)
-const tableData = ref([
-  { date: '2024-01-01', name: 'User A', status: 'Active' },
-  { date: '2024-01-02', name: 'User B', status: 'Inactive' },
-])
+import jsonData from '@/assets/data/activityData.json'
 
-const handleEdit = (row) => {
-  console.log('Edit', row)
-}
-const handleDelete = (row) => {
-  console.log('Delete', row)
+const activityData = ref(jsonData)
+
+const handleCreate = () => {
+  console.log('跳轉到建立活動頁面')
 }
 </script>
+
+<template>
+  <div class="common-layout">
+    <el-container style="height: 100vh">
+      <el-main style="background-color: #f4f4f4; padding: 0">
+        <div class="page-header">
+          <h1 class="page-title">志工活動管理</h1>
+          <div class="user-actions">
+            <span class="role-text">管理者帳號</span>
+            <el-button class="logout-btn">登出</el-button>
+          </div>
+        </div>
+
+        <div style="padding: 0 40px">
+          <ActivityListPanel :raw-data="activityData" @create="handleCreate" />
+        </div>
+      </el-main>
+    </el-container>
+  </div>
+</template>
+
+<style scoped>
+/* 側邊欄樣式補強 */
+.el-menu-item {
+  justify-content: space-between;
+  border-bottom: 1px solid #2c4c66;
+}
+.right-icon {
+  margin-right: 0;
+}
+
+/* 頁面 Header */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 30px 40px 20px 40px; /* 下方留白稍微少一點，因為 Control Bar 有 margin */
+}
+.page-title {
+  color: #102a43;
+  font-size: 28px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin: 0;
+}
+.user-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+.role-text {
+  font-weight: bold;
+  color: #102a43;
+}
+.logout-btn {
+  border: 2px solid #2c6e88;
+  color: #2c6e88;
+  font-weight: bold;
+  border-radius: 0;
+  padding: 15px 25px;
+  background: transparent;
+}
+.logout-btn:hover {
+  background: #2c6e88;
+  color: #fff;
+}
+</style>
