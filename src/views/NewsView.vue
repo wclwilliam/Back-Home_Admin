@@ -24,32 +24,32 @@
         </el-input>
       </div>
 
-      <el-button type="primary" plain class="addBtn">新增資料</el-button>
+      <el-button type="primary" plain class="addBtn" @click="handleAdd">新增資料</el-button>
     </div>
 
-    <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
+   <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
 
       <el-table-column prop="id" label="文章編號" width="80" align="center" />
 
-      <el-table-column prop="category" label="分類" width="100" align="center" />
+      <el-table-column prop="category" label="分類" width="80" align="center" />
 
-      <el-table-column label="封面圖" width="180" align="center">
+      <el-table-column label="封面圖" width="120" align="center">
         <template #default="scope">
-          <el-image style="width: 120px; height: 70px; border-radius: 4px;" :src="scope.row.imageUrl" fit="cover" />
+          <el-image style="width: 100%; height: 60px; border-radius: 4px; display: block; margin: 0 auto;" :src="scope.row.imageUrl" fit="cover" />
         </template>
       </el-table-column>
 
-      <el-table-column prop="title" label="標題" min-width="200" align="center"/>
+      <el-table-column prop="title" label="標題" min-width="200" align="center" />
 
-      <el-table-column prop="date" label="發布時間" width="180" align="center">
+      <el-table-column prop="date" label="發布時間" width="100" align="center">
         <template #default="scope">
-          <div style="white-space: pre-line">{{ scope.row.date }}</div>
+          <div style="white-space: pre-line; font-size: 13px;">{{ scope.row.date }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column prop="status" label="狀態" width="100" align="center" />
+      <el-table-column prop="status" label="狀態" width="70" align="center" />
 
-      <el-table-column label="操作" width="150" align="center">
+      <el-table-column label="操作" width="110" align="center" fixed="right">
         <template #default>
           <el-button link type="primary" size="small">編輯</el-button>
           <span style="color: #dcdfe6; margin: 0 8px">|</span>
@@ -67,9 +67,14 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+const handleAdd = () => {
+  router.push({ name: 'news-add' })
+}
 
-// 模擬資料，對應你的龜途保育主題
+// 模擬資料
 const sortBy = ref('')
 const searchQuery = ref('')
 
@@ -127,8 +132,9 @@ const tableData = [
 
 <style scoped lang="scss">
 .pageContainer {
-  padding: 70px;
+padding: 30px; 
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .headerSection {
@@ -162,11 +168,17 @@ const tableData = [
   align-items: center;
   margin-bottom: 20px;
   padding: 12px 16px;
+  // :deep(.el-input), :deep(.el-select) {
+  //   border-color: #0E6273;
+  //   //--el-input-border-color: #0E6273; 
+  //   //--el-input-focus-border-color: #0E6273; 
+  // }
 }
 
 .customTable {
   :deep(th.el-table__cell) {
     background-color: $backstage-bar-color ; 
+    font-size: 14px;
     color: $text-color;
     font-weight: bold;
     border-bottom: none;
