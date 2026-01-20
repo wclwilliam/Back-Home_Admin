@@ -1,81 +1,3 @@
-<template>
-  <div class="pageContainer">
-    <div class="headerSection">
-      <h2 class="pageTitle">新增最新消息</h2>
-      <div class="userInfo">
-        <span>管理者帳號</span>
-        <el-button size="small" plain class="logoutBtn">登出</el-button>
-      </div>
-    </div>
-
-    <div class="formContainer">
-      <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
-
-        <el-row :gutter="40">
-          <el-col :span="10">
-            <el-form-item label="文章編號">
-              <el-input v-model="formData.id" disabled class="readOnlyInput" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="發布管理者帳號" label-width="120px">
-              <el-input v-model="formData.admin" disabled class="readOnlyInput" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-form-item label="標題">
-          <el-input v-model="formData.title" type="textarea" :autosize="{ minRows: 1, maxRows: 3 }" placeholder="請輸入標題"
-            maxlength="100" show-word-limit />
-        </el-form-item>
-
-        <el-row :gutter="40">
-          <el-col :span="10">
-            <el-form-item label="分類">
-              <el-select v-model="formData.category" placeholder="請選擇分類" style="width: 100%">
-                <el-option label="重要公告" value="important" />
-                <el-option label="異動通知" value="change" />
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="2">
-            <el-form-item label="日期" label-width="120px">
-              <el-input v-model="formData.date" disabled class="readOnlyInput" />
-            </el-form-item>
-          </el-col>
-        </el-row>
-
-        <el-form-item label="封面圖片">
-          <div class="uploadSection">
-            <el-upload class="uploadBtn" action="#" :auto-upload="false" :show-file-list="false"
-              :on-change="handleImageChange">
-              <el-button>上傳檔案 +</el-button>
-            </el-upload>
-
-            <div class="imagePreview" v-if="formData.imageUrl">
-              <el-image :src="formData.imageUrl" fit="cover" class="previewImg" />
-              <span class="fileName">{{ formData.imageName }}</span>
-            </div>
-          </div>
-        </el-form-item>
-
-        <el-form-item label="文字內容">
-          <div class="editor-container">
-            <Ckeditor :editor="editor" v-model="formData.content" :config="editorConfig" />
-          </div>
-        </el-form-item>
-
-        <div class="formFooter">
-          <el-button class="actionBtn" plain @click="postNews">發布</el-button>
-          <el-button class="actionBtn" plain>儲存草稿</el-button>
-          <el-button class="actionBtn" plain @click="goBack">取消</el-button>
-        </div>
-
-      </el-form>
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
@@ -166,15 +88,90 @@ const goBack = () => {
       
     })
     .catch(() => {
-
+ 
     })
 }
     */
-
-
-
-
 </script>
+
+<template>
+  <div class="pageContainer">
+    <div class="headerSection">
+      <h2 class="pageTitle">新增最新消息</h2>
+      <div class="userInfo">
+        <span>管理者帳號</span>
+        <el-button size="small" plain class="logoutBtn">登出</el-button>
+      </div>
+    </div>
+
+    <div class="formContainer">
+      <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
+
+        <el-row :gutter="40">
+          <el-col :span="10">
+            <el-form-item label="文章編號">
+              <el-input v-model="formData.id" disabled class="readOnlyInput" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="10" :offset="2">
+            <el-form-item label="發布管理者帳號" label-width="120px">
+              <el-input v-model="formData.admin" disabled class="readOnlyInput" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="標題">
+          <el-input v-model="formData.title" type="textarea" :autosize="{ minRows: 1, maxRows: 3 }" placeholder="請輸入標題"
+            maxlength="100" show-word-limit />
+        </el-form-item>
+
+        <el-row :gutter="40">
+          <el-col :span="10">
+            <el-form-item label="分類">
+              <el-select v-model="formData.category" placeholder="請選擇分類" style="width: 100%">
+                <el-option label="重要公告" value="important" />
+                <el-option label="異動通知" value="change" />
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="10" :offset="2">
+            <el-form-item label="日期" label-width="120px">
+              <el-input v-model="formData.date" disabled class="readOnlyInput" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-form-item label="封面圖片">
+          <div class="uploadSection">
+            <el-upload class="uploadBtn" action="#" :auto-upload="false" :show-file-list="false"
+              :on-change="handleImageChange">
+              <el-button>上傳檔案 +</el-button>
+            </el-upload>
+
+            <div class="imagePreview" v-if="formData.imageUrl">
+              <el-image :src="formData.imageUrl" fit="cover" class="previewImg" />
+              <span class="fileName">{{ formData.imageName }}</span>
+            </div>
+          </div>
+        </el-form-item>
+
+        <el-form-item label="文字內容">
+          <div class="editor-container">
+            <Ckeditor :editor="editor" v-model="formData.content" :config="editorConfig" />
+          </div>
+        </el-form-item>
+
+        <div class="formFooter">
+          <el-button class="actionBtn" plain @click="postNews">發布</el-button>
+          <el-button class="actionBtn" plain>儲存草稿</el-button>
+          <el-button class="actionBtn" plain @click="goBack">取消</el-button>
+        </div>
+
+      </el-form>
+    </div>
+  </div>
+</template>
+
 
 <style lang="scss" scoped>
 .pageContainer {

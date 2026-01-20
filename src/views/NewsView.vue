@@ -1,69 +1,3 @@
-<template>
-  <div class="pageContainer">
-    <div class="headerSection">
-      <h2 class="pageTitle">最新消息管理</h2>
-      <div class="userInfo">
-        <span>管理者帳號</span>
-        <el-button size="small" plain class="logoutBtn">登出</el-button>
-      </div>
-    </div>
-
-    <div class="toolbarSection">
-      <div class="filters">
-        <el-select v-model="sortBy" placeholder="排序" style="width: 120px; margin-right: 12px;">
-          <el-option label="最新發布" value="newest" />
-          <el-option label="最早發布" value="oldest" />
-        </el-select>
-
-        <el-input v-model="searchQuery" placeholder="搜尋" style="width: 200px">
-          <template #suffix>
-            <el-icon>
-              <Search />
-            </el-icon>
-          </template>
-        </el-input>
-      </div>
-
-      <el-button  plain class="addBtn" @click="handleAdd">新增資料</el-button>
-    </div>
-
-   <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
-
-      <el-table-column prop="id" label="文章編號" width="100" align="center" />
-
-      <el-table-column prop="category" label="分類" width="120" align="center" />
-
-      <el-table-column label="封面圖" width="150" align="center">
-        <template #default="scope">
-          <el-image style="width: 100%; height: 60px; border-radius: 4px; display: block; margin: 0 auto;" :src="scope.row.imageUrl" fit="cover" />
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="title" label="標題" min-width="150" align="center" />
-
-      <el-table-column prop="date" label="發布時間" width="120" align="center">
-        <template #default="scope">
-          <div style="white-space: pre-line; font-size: 13px;">{{ scope.row.date }}</div>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="status" label="狀態" width="100" align="center" />
-
-      <el-table-column label="操作" width="150" align="center" fixed="right">
-        <template #default>
-          <el-button link type="primary" size="small">編輯</el-button>
-          <span style="color: #dcdfe6; margin: 0 8px">|</span>
-          <el-button link type="danger" size="small">刪除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
-
-    <div class="paginationSection">
-      <el-pagination background layout="prev, pager, next" :total="50" class="mt-4" />
-    </div>
-  </div>
-</template>
-
 <script setup>
 import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
@@ -112,7 +46,7 @@ const tableData = [
     date: '2025-11-08\n14:20:00',
     status: '已發布',
   },
-    {
+  {
     id: '05',
     category: '異動通知',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+5',
@@ -131,9 +65,78 @@ const tableData = [
 ]
 </script>
 
+
+<template>
+  <div class="pageContainer">
+    <div class="headerSection">
+      <h2 class="pageTitle">最新消息管理</h2>
+      <div class="userInfo">
+        <span>管理者帳號</span>
+        <el-button size="small" plain class="logoutBtn">登出</el-button>
+      </div>
+    </div>
+
+    <div class="toolbarSection">
+      <div class="filters">
+        <el-select v-model="sortBy" placeholder="排序" style="width: 120px; margin-right: 12px;">
+          <el-option label="最新發布" value="newest" />
+          <el-option label="最早發布" value="oldest" />
+        </el-select>
+
+        <el-input v-model="searchQuery" placeholder="搜尋" style="width: 200px">
+          <template #suffix>
+            <el-icon>
+              <Search />
+            </el-icon>
+          </template>
+        </el-input>
+      </div>
+
+      <el-button plain class="addBtn" @click="handleAdd">新增資料</el-button>
+    </div>
+
+    <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
+
+      <el-table-column prop="id" label="文章編號" width="100" align="center" />
+
+      <el-table-column prop="category" label="分類" width="120" align="center" />
+
+      <el-table-column label="封面圖" width="150" align="center">
+        <template #default="scope">
+          <el-image style="width: 100%; height: 60px; border-radius: 4px; display: block; margin: 0 auto;"
+            :src="scope.row.imageUrl" fit="cover" />
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="title" label="標題" min-width="150" align="center" />
+
+      <el-table-column prop="date" label="發布時間" width="120" align="center">
+        <template #default="scope">
+          <div style="white-space: pre-line; font-size: 13px;">{{ scope.row.date }}</div>
+        </template>
+      </el-table-column>
+
+      <el-table-column prop="status" label="狀態" width="100" align="center" />
+
+      <el-table-column label="操作" width="150" align="center" fixed="right">
+        <template #default>
+          <el-button link type="primary" size="small">編輯</el-button>
+          <span style="color: #dcdfe6; margin: 0 8px">|</span>
+          <el-button link type="danger" size="small">刪除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <div class="paginationSection">
+      <el-pagination background layout="prev, pager, next" :total="50" class="mt-4" />
+    </div>
+  </div>
+</template>
+
+
 <style scoped lang="scss">
 .pageContainer {
-padding: 30px; 
+  padding: 70px;
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -146,7 +149,7 @@ padding: 30px;
   margin-bottom: 24px;
   padding-bottom: 24px;
 
-  .pageTitle { 
+  .pageTitle {
     font-size: 36px;
     color: $primary-color;
     font-weight: bold;
@@ -161,10 +164,12 @@ padding: 30px;
     color: $text-color;
   }
 }
+
 .logoutBtn {
   border: 1px solid $secondary-color;
   color: $secondary-color;
 }
+
 //工具列 
 .toolbarSection {
   display: flex;
@@ -176,20 +181,20 @@ padding: 30px;
   :deep(.el-input) {
     --el-input-border-color: #0E6273;
     --el-input-focus-border-color: #0E6273;
-    --el-input-hover-border-color: #0E6273; 
+    --el-input-hover-border-color: #0E6273;
   }
 
   :deep(.el-select) {
-    --el-border-color: #0E6273; 
+    --el-border-color: #0E6273;
     --el-border-color-hover: #0E6273;
-    --el-color-primary: #0E6273; 
+    --el-color-primary: #0E6273;
     --el-select-input-focus-border-color: #0E6273;
   }
 }
 
 .customTable {
   :deep(th.el-table__cell) {
-    background-color: $backstage-bar-color ; 
+    background-color: $backstage-bar-color ;
     font-size: 14px;
     color: $text-color;
     font-weight: bold;
@@ -207,10 +212,10 @@ padding: 30px;
 .addBtn {
   border-color: $secondary-color;
   color: $secondary-color;
+
   &:hover {
-      background-color: $secondary-color;
-      color: #fff;
-    }
+    background-color: $secondary-color;
+    color: #fff;
+  }
 }
 </style>
-
