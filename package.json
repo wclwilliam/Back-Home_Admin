@@ -21,6 +21,7 @@
     "element-plus": "^2.13.1",
     "material-symbols": "^0.40.2",
     "pinia": "^3.0.4",
+    "sweetalert2": "^11.26.17",
     "vue": "^3.5.26",
     "vue-router": "^4.6.4"
   },
