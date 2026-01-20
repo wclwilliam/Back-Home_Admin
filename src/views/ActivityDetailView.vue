@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import ActivityTabs from '@/components/activity/ActivityTabs.vue'
 import ActivityForm from '@/components/activity/ActivityForm.vue'
 import ActivityResult from '@/components/activity/ActivityResult.vue'
 import ActivitySignUpList from '@/components/activity/ActivitySignUpList.vue'
