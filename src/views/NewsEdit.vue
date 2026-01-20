@@ -9,13 +9,8 @@
     </div>
 
     <div class="formContainer">
-      <el-form 
-        :model="formData" 
-        label-width="100px" 
-        label-position="left"
-        class="customForm"
-      >
-        
+      <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
+
         <el-row :gutter="40">
           <el-col :span="10">
             <el-form-item label="文章編號">
@@ -38,54 +33,35 @@
             <el-form-item label="分類">
               <el-select v-model="formData.category" placeholder="請選擇分類" style="width: 100%">
                 <el-option label="重要公告" value="important" />
-                <el-option label="活動通知" value="activity" />
+                <el-option label="異動通知" value="change" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="2">
             <el-form-item label="日期" label-width="120px">
-               <el-date-picker
-                v-model="formData.date"
-                type="date"
-                placeholder="選擇日期"
-                style="width: 100%"
-                format="YYYY/MM/DD"
-                value-format="YYYY/MM/DD"
-              />
+              <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
           </el-col>
         </el-row>
 
         <el-form-item label="圖片上傳">
           <div class="uploadSection">
-            <el-upload
-              class="uploadBtn"
-              action="#"
-              :auto-upload="false"
-              :show-file-list="false"
-              :on-change="handleImageChange"
-            >
+            <el-upload class="uploadBtn" action="#" :auto-upload="false" :show-file-list="false"
+              :on-change="handleImageChange">
               <el-button>上傳檔案 +</el-button>
             </el-upload>
-            
+
             <div class="imagePreview" v-if="formData.imageUrl">
-              <el-image 
-                :src="formData.imageUrl" 
-                fit="cover" 
-                class="previewImg"
-              />
+              <el-image :src="formData.imageUrl" fit="cover" class="previewImg" />
               <span class="fileName">{{ formData.imageName }}</span>
             </div>
           </div>
         </el-form-item>
 
         <el-form-item label="文字內容">
-          <el-input
-            v-model="formData.content"
-            type="textarea"
-            :rows="10"
-            placeholder="請輸入內容..."
-          />
+          <div class="editor-container">
+            <Ckeditor :editor="editor" v-model="formData.content" :config="editorConfig" />
+          </div>
         </el-form-item>
 
         <div class="formFooter">
@@ -99,38 +75,53 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import { Ckeditor } from '@ckeditor/ckeditor5-vue'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 
-// 定義表單資料
+const getTodayDate = () => {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const editor = ClassicEditor
+const editorConfig = {
+  placeholder: '請在此輸入詳細內容...', // 提示文字
+  // 可以在這裡設定工具列 toolbar: [ 'bold', 'italic', ... ]
+}
+// 表單資料
 const formData = reactive({
   id: '01',
   admin: 'cathy',
   title: '',
   category: 'important',
-  date: '2025/12/19',
-  content: '',
-  imageUrl: 'https://placehold.co/600x400?text=Turtle+Preview', // 預設先放一張假圖模擬
+  date: getTodayDate(),
+  content: '', 
+  imageUrl: 'https://placehold.co/600x400?text=Turtle+Preview',
   imageName: '測試.png'
 })
 
-// 模擬圖片上傳選取後的動作
-const handleImageChange = (uploadFile: any) => {
+
+const handleImageChange = (uploadFile) => {
   formData.imageName = uploadFile.name
-  // 建立本地預覽網址
-  formData.imageUrl = URL.createObjectURL(uploadFile.raw!)
+  formData.imageUrl = URL.createObjectURL(uploadFile.raw)
 }
 
+const router = useRouter()
 const goBack = () => {
   console.log('返回上一頁')
-  // router.back() 
+  router.back()
 }
 </script>
 
-<style  lang="scss" scoped>
-
+<style lang="scss" scoped>
 .pageContainer {
-padding: 30px; 
+  padding: 30px;
   min-height: 100vh;
   box-sizing: border-box;
 }
@@ -143,7 +134,7 @@ padding: 30px;
   margin-bottom: 24px;
   padding-bottom: 24px;
 
-  .pageTitle { 
+  .pageTitle {
     font-size: 36px;
     color: $primary-color;
     font-weight: bold;
@@ -160,8 +151,8 @@ padding: 30px;
 }
 
 .formContainer {
-  max-width: 900px; 
-  margin: 0 auto;   
+  max-width: 900px;
+  margin: 0 auto;
 }
 
 
@@ -176,22 +167,23 @@ padding: 30px;
   .readOnlyInput {
     :deep(.el-input__wrapper) {
       background-color: #dcdcdc;
-      box-shadow: none; 
+      box-shadow: none;
       border: 1px solid #999;
     }
-    
+
     :deep(.el-input__inner) {
       color: #000;
       font-weight: bold;
-      text-align: center; 
+      text-align: center;
       //-webkit-text-fill-color: #000; 
     }
   }
 
   /* 一般輸入框樣式微調 */
-  :deep(.el-input__wrapper), :deep(.el-textarea__inner) {
+  :deep(.el-input__wrapper),
+  :deep(.el-textarea__inner) {
     border-color: $secondary-color;
-   
+
   }
 }
 
@@ -213,9 +205,9 @@ padding: 30px;
 
   .imagePreview {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end; 
-    
+    align-items: flex-end;
+    gap: 20px;
+
     .previewImg {
       width: 200px;
       height: 120px;
@@ -226,25 +218,101 @@ padding: 30px;
 
     .fileName {
       font-size: 12px;
-      color: #666;
+      color: $text-color;
     }
   }
 }
 
+.editor-container {
+  /* ...原有的高度設定... */
+  :deep(.ck-editor__editable) {
+    min-height: 300px;
+    max-height: 600px;
+  }
+
+
+  :deep(.ck-content) {
+    p {
+      margin-bottom: 1em; 
+      line-height: 1.6;   
+      font-size: 16px;    
+    }
+    h2 {
+      font-size: 32px;    
+      font-weight: bold;
+      margin-top: 0.67em;
+      margin-bottom: 0.67em;
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-size: 24px;  
+      font-weight: bold;
+      margin-top: 0.83em;
+      margin-bottom: 0.83em;
+      line-height: 1.3;
+      border-bottom: 1px solid #eee; 
+      padding-bottom: 5px;         
+    }
+
+    h4 {
+      font-size: 18px;  
+      font-weight: bold;
+      margin-top: 1em;
+      margin-bottom: 1em;
+      line-height: 1.4;
+    }
+
+
+    strong, b {
+      font-weight: bold !important;
+    }
+
+    ol {
+      list-style-type: decimal;
+      margin-left: 20px;
+      margin-bottom: 1em; 
+    }
+    
+    ul {
+      list-style-type: disc;
+      margin-left: 20px;
+      margin-bottom: 1em;
+    }
+
+    i, em {
+      font-style: italic;
+    }
+    
+    img {
+      max-width: 100%;
+      height: auto;
+      margin: 10px 0; 
+    }
+    
+    blockquote {
+      border-left: 5px solid #ccc;
+      margin: 1.5em 10px;
+      padding: 0.5em 10px;
+      color: $text-color;
+      background-color: #f9f9f9;
+    }
+  }
+}
 .formFooter {
   margin-top: 40px;
   display: flex;
-  justify-content: flex-end; 
+  justify-content: flex-end;
   gap: 16px;
 
   .actionBtn {
     width: 100px;
-    border-color:$secondary-color;
+    border-color: $secondary-color;
     color: $secondary-color;
     font-weight: bold;
-    
+
     &:hover {
-      background-color:$secondary-color;
+      background-color: $secondary-color;
       color: #fff;
     }
   }

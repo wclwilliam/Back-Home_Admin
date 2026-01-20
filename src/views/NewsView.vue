@@ -64,7 +64,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
@@ -74,25 +74,26 @@ const handleAdd = () => {
   router.push({ name: 'news-add' })
 }
 
-// 模擬資料
+
 const sortBy = ref('')
 const searchQuery = ref('')
 
+// 模擬資料
 const tableData = [
   {
     id: '01',
     category: '重要公告',
-    imageUrl: 'https://placehold.co/300x200?text=Turtle+1', // 替換成你的海龜圖片
+    imageUrl: 'https://placehold.co/300x200?text=Turtle+1',
     title: '守護海洋安全第一：【龜途】2025 綠蠵龜棲地守護淨灘活動延期通知',
-    date: '2025/12/10\n10:50:04', // 使用換行符讓日期和時間分兩行
+    date: '2025-12-10\n10:50:04',
     status: '已發布',
   },
   {
     id: '02',
-    category: '活動通知',
+    category: '異動通知',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+2',
     title: '【系統維護】網站伺服器將於 2026/02/01 暫停服務兩小時',
-    date: '2025/11/20\n18:30:05',
+    date: '2025-11-20\n18:30:05',
     status: '草稿',
   },
   {
@@ -100,31 +101,31 @@ const tableData = [
     category: '重要公告',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+3',
     title: '還給海龜乾淨的家：2026 小琉球春季大型淨灘招募啟動',
-    date: '2025/11/15\n09:00:00',
+    date: '2025-11-15\n09:00:00',
     status: '已發布',
   },
   {
     id: '04',
-    category: '活動通知',
+    category: '異動通知',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+4',
     title: '【緊急異動】因強烈颱風接近，本週六「海龜生態講座」延期',
-    date: '2025/11/08\n14:20:00',
+    date: '2025-11-08\n14:20:00',
     status: '已發布',
   },
     {
     id: '05',
-    category: '活動通知',
+    category: '異動通知',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+5',
     title: '好消息！重傷綠蠵龜「安安」康復，將於本週日進行野放',
-    date: '2025/11/08\n14:20:00',
+    date: '2025-11-08\n14:20:00',
     status: '已發布',
   },
   {
     id: '06',
-    category: '活動通知',
+    category: '異動通知',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+6',
     title: '【資安升級】會員系統更新說明，請盡快重設您的密碼',
-    date: '2025/11/08\n14:20:00',
+    date: '2025-11-08\n14:20:00',
     status: '已發布',
   },
 ]
@@ -161,7 +162,7 @@ padding: 30px;
   }
 }
 
-/* 工具列區 */
+//工具列 
 .toolbarSection {
   display: flex;
   justify-content: space-between;
