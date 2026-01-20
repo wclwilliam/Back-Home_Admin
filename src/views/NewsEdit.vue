@@ -45,7 +45,7 @@
           </el-col>
         </el-row>
 
-        <el-form-item label="圖片上傳">
+        <el-form-item label="封面圖片">
           <div class="uploadSection">
             <el-upload class="uploadBtn" action="#" :auto-upload="false" :show-file-list="false"
               :on-change="handleImageChange">
@@ -66,7 +66,7 @@
         </el-form-item>
 
         <div class="formFooter">
-          <el-button class="actionBtn" plain>發布</el-button>
+          <el-button class="actionBtn" plain @click="postNews">發布</el-button>
           <el-button class="actionBtn" plain>儲存草稿</el-button>
           <el-button class="actionBtn" plain @click="goBack">取消</el-button>
         </div>
@@ -81,6 +81,7 @@ import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { Ckeditor } from '@ckeditor/ckeditor5-vue'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import Swal from 'sweetalert2'
 
 const getTodayDate = () => {
   const date = new Date()
@@ -109,7 +110,7 @@ const formData = reactive({
   category: 'important',
   date: getTodayDate(),
   content: '',
-  imageUrl: 'https://placehold.co/600x400?text=Turtle+Preview',
+  imageUrl: '',
   imageName: '測試.png'
 })
 
@@ -120,10 +121,59 @@ const handleImageChange = (uploadFile) => {
 }
 
 const router = useRouter()
+
 const goBack = () => {
-  console.log('返回上一頁')
-  router.back()
+  Swal.fire({
+    title: '確定要取消嗎？',
+    text: "未儲存的內容將會遺失",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#E14720',
+    cancelButtonColor: '#0E6273',
+    confirmButtonText: '確定離開',
+    cancelButtonText: '留在此頁'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      router.back()
+    }
+  })
 }
+
+const postNews = () => {
+  Swal.fire({
+    title: "文章已發布!",
+    icon: 'success',
+    draggable: true
+  })
+}
+
+// import { ElMessage, ElMessageBox } from 'element-plus'
+
+/* element plus內建提示框
+const goBack = () => {
+  ElMessageBox.confirm(
+    '未儲存的內容將會遺失，確定要取消編輯嗎？', //內文
+    '警告', //標題
+    {
+      confirmButtonText: '確定離開',
+      cancelButtonText: '留在此頁',
+      type: 'warning', 
+    }
+  )
+    .then(() => {
+     
+      router.back()
+      
+    })
+    .catch(() => {
+
+    })
+}
+    */
+
+
+
+
 </script>
 
 <style lang="scss" scoped>
