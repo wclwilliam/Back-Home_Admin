@@ -4,7 +4,7 @@
       <h2 class="pageTitle">最新消息管理</h2>
       <div class="userInfo">
         <span>管理者帳號</span>
-        <el-button size="small" plain>登出</el-button>
+        <el-button size="small" plain class="logoutBtn">登出</el-button>
       </div>
     </div>
 
@@ -24,7 +24,7 @@
         </el-input>
       </div>
 
-      <el-button type="primary" plain class="addBtn" @click="handleAdd">新增資料</el-button>
+      <el-button  plain class="addBtn" @click="handleAdd">新增資料</el-button>
     </div>
 
    <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
@@ -161,7 +161,10 @@ padding: 30px;
     color: $text-color;
   }
 }
-
+.logoutBtn {
+  border: 1px solid $secondary-color;
+  color: $secondary-color;
+}
 //工具列 
 .toolbarSection {
   display: flex;
@@ -169,11 +172,19 @@ padding: 30px;
   align-items: center;
   margin-bottom: 20px;
   padding: 12px 16px;
-  // :deep(.el-input), :deep(.el-select) {
-  //   border-color: #0E6273;
-  //   //--el-input-border-color: #0E6273; 
-  //   //--el-input-focus-border-color: #0E6273; 
-  // }
+
+  :deep(.el-input) {
+    --el-input-border-color: #0E6273;
+    --el-input-focus-border-color: #0E6273;
+    --el-input-hover-border-color: #0E6273; 
+  }
+
+  :deep(.el-select) {
+    --el-border-color: #0E6273; 
+    --el-border-color-hover: #0E6273;
+    --el-color-primary: #0E6273; 
+    --el-select-input-focus-border-color: #0E6273;
+  }
 }
 
 .customTable {
@@ -196,6 +207,10 @@ padding: 30px;
 .addBtn {
   border-color: $secondary-color;
   color: $secondary-color;
+  &:hover {
+      background-color: $secondary-color;
+      color: #fff;
+    }
 }
 </style>
 

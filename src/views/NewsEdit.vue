@@ -4,7 +4,7 @@
       <h2 class="pageTitle">新增最新消息</h2>
       <div class="userInfo">
         <span>管理者帳號</span>
-        <el-button size="small" plain>登出</el-button>
+        <el-button size="small" plain class="logoutBtn">登出</el-button>
       </div>
     </div>
 
@@ -25,7 +25,8 @@
         </el-row>
 
         <el-form-item label="標題">
-          <el-input v-model="formData.title" placeholder="請輸入標題" />
+          <el-input v-model="formData.title" type="textarea" :autosize="{ minRows: 1, maxRows: 3 }" placeholder="請輸入標題"
+            maxlength="100" show-word-limit />
         </el-form-item>
 
         <el-row :gutter="40">
@@ -65,7 +66,7 @@
         </el-form-item>
 
         <div class="formFooter">
-          <el-button class="actionBtn" type="primary" plain>發布</el-button>
+          <el-button class="actionBtn" plain>發布</el-button>
           <el-button class="actionBtn" plain>儲存草稿</el-button>
           <el-button class="actionBtn" plain @click="goBack">取消</el-button>
         </div>
@@ -91,8 +92,14 @@ const getTodayDate = () => {
 
 const editor = ClassicEditor
 const editorConfig = {
-  placeholder: '請在此輸入詳細內容...', // 提示文字
-  // 可以在這裡設定工具列 toolbar: [ 'bold', 'italic', ... ]
+  placeholder: '請在此輸入詳細內容...',
+  toolbar: [
+    'heading', '|',
+    'bold', 'italic', 'link', '|',
+    'bulletedList', 'numberedList', '|',
+    'uploadImage', 'blockQuote', '|',
+    'undo', 'redo'
+  ],
 }
 // 表單資料
 const formData = reactive({
@@ -101,7 +108,7 @@ const formData = reactive({
   title: '',
   category: 'important',
   date: getTodayDate(),
-  content: '', 
+  content: '',
   imageUrl: 'https://placehold.co/600x400?text=Turtle+Preview',
   imageName: '測試.png'
 })
@@ -150,12 +157,6 @@ const goBack = () => {
   }
 }
 
-.formContainer {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-
 .customForm {
   :deep(.el-form-item__label) {
     font-weight: bold;
@@ -183,10 +184,15 @@ const goBack = () => {
   :deep(.el-input__wrapper),
   :deep(.el-textarea__inner) {
     border-color: $secondary-color;
+    resize: none;
 
   }
 }
 
+.logoutBtn {
+  border: 1px solid $secondary-color;
+  color: $secondary-color;
+}
 
 .uploadSection {
   display: flex;
@@ -196,9 +202,8 @@ const goBack = () => {
 
   .uploadBtn {
     :deep(.el-button) {
-      background-color: #e6e6e6;
-      border: 1px solid #999;
-      color: #333;
+      border: 1px solid $secondary-color;
+      color: $secondary-color;
       width: 120px;
     }
   }
@@ -224,21 +229,22 @@ const goBack = () => {
 }
 
 .editor-container {
-  /* ...原有的高度設定... */
+  width: 100%;
+
   :deep(.ck-editor__editable) {
     min-height: 300px;
-    max-height: 600px;
   }
 
 
   :deep(.ck-content) {
     p {
-      margin-bottom: 1em; 
-      line-height: 1.6;   
-      font-size: 16px;    
+      margin-bottom: 1em;
+      line-height: 1.6;
+      font-size: 16px;
     }
+
     h2 {
-      font-size: 32px;    
+      font-size: 32px;
       font-weight: bold;
       margin-top: 0.67em;
       margin-bottom: 0.67em;
@@ -246,17 +252,17 @@ const goBack = () => {
     }
 
     h3 {
-      font-size: 24px;  
+      font-size: 24px;
       font-weight: bold;
       margin-top: 0.83em;
       margin-bottom: 0.83em;
       line-height: 1.3;
-      border-bottom: 1px solid #eee; 
-      padding-bottom: 5px;         
+      border-bottom: 1px solid #eee;
+      padding-bottom: 5px;
     }
 
     h4 {
-      font-size: 18px;  
+      font-size: 18px;
       font-weight: bold;
       margin-top: 1em;
       margin-bottom: 1em;
@@ -264,32 +270,34 @@ const goBack = () => {
     }
 
 
-    strong, b {
+    strong,
+    b {
       font-weight: bold !important;
     }
 
     ol {
       list-style-type: decimal;
       margin-left: 20px;
-      margin-bottom: 1em; 
+      margin-bottom: 1em;
     }
-    
+
     ul {
       list-style-type: disc;
       margin-left: 20px;
       margin-bottom: 1em;
     }
 
-    i, em {
+    i,
+    em {
       font-style: italic;
     }
-    
+
     img {
       max-width: 100%;
       height: auto;
-      margin: 10px 0; 
+      margin: 10px 0;
     }
-    
+
     blockquote {
       border-left: 5px solid #ccc;
       margin: 1.5em 10px;
@@ -299,6 +307,7 @@ const goBack = () => {
     }
   }
 }
+
 .formFooter {
   margin-top: 40px;
   display: flex;
