@@ -114,7 +114,13 @@ const transformToFormData = (data) => {
   }
 }
 
-// 處理結果資料
+const currentActivityForm = computed(() => {
+  if (rawData.value) {
+    return transformToFormData(rawData.value)
+  } else {
+    return getEmptyFormData()
+  }
+})
 const currentResults = computed(() => {
   if (rawData.value) {
     return transformToFormData(rawData.value)
@@ -136,10 +142,7 @@ const currentMessages = computed(() => {
         <CommonTabs v-model="activeTab" :tabs="activityTabs" />
 
         <div v-if="activeTab === 'detail'">
-          <ActivityForm
-            :form-data="currentActivityForm.id"
-            :key="currentActivityForm.id || 'new'"
-          />
+          <ActivityForm :form-data="currentActivityForm" :key="currentActivityForm.id || 'new'" />
         </div>
 
         <div v-else-if="activeTab === 'list'">

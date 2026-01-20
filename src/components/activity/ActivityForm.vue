@@ -1,5 +1,5 @@
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 
@@ -192,7 +192,7 @@ const saveEdit = () => {
         <el-input
           v-model="formData.note"
           type="textarea"
-          :rows="4"
+          :rows="6"
           :disabled="!isEditing"
           resize="none"
         />

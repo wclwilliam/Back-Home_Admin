@@ -16,7 +16,7 @@ const router = useRouter()
 // 路由跳轉邏輯
 const handleEdit = (row) => {
   router.push({
-    name: 'activityInfo',
+    name: 'activityEdit',
     params: { id: row.id },
   })
 }
@@ -209,7 +209,7 @@ const paginatedData = computed(() => {
 
       <el-table-column label="操作" align="center" width="100" fixed="right">
         <template #default="scope">
-          <el-button link type="primary" size="small" @click="handleEdit(scope.row)"
+          <el-button link type="primary" size="small" @click="goToDetail(scope.row)"
             >管理</el-button
           >
         </template>
