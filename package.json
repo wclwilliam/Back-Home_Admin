@@ -14,7 +14,10 @@
     "format": "prettier --write --experimental-cli src/"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-build-classic": "^41.4.2",
+    "@ckeditor/ckeditor5-vue": "^7.3.0",
     "@element-plus/icons-vue": "^2.3.2",
+    "ckeditor5": "^47.4.0",
     "element-plus": "^2.13.1",
     "material-symbols": "^0.40.2",
     "pinia": "^3.0.4",
