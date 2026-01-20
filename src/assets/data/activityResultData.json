@@ -1,0 +1,314 @@
+[
+  {
+    "ACTIVITY_ID": 1,
+    "METRIC_ID": 9,
+    "VALUE": "5",
+    "CREATED_AT": "2024-03-10 17:00:00"
+  },
+  {
+    "ACTIVITY_ID": 1,
+    "METRIC_ID": 10,
+    "VALUE": "12.5",
+    "CREATED_AT": "2024-03-10 17:00:00"
+  },
+  {
+    "ACTIVITY_ID": 1,
+    "METRIC_ID": 11,
+    "VALUE": "3",
+    "CREATED_AT": "2024-03-10 17:00:00"
+  },
+  {
+    "ACTIVITY_ID": 1,
+    "METRIC_ID": 12,
+    "VALUE": "6",
+    "CREATED_AT": "2024-03-10 17:00:00"
+  },
+  {
+    "ACTIVITY_ID": 2,
+    "METRIC_ID": 9,
+    "VALUE": "0",
+    "CREATED_AT": "2024-04-14 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 2,
+    "METRIC_ID": 12,
+    "VALUE": "3",
+    "CREATED_AT": "2024-04-14 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 3,
+    "METRIC_ID": 1,
+    "VALUE": "285.5",
+    "CREATED_AT": "2024-04-15 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 3,
+    "METRIC_ID": 2,
+    "VALUE": "32",
+    "CREATED_AT": "2024-04-15 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 3,
+    "METRIC_ID": 3,
+    "VALUE": "15",
+    "CREATED_AT": "2024-04-15 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 3,
+    "METRIC_ID": 4,
+    "VALUE": "420",
+    "CREATED_AT": "2024-04-15 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 4,
+    "METRIC_ID": 9,
+    "VALUE": "0",
+    "CREATED_AT": "2024-05-05 17:00:00"
+  },
+  {
+    "ACTIVITY_ID": 4,
+    "METRIC_ID": 12,
+    "VALUE": "3",
+    "CREATED_AT": "2024-05-05 17:00:00"
+  },
+  {
+    "ACTIVITY_ID": 5,
+    "METRIC_ID": 5,
+    "VALUE": "3",
+    "CREATED_AT": "2024-05-16 03:00:00"
+  },
+  {
+    "ACTIVITY_ID": 5,
+    "METRIC_ID": 6,
+    "VALUE": "1",
+    "CREATED_AT": "2024-05-16 03:00:00"
+  },
+  {
+    "ACTIVITY_ID": 5,
+    "METRIC_ID": 7,
+    "VALUE": "1",
+    "CREATED_AT": "2024-05-16 03:00:00"
+  },
+  {
+    "ACTIVITY_ID": 5,
+    "METRIC_ID": 8,
+    "VALUE": "綠蠵龜",
+    "CREATED_AT": "2024-05-16 03:00:00"
+  },
+  {
+    "ACTIVITY_ID": 6,
+    "METRIC_ID": 1,
+    "VALUE": "150.2",
+    "CREATED_AT": "2024-05-20 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 6,
+    "METRIC_ID": 2,
+    "VALUE": "20",
+    "CREATED_AT": "2024-05-20 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 6,
+    "METRIC_ID": 3,
+    "VALUE": "8",
+    "CREATED_AT": "2024-05-20 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 6,
+    "METRIC_ID": 4,
+    "VALUE": "150",
+    "CREATED_AT": "2024-05-20 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 7,
+    "METRIC_ID": 1,
+    "VALUE": "420.0",
+    "CREATED_AT": "2024-06-08 14:00:00"
+  },
+  {
+    "ACTIVITY_ID": 7,
+    "METRIC_ID": 2,
+    "VALUE": "55",
+    "CREATED_AT": "2024-06-08 14:00:00"
+  },
+  {
+    "ACTIVITY_ID": 7,
+    "METRIC_ID": 3,
+    "VALUE": "25",
+    "CREATED_AT": "2024-06-08 14:00:00"
+  },
+  {
+    "ACTIVITY_ID": 7,
+    "METRIC_ID": 4,
+    "VALUE": "600",
+    "CREATED_AT": "2024-06-08 14:00:00"
+  },
+  {
+    "ACTIVITY_ID": 8,
+    "METRIC_ID": 5,
+    "VALUE": "0",
+    "CREATED_AT": "2024-06-10 23:30:00"
+  },
+  {
+    "ACTIVITY_ID": 8,
+    "METRIC_ID": 6,
+    "VALUE": "0",
+    "CREATED_AT": "2024-06-10 23:30:00"
+  },
+  {
+    "ACTIVITY_ID": 8,
+    "METRIC_ID": 7,
+    "VALUE": "0",
+    "CREATED_AT": "2024-06-10 23:30:00"
+  },
+  {
+    "ACTIVITY_ID": 8,
+    "METRIC_ID": 8,
+    "VALUE": "無",
+    "CREATED_AT": "2024-06-10 23:30:00"
+  },
+  {
+    "ACTIVITY_ID": 9,
+    "METRIC_ID": 9,
+    "VALUE": "10",
+    "CREATED_AT": "2024-06-15 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 9,
+    "METRIC_ID": 10,
+    "VALUE": "0",
+    "CREATED_AT": "2024-06-15 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 9,
+    "METRIC_ID": 11,
+    "VALUE": "4",
+    "CREATED_AT": "2024-06-15 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 9,
+    "METRIC_ID": 12,
+    "VALUE": "3",
+    "CREATED_AT": "2024-06-15 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 10,
+    "METRIC_ID": 5,
+    "VALUE": "5",
+    "CREATED_AT": "2024-07-06 01:30:00"
+  },
+  {
+    "ACTIVITY_ID": 10,
+    "METRIC_ID": 6,
+    "VALUE": "2",
+    "CREATED_AT": "2024-07-06 01:30:00"
+  },
+  {
+    "ACTIVITY_ID": 10,
+    "METRIC_ID": 7,
+    "VALUE": "0",
+    "CREATED_AT": "2024-07-06 01:30:00"
+  },
+  {
+    "ACTIVITY_ID": 10,
+    "METRIC_ID": 8,
+    "VALUE": "綠蠵龜",
+    "CREATED_AT": "2024-07-06 01:30:00"
+  },
+  {
+    "ACTIVITY_ID": 11,
+    "METRIC_ID": 1,
+    "VALUE": "180.5",
+    "CREATED_AT": "2024-07-15 19:00:00"
+  },
+  {
+    "ACTIVITY_ID": 11,
+    "METRIC_ID": 2,
+    "VALUE": "25",
+    "CREATED_AT": "2024-07-15 19:00:00"
+  },
+  {
+    "ACTIVITY_ID": 11,
+    "METRIC_ID": 3,
+    "VALUE": "10",
+    "CREATED_AT": "2024-07-15 19:00:00"
+  },
+  {
+    "ACTIVITY_ID": 11,
+    "METRIC_ID": 4,
+    "VALUE": "250",
+    "CREATED_AT": "2024-07-15 19:00:00"
+  },
+  {
+    "ACTIVITY_ID": 12,
+    "METRIC_ID": 9,
+    "VALUE": "0",
+    "CREATED_AT": "2024-07-20 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 12,
+    "METRIC_ID": 12,
+    "VALUE": "3",
+    "CREATED_AT": "2024-07-20 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 13,
+    "METRIC_ID": 9,
+    "VALUE": "3",
+    "CREATED_AT": "2024-08-12 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 13,
+    "METRIC_ID": 12,
+    "VALUE": "0",
+    "CREATED_AT": "2024-08-12 18:00:00"
+  },
+  {
+    "ACTIVITY_ID": 14,
+    "METRIC_ID": 5,
+    "VALUE": "1",
+    "CREATED_AT": "2024-08-15 23:00:00"
+  },
+  {
+    "ACTIVITY_ID": 14,
+    "METRIC_ID": 6,
+    "VALUE": "0",
+    "CREATED_AT": "2024-08-15 23:00:00"
+  },
+  {
+    "ACTIVITY_ID": 14,
+    "METRIC_ID": 7,
+    "VALUE": "0",
+    "CREATED_AT": "2024-08-15 23:00:00"
+  },
+  {
+    "ACTIVITY_ID": 14,
+    "METRIC_ID": 8,
+    "VALUE": "未知",
+    "CREATED_AT": "2024-08-15 23:00:00"
+  },
+  {
+    "ACTIVITY_ID": 15,
+    "METRIC_ID": 1,
+    "VALUE": "300.0",
+    "CREATED_AT": "2024-08-20 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 15,
+    "METRIC_ID": 2,
+    "VALUE": "40",
+    "CREATED_AT": "2024-08-20 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 15,
+    "METRIC_ID": 3,
+    "VALUE": "10",
+    "CREATED_AT": "2024-08-20 13:00:00"
+  },
+  {
+    "ACTIVITY_ID": 15,
+    "METRIC_ID": 4,
+    "VALUE": "500",
+    "CREATED_AT": "2024-08-20 13:00:00"
+  }
+]

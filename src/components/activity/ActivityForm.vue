@@ -1,6 +1,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { ElMessage } from 'element-plus'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   formData: {
@@ -11,12 +12,20 @@ const props = defineProps({
 
 // 定義事件，當按下儲存時通知父層
 const emit = defineEmits(['save'])
+const router = useRouter()
 
 // 1. 控制編輯狀態
 const isEditing = ref(false)
 
 // 備份資料用（取消編輯時還原）
 let backupData = {}
+onMounted(() => {
+  if (props.formData.isNew) {
+    // 如果是新資料，自動開啟編輯模式
+    isEditing.value = true
+    // 不需要備份，因為沒有舊資料可以還原
+  }
+})
 
 // 開啟編輯模式
 const enableEdit = () => {
@@ -28,6 +37,11 @@ const enableEdit = () => {
 
 // 取消編輯
 const cancelEdit = () => {
+  if (props.formData.isNew) {
+    router.go(-1) // 回上一頁
+    return
+  }
+
   // 還原資料
   if (backupData.activityTime && typeof backupData.activityTime[0] === 'string') {
     backupData.activityTime = [
@@ -49,13 +63,13 @@ const cancelEdit = () => {
 
 // 儲存編輯
 const saveEdit = () => {
-  // 這裡可以加入表單驗證邏輯
   isEditing.value = false
-
-  // 通知父層資料已更新 (或是發送 API)
   emit('save', props.formData)
 
   ElMessage.success('儲存成功')
+  if (props.formData.isNew) {
+    props.formData.isNew = false
+  }
 }
 </script>
 

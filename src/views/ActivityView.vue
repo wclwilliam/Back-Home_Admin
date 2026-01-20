@@ -13,7 +13,7 @@ const handleCreate = () => {
 </script>
 
 <template>
-  <div class="common-layout">
+  <div class="pageContainer">
     <el-container style="height: 100vh">
       <el-main style="background-color: #f4f4f4; padding: 0">
         <div class="page-header">
@@ -24,7 +24,7 @@ const handleCreate = () => {
           </div>
         </div>
 
-        <div style="padding: 0 40px">
+        <div>
           <ActivityListPanel :raw-data="activityData" @create="handleCreate" />
         </div>
       </el-main>
@@ -32,49 +32,47 @@ const handleCreate = () => {
   </div>
 </template>
 
-<style scoped>
-/* 側邊欄樣式補強 */
-.el-menu-item {
-  justify-content: space-between;
-  border-bottom: 1px solid #2c4c66;
+<style lang="scss" scoped>
+.pageContainer {
+  padding: 30px;
+  min-height: 100vh;
 }
-.right-icon {
-  margin-right: 0;
-}
-
 /* 頁面 Header */
 .page-header {
+  border-bottom: 2px solid $primary-color;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 30px 40px 20px 40px; /* 下方留白稍微少一點，因為 Control Bar 有 margin */
+  margin-bottom: 24px;
+  padding-bottom: 24px;
 }
 .page-title {
-  color: #102a43;
-  font-size: 28px;
+  color: $primary-color;
+  font-size: 36px;
   font-weight: bold;
   letter-spacing: 1px;
   margin: 0;
 }
+//管理者
 .user-actions {
   display: flex;
   align-items: center;
-  gap: 15px;
+  gap: 24px;
 }
 .role-text {
   font-weight: bold;
-  color: #102a43;
+  color: $primary-color;
 }
 .logout-btn {
-  border: 2px solid #2c6e88;
-  color: #2c6e88;
+  border: 2px solid $secondary-color;
+  color: $secondary-color;
   font-weight: bold;
   border-radius: 0;
   padding: 15px 25px;
   background: transparent;
 }
 .logout-btn:hover {
-  background: #2c6e88;
-  color: #fff;
+  background: $secondary-color;
+  color: $bg-color;
 }
 </style>

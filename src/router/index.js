@@ -6,13 +6,6 @@ import { authGuard } from './guards'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // --- 前台路由 (保持原狀，若有 HomeView 可加回) ---
-    // {
-    //   path: '/',
-    //   name: 'home',
-    //   component: () => import('@/views/HomeView.vue')
-    // },
-
     {
       path: '/login',
       name: 'login',
@@ -45,6 +38,16 @@ const router = createRouter({
           path: 'activity',
           name: 'admin-activity',
           component: () => import('@/views/ActivityView.vue'),
+        },
+        {
+          path: 'activity/creat',
+          name: 'admin-activityCreat',
+          component: () => import('@/views/ActivityDetailView.vue'),
+        },
+        {
+          path: 'activity/edit/:id',
+          name: 'admin-activitEdit',
+          component: () => import('@/views/ActivityDetailView.vue'),
         },
         {
           path: 'donations',

@@ -1,0 +1,42 @@
+[
+  {
+    "REPORT_ID": 1,
+    "REVIEW_ID": 6,
+    "USER_ID": 301,
+    "REASON": 3,
+    "REPORT_STATUS": "待處理",
+    "CREATED_AT": "2024-04-17 09:00:00"
+  },
+  {
+    "REPORT_ID": 2,
+    "REVIEW_ID": 19,
+    "USER_ID": 302,
+    "REASON": 1,
+    "REPORT_STATUS": "已駁回",
+    "CREATED_AT": "2024-06-09 14:30:00"
+  },
+  {
+    "REPORT_ID": 3,
+    "REVIEW_ID": 29,
+    "USER_ID": 303,
+    "REASON": 4,
+    "REPORT_STATUS": "已處理",
+    "CREATED_AT": "2024-07-07 08:20:00"
+  },
+  {
+    "REPORT_ID": 4,
+    "REVIEW_ID": 35,
+    "USER_ID": 304,
+    "REASON": 2,
+    "REPORT_STATUS": "待處理",
+    "CREATED_AT": "2024-07-22 10:15:00"
+  },
+  {
+    "REPORT_ID": 5,
+    "REVIEW_ID": 44,
+    "USER_ID": 305,
+    "REASON": 3,
+    "REPORT_STATUS": "已駁回",
+    "CREATED_AT": "2024-08-22 11:00:00"
+  }
+]

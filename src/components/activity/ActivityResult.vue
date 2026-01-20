@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch, onMounted } from 'vue'
 import { SuccessFilled } from '@element-plus/icons-vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const props = defineProps({
   activityId: { type: String, default: '01' },
