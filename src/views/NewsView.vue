@@ -29,27 +29,27 @@
 
    <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
 
-      <el-table-column prop="id" label="文章編號" width="80" align="center" />
+      <el-table-column prop="id" label="文章編號" width="100" align="center" />
 
-      <el-table-column prop="category" label="分類" width="80" align="center" />
+      <el-table-column prop="category" label="分類" width="120" align="center" />
 
-      <el-table-column label="封面圖" width="120" align="center">
+      <el-table-column label="封面圖" width="150" align="center">
         <template #default="scope">
           <el-image style="width: 100%; height: 60px; border-radius: 4px; display: block; margin: 0 auto;" :src="scope.row.imageUrl" fit="cover" />
         </template>
       </el-table-column>
 
-      <el-table-column prop="title" label="標題" min-width="200" align="center" />
+      <el-table-column prop="title" label="標題" min-width="150" align="center" />
 
-      <el-table-column prop="date" label="發布時間" width="100" align="center">
+      <el-table-column prop="date" label="發布時間" width="120" align="center">
         <template #default="scope">
           <div style="white-space: pre-line; font-size: 13px;">{{ scope.row.date }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column prop="status" label="狀態" width="70" align="center" />
+      <el-table-column prop="status" label="狀態" width="100" align="center" />
 
-      <el-table-column label="操作" width="110" align="center" fixed="right">
+      <el-table-column label="操作" width="150" align="center" fixed="right">
         <template #default>
           <el-button link type="primary" size="small">編輯</el-button>
           <span style="color: #dcdfe6; margin: 0 8px">|</span>
