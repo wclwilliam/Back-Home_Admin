@@ -4,7 +4,7 @@
       <h2 class="pageTitle">最新消息管理</h2>
       <div class="userInfo">
         <span>管理者帳號</span>
-        <el-button size="small" plain>登出</el-button>
+        <el-button size="small" plain class="logoutBtn">登出</el-button>
       </div>
     </div>
 
@@ -24,32 +24,32 @@
         </el-input>
       </div>
 
-      <el-button type="primary" plain class="addBtn">新增資料</el-button>
+      <el-button  plain class="addBtn" @click="handleAdd">新增資料</el-button>
     </div>
 
-    <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
+   <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
 
       <el-table-column prop="id" label="文章編號" width="80" align="center" />
 
-      <el-table-column prop="category" label="分類" width="100" align="center" />
+      <el-table-column prop="category" label="分類" width="80" align="center" />
 
-      <el-table-column label="封面圖" width="180" align="center">
+      <el-table-column label="封面圖" width="120" align="center">
         <template #default="scope">
-          <el-image style="width: 120px; height: 70px; border-radius: 4px;" :src="scope.row.imageUrl" fit="cover" />
+          <el-image style="width: 100%; height: 60px; border-radius: 4px; display: block; margin: 0 auto;" :src="scope.row.imageUrl" fit="cover" />
         </template>
       </el-table-column>
 
-      <el-table-column prop="title" label="標題" min-width="200" align="center"/>
+      <el-table-column prop="title" label="標題" min-width="200" align="center" />
 
-      <el-table-column prop="date" label="發布時間" width="180" align="center">
+      <el-table-column prop="date" label="發布時間" width="100" align="center">
         <template #default="scope">
-          <div style="white-space: pre-line">{{ scope.row.date }}</div>
+          <div style="white-space: pre-line; font-size: 13px;">{{ scope.row.date }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column prop="status" label="狀態" width="100" align="center" />
+      <el-table-column prop="status" label="狀態" width="70" align="center" />
 
-      <el-table-column label="操作" width="150" align="center">
+      <el-table-column label="操作" width="110" align="center" fixed="right">
         <template #default>
           <el-button link type="primary" size="small">編輯</el-button>
           <span style="color: #dcdfe6; margin: 0 8px">|</span>
@@ -64,30 +64,36 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const handleAdd = () => {
+  router.push({ name: 'news-add' })
+}
 
 
-// 模擬資料，對應你的龜途保育主題
 const sortBy = ref('')
 const searchQuery = ref('')
 
+// 模擬資料
 const tableData = [
   {
     id: '01',
     category: '重要公告',
-    imageUrl: 'https://placehold.co/300x200?text=Turtle+1', // 替換成你的海龜圖片
+    imageUrl: 'https://placehold.co/300x200?text=Turtle+1',
     title: '守護海洋安全第一：【龜途】2025 綠蠵龜棲地守護淨灘活動延期通知',
-    date: '2025/12/10\n10:50:04', // 使用換行符讓日期和時間分兩行
+    date: '2025-12-10\n10:50:04',
     status: '已發布',
   },
   {
     id: '02',
-    category: '活動通知',
+    category: '異動通知',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+2',
     title: '【系統維護】網站伺服器將於 2026/02/01 暫停服務兩小時',
-    date: '2025/11/20\n18:30:05',
+    date: '2025-11-20\n18:30:05',
     status: '草稿',
   },
   {
@@ -95,31 +101,31 @@ const tableData = [
     category: '重要公告',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+3',
     title: '還給海龜乾淨的家：2026 小琉球春季大型淨灘招募啟動',
-    date: '2025/11/15\n09:00:00',
+    date: '2025-11-15\n09:00:00',
     status: '已發布',
   },
   {
     id: '04',
-    category: '活動通知',
+    category: '異動通知',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+4',
     title: '【緊急異動】因強烈颱風接近，本週六「海龜生態講座」延期',
-    date: '2025/11/08\n14:20:00',
+    date: '2025-11-08\n14:20:00',
     status: '已發布',
   },
     {
     id: '05',
-    category: '活動通知',
+    category: '異動通知',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+5',
     title: '好消息！重傷綠蠵龜「安安」康復，將於本週日進行野放',
-    date: '2025/11/08\n14:20:00',
+    date: '2025-11-08\n14:20:00',
     status: '已發布',
   },
   {
     id: '06',
-    category: '活動通知',
+    category: '異動通知',
     imageUrl: 'https://placehold.co/300x200?text=Turtle+6',
     title: '【資安升級】會員系統更新說明，請盡快重設您的密碼',
-    date: '2025/11/08\n14:20:00',
+    date: '2025-11-08\n14:20:00',
     status: '已發布',
   },
 ]
@@ -127,8 +133,9 @@ const tableData = [
 
 <style scoped lang="scss">
 .pageContainer {
-  padding: 70px;
+padding: 30px; 
   min-height: 100vh;
+  box-sizing: border-box;
 }
 
 .headerSection {
@@ -154,19 +161,36 @@ const tableData = [
     color: $text-color;
   }
 }
-
-/* 工具列區 */
+.logoutBtn {
+  border: 1px solid $secondary-color;
+  color: $secondary-color;
+}
+//工具列 
 .toolbarSection {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
   padding: 12px 16px;
+
+  :deep(.el-input) {
+    --el-input-border-color: #0E6273;
+    --el-input-focus-border-color: #0E6273;
+    --el-input-hover-border-color: #0E6273; 
+  }
+
+  :deep(.el-select) {
+    --el-border-color: #0E6273; 
+    --el-border-color-hover: #0E6273;
+    --el-color-primary: #0E6273; 
+    --el-select-input-focus-border-color: #0E6273;
+  }
 }
 
 .customTable {
   :deep(th.el-table__cell) {
     background-color: $backstage-bar-color ; 
+    font-size: 14px;
     color: $text-color;
     font-weight: bold;
     border-bottom: none;
@@ -183,6 +207,10 @@ const tableData = [
 .addBtn {
   border-color: $secondary-color;
   color: $secondary-color;
+  &:hover {
+      background-color: $secondary-color;
+      color: #fff;
+    }
 }
 </style>
 
