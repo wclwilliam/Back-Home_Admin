@@ -12,7 +12,6 @@ const password = ref('')
 
 const onLogin = () => {
   const success = userStore.login(account.value, password.value)
-
   if (!success) return
 
   // 登入成功 → 回原本頁面 or 後台首頁
@@ -22,46 +21,81 @@ const onLogin = () => {
 </script>
 
 <template>
-  <h1>登入畫面</h1>
+  <div class="login-page">
+    <div class="login-card">
+      <!-- LOGO -->
+      <img src="@/assets/images/logo.png" alt="logo" class="logo" />
+      <p class="title">龜途後台管理系統</p>
+      <!-- 登入表單 -->
+      <el-form class="login-form">
+        <el-form-item>
+          <el-input v-model="account" placeholder="請輸入帳號" clearable />
+        </el-form-item>
 
-  <el-form label-position="top" class="login-form">
-    <!-- 帳號 -->
-    <el-form-item label="帳號">
-      <el-input v-model="account" placeholder="請輸入帳號" clearable />
-    </el-form-item>
+        <el-form-item>
+          <el-input
+            v-model="password"
+            type="password"
+            placeholder="請輸入密碼"
+            show-password
+            clearable
+          />
+        </el-form-item>
 
-    <!-- 密碼 -->
-    <el-form-item label="密碼">
-      <el-input
-        v-model="password"
-        type="password"
-        placeholder="請輸入密碼"
-        show-password
-        clearable
-      />
-    </el-form-item>
+        <p v-if="userStore.errorMsg" class="error">
+          {{ userStore.errorMsg }}
+        </p>
 
-    <!-- 錯誤訊息 -->
-    <p v-if="userStore.errorMsg" class="error">
-      {{ userStore.errorMsg }}
-    </p>
-
-    <!-- 登入按鈕 -->
-    <el-button type="primary" class="login-btn" @click="onLogin"> 登入 </el-button>
-  </el-form>
+        <el-button type="primary" class="login-btn" size="large" @click="onLogin"> 登入 </el-button>
+      </el-form>
+    </div>
+  </div>
 </template>
 
 <style scoped>
+.login-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: url('@/assets/images/login-bg.jpg') center / cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 360px;
+  padding: 32px 28px;
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.logo {
+  width: 180px;
+  margin-bottom: 24px;
+}
+
 .login-form {
-  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .login-btn {
   width: 100%;
+  margin-top: 8px;
 }
 
 .error {
-  color: red;
-  margin-bottom: 8px;
+  color: #f56c6c;
+  font-size: 14px;
+  text-align: right;
+}
+
+.title {
+  margin-bottom: 24px;
 }
 </style>
