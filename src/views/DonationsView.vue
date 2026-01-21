@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
+import AdminHeader from '@/components/AdminHeader.vue'
 
 const sortBy = ref('')
 const filterType = ref('')
@@ -67,13 +68,7 @@ const tableData = [
 
 <template>
     <div class="pageContainer">
-        <div class="headerSection">
-            <h2 class="pageTitle">捐款管理</h2>
-            <div class="userInfo">
-                <span>管理者帳號</span>
-                <el-button size="small" plain>登出</el-button>
-            </div>
-        </div>
+        <AdminHeader title="捐款管理" />
 
         <div class="toolbarSection">
             <div class="filters">
@@ -96,8 +91,6 @@ const tableData = [
                     </template>
                 </el-input>
             </div>
-
-            <el-button type="primary" plain class="addBtn">新增資料</el-button>
         </div>
 
         <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
@@ -131,61 +124,48 @@ const tableData = [
 </template>
 <style scoped lang="scss">
 .pageContainer {
-    padding: 70px;
-    min-height: 100vh;
+padding: 30px; 
+  min-height: 100vh;
+  box-sizing: border-box;
 }
 
-.headerSection {
-    border-bottom: 2px solid $primary-color;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24px;
-    padding-bottom: 24px;
-
-    .pageTitle {
-        font-size: 36px;
-        color: $primary-color;
-        font-weight: bold;
-        margin: 0;
-    }
-
-    .userInfo {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-size: 14px;
-        color: $text-color;
-    }
-}
-
-/* 工具列區 */
+//工具列 
 .toolbarSection {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+
+  :deep(.el-input) {
+    --el-input-border-color: #0E6273;
+    --el-input-focus-border-color: #0E6273;
+    --el-input-hover-border-color: #0E6273; 
+  }
+
+  :deep(.el-select) {
+    --el-border-color: #0E6273; 
+    --el-border-color-hover: #0E6273;
+    --el-color-primary: #0E6273; 
+    --el-select-input-focus-border-color: #0E6273;
+  }
 }
 
 .customTable {
-    :deep(th.el-table__cell) {
-        background-color: $backstage-bar-color ;
-        color: $text-color;
-        font-weight: bold;
-        border-bottom: none;
-    }
+  :deep(th.el-table__cell) {
+    background-color: $backstage-bar-color ; 
+    font-size: 14px;
+    color: $text-color;
+    font-weight: bold;
+    border-bottom: none;
+  }
 }
 
 
 .paginationSection {
-    margin-top: 24px;
-    display: flex;
-    justify-content: center;
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
 }
 
-.addBtn {
-    border-color: $secondary-color;
-    color: $secondary-color;
-}
 </style>

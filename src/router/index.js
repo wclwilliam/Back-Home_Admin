@@ -56,6 +56,24 @@ const router = createRouter({
           path: 'data',
           name: 'admin-data',
           component: () => import('@/views/DataView.vue'),
+          redirect: {name: 'impact'},
+          children: [
+            {
+              path: 'impact',
+              name: 'impact',
+              component: () => import('@/views/ImpactView.vue'),
+            },
+            {
+              path: 'report',
+              name: 'report',
+              component: () => import('@/views/ReportView.vue'),
+            },
+            {
+              path: 'rescue',
+              name: 'rescue',
+              component: () => import('@/views/RescueView.vue'),
+            },
+          ]
         },
         {
           path: 'members',
