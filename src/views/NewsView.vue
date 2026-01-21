@@ -9,8 +9,8 @@ const handleAdd = () => {
 }
 
 
-const sortBy = ref('')
-const searchQuery = ref('')
+// const sortBy = ref('')
+// const searchQuery = ref('')
 
 // 模擬資料
 const tableData = [
@@ -136,7 +136,7 @@ const tableData = [
 
 <style scoped lang="scss">
 .pageContainer {
-  padding: 70px;
+  padding: 30px;
   min-height: 100vh;
   box-sizing: border-box;
 }

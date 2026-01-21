@@ -13,9 +13,32 @@ const getTodayDate = () => {
   return `${year}-${month}-${day}`
 }
 
+//CKEditor上傳
+class MyUploadAdapter {
+  constructor(loader) {
+    this.loader = loader;
+  }
+  upload() {
+    return this.loader.file
+      .then(file => new Promise((resolve) => {
+        resolve({
+          default: URL.createObjectURL(file)
+        });
+      }));
+  }
+  abort() {}
+}
+
+function MyCustomUploadAdapterPlugin(editor) {
+  editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+    return new MyUploadAdapter(loader);
+  };
+}
+
 const editor = ClassicEditor
 const editorConfig = {
   placeholder: '請在此輸入詳細內容...',
+  extraPlugins: [MyCustomUploadAdapterPlugin], 
   toolbar: [
     'heading', '|',
     'bold', 'italic', 'link', '|',
@@ -24,6 +47,7 @@ const editorConfig = {
     'undo', 'redo'
   ],
 }
+
 // 表單資料
 const formData = reactive({
   id: '01',
@@ -223,11 +247,10 @@ const goBack = () => {
       color: #000;
       font-weight: bold;
       text-align: center;
-      //-webkit-text-fill-color: #000; 
     }
   }
 
-  /* 一般輸入框樣式微調 */
+
   :deep(.el-input__wrapper),
   :deep(.el-textarea__inner) {
     border-color: $secondary-color;
