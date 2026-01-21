@@ -32,7 +32,6 @@ defineEmits(['update:modelValue'])
 .custom-tabs-header {
   background: $bg-color;
   padding-top: 20px;
-  padding-left: 20px;
   border-bottom: 1px solid $highlight-color1;
 }
 

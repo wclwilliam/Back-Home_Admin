@@ -214,8 +214,14 @@ const saveEdit = () => {
 <style lang="scss" scoped>
 $disable-col: #dcdcdc;
 $highlight-color1: #4fa8c3;
+$btn-bg: #cccccc;
+$text-color: #333333;
+$box-shadow: #aaaaaa;
+$tab-col: #4fa8c3;
+$highlight-color2: #e14720;
+
 .form-container {
-  padding: 20px 40px;
+  padding: 20px 0;
 }
 .section-header {
   display: flex;
@@ -229,10 +235,24 @@ $highlight-color1: #4fa8c3;
   font-weight: bold;
   margin-bottom: 15px;
 }
-.edit-btn {
-  width: 100px;
-  color: $primary-color;
-  font-weight: bold;
+.edit-btn,
+.el-button {
+  border: 1px solid $secondary-color;
+  color: $secondary-color;
+  background: transparent;
+  &:hover {
+    background-color: $secondary-color;
+    color: $text-white;
+  }
+}
+.el-button + .el-button {
+  background-color: $secondary-color;
+  color: $text-white;
+  &:hover {
+    background-color: $highlight-color2;
+    border: 1px solid $highlight-color2;
+    color: $text-white;
+  }
 }
 .upload-area {
   display: flex;
@@ -241,9 +261,13 @@ $highlight-color1: #4fa8c3;
   width: 100%;
 }
 .upload-btn {
-  width: 120px;
-  border: 1px solid $disable-col;
-  background: #cccccc;
+  border: 1px solid $secondary-color;
+  color: $secondary-color;
+  background: transparent;
+  &:hover {
+    background-color: $secondary-color;
+    color: $text-white;
+  }
 }
 .image-placeholder {
   width: 200px;
@@ -255,10 +279,16 @@ $highlight-color1: #4fa8c3;
 /* Form Styles */
 :deep(.el-form-item__label) {
   font-weight: bold;
-  color: #333;
+  color: $text-color;
   line-height: 1.4;
   display: flex;
   align-items: center;
+}
+:deep(.el-input.is-disabled .el-input__inner) {
+  -webkit-text-fill-color: $text-color;
+}
+:deep(.el-select__wrapper.is-disabled .el-select__selected-item) {
+  color: $text-color !important;
 }
 .multi-line-label :deep(.el-form-item__label) {
   white-space: pre-line;
@@ -266,12 +296,12 @@ $highlight-color1: #4fa8c3;
 :deep(.el-input__wrapper),
 :deep(.el-textarea__inner) {
   border-radius: 0;
-  box-shadow: 0 0 0 1px #888 inset;
+  box-shadow: 0 0 0 1px $box-shadow inset;
 }
 :deep(.is-disabled .el-input__wrapper),
 :deep(.is-disabled .el-textarea__inner) {
-  background-color: #dcdcdc;
-  box-shadow: 0 0 0 1px #888 inset;
-  color: #333;
+  background-color: $disable-col;
+  box-shadow: 0 0 0 1px $box-shadow inset;
+  color: $text-color;
 }
 </style>
