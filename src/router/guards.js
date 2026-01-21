@@ -12,7 +12,7 @@ export function authGuard(to,from,next) {
     next({ 
       name: 'login',
       query: { redirect: to.fullPath }
-     })
+    })
   }else if (to.name === 'login' && auth.isLogin) {
     // 情況 B：已登入卻想去登入頁 -> 自動導向後台首頁
     next({ name: 'admin-account' })

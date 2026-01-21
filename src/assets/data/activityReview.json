@@ -1,0 +1,452 @@
+[
+  {
+    "REVIEW_ID": 1,
+    "USER_ID": 201,
+    "ACTIVITY_ID": 1,
+    "RATING": 5,
+    "CONTENT": "終於摸到海龜背甲了！原來刷背這麼費力，但看到海龜乾淨的樣子很有成就感。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 12,
+    "CREATED_AT": "2024-03-11 10:30:00"
+  },
+  {
+    "REVIEW_ID": 2,
+    "USER_ID": 205,
+    "ACTIVITY_ID": 1,
+    "RATING": 5,
+    "CONTENT": "切魚切到手軟，照護員真的太偉大了。學到很多關於海龜救傷的知識。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 8,
+    "CREATED_AT": "2024-03-11 14:20:00"
+  },
+  {
+    "REVIEW_ID": 3,
+    "USER_ID": 210,
+    "ACTIVITY_ID": 1,
+    "RATING": 4,
+    "CONTENT": "雖然全身弄得濕答答，且後場味道有點重，但這是很真實的體驗，推薦！",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 3,
+    "CREATED_AT": "2024-03-12 09:15:00"
+  },
+  {
+    "REVIEW_ID": 4,
+    "USER_ID": 202,
+    "ACTIVITY_ID": 2,
+    "RATING": 5,
+    "CONTENT": "模擬搬運很有趣，道具海龜也很逼真。講師講得很幽默，複雜的救援步驟變好記了。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 20,
+    "CREATED_AT": "2024-04-15 11:00:00"
+  },
+  {
+    "REVIEW_ID": 5,
+    "USER_ID": 215,
+    "ACTIVITY_ID": 2,
+    "RATING": 5,
+    "CONTENT": "學到了正確的保濕觀念，原來以前都做錯了！拿到證書很有成就感。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 15,
+    "CREATED_AT": "2024-04-15 16:45:00"
+  },
+  {
+    "REVIEW_ID": 6,
+    "USER_ID": 220,
+    "ACTIVITY_ID": 2,
+    "RATING": 3,
+    "CONTENT": "會議室冷氣有點強，記得帶外套。內容很實用，但希望實作時間再多一點。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 2,
+    "CREATED_AT": "2024-04-16 10:20:00"
+  },
+  {
+    "REVIEW_ID": 7,
+    "USER_ID": 203,
+    "ACTIVITY_ID": 3,
+    "RATING": 5,
+    "CONTENT": "第一次看到這麼多漁網卡在石槽裡，清出來很有成就感！生態解說也很精彩。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 25,
+    "CREATED_AT": "2024-04-16 09:00:00"
+  },
+  {
+    "REVIEW_ID": 8,
+    "USER_ID": 208,
+    "ACTIVITY_ID": 3,
+    "RATING": 4,
+    "CONTENT": "地形真的不好走，還好有穿防滑鞋，主辦單位提醒得很周到。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 6,
+    "CREATED_AT": "2024-04-16 13:30:00"
+  },
+  {
+    "REVIEW_ID": 9,
+    "USER_ID": 212,
+    "ACTIVITY_ID": 3,
+    "RATING": 5,
+    "CONTENT": "雖然天氣很熱，但看到海岸變乾淨真的很感動。希望能喚起更多人重視。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 18,
+    "CREATED_AT": "2024-04-17 10:10:00"
+  },
+  {
+    "REVIEW_ID": 10,
+    "USER_ID": 225,
+    "ACTIVITY_ID": 4,
+    "RATING": 5,
+    "CONTENT": "沒想到垃圾也能變成藝術品，很有創意！小朋友畫得很開心。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 10,
+    "CREATED_AT": "2024-05-06 14:00:00"
+  },
+  {
+    "REVIEW_ID": 11,
+    "USER_ID": 230,
+    "ACTIVITY_ID": 4,
+    "RATING": 4,
+    "CONTENT": "浮球有點難畫，但老師教得很有耐心。顏料真的洗不掉，還好有穿舊衣服。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 4,
+    "CREATED_AT": "2024-05-06 20:15:00"
+  },
+  {
+    "REVIEW_ID": 12,
+    "USER_ID": 235,
+    "ACTIVITY_ID": 4,
+    "RATING": 5,
+    "CONTENT": "把垃圾變黃金，超讚的概念。義賣捐款很有意義，希望能幫到海龜。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 14,
+    "CREATED_AT": "2024-05-07 11:30:00"
+  },
+  {
+    "REVIEW_ID": 13,
+    "USER_ID": 204,
+    "ACTIVITY_ID": 5,
+    "RATING": 5,
+    "CONTENT": "真的看到母龜上岸產卵了！感動到想哭！一定要用紅光手電筒，大家都很遵守規定。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 50,
+    "CREATED_AT": "2024-05-16 02:30:00"
+  },
+  {
+    "REVIEW_ID": 14,
+    "USER_ID": 218,
+    "ACTIVITY_ID": 5,
+    "RATING": 4,
+    "CONTENT": "雖然走得很累，蚊子也多，但看到海龜媽媽努力挖洞的樣子，充滿敬意。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 9,
+    "CREATED_AT": "2024-05-16 10:00:00"
+  },
+  {
+    "REVIEW_ID": 15,
+    "USER_ID": 240,
+    "ACTIVITY_ID": 5,
+    "RATING": 5,
+    "CONTENT": "研究員解說非常專業。蛤板灣的星空超級美，海浪聲很療癒。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 22,
+    "CREATED_AT": "2024-05-17 15:20:00"
+  },
+  {
+    "REVIEW_ID": 16,
+    "USER_ID": 206,
+    "ACTIVITY_ID": 6,
+    "RATING": 5,
+    "CONTENT": "藻礁真的很壯觀，希望能永遠保存下來。清理細小保麗龍真的好累，需要很大的耐心。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 30,
+    "CREATED_AT": "2024-05-21 09:45:00"
+  },
+  {
+    "REVIEW_ID": 17,
+    "USER_ID": 222,
+    "ACTIVITY_ID": 6,
+    "RATING": 4,
+    "CONTENT": "風真的很大，帽子差點飛走。雖然腰很痠，但心靈很滿足。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 7,
+    "CREATED_AT": "2024-05-21 13:10:00"
+  },
+  {
+    "REVIEW_ID": 18,
+    "USER_ID": 238,
+    "ACTIVITY_ID": 6,
+    "RATING": 5,
+    "CONTENT": "看到螃蟹在乾淨的藻礁上爬行，一切都值得了。學校社團一起來的，學到很多。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 16,
+    "CREATED_AT": "2024-05-22 08:30:00"
+  },
+  {
+    "REVIEW_ID": 19,
+    "USER_ID": 209,
+    "ACTIVITY_ID": 7,
+    "RATING": 5,
+    "CONTENT": "我是參加水下組的，海底垃圾真的很多，潛水還能做公益很棒。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 35,
+    "CREATED_AT": "2024-06-09 10:00:00"
+  },
+  {
+    "REVIEW_ID": 20,
+    "USER_ID": 228,
+    "ACTIVITY_ID": 7,
+    "RATING": 5,
+    "CONTENT": "岸邊的垃圾也撿不完，大家真的要減塑。活動很有組織，垃圾分類做得很徹底。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 12,
+    "CREATED_AT": "2024-06-09 16:20:00"
+  },
+  {
+    "REVIEW_ID": 21,
+    "USER_ID": 245,
+    "ACTIVITY_ID": 7,
+    "RATING": 4,
+    "CONTENT": "人很多很熱鬧，但動線有點擠。天氣很好，流汗流得很爽。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 5,
+    "CREATED_AT": "2024-06-10 09:00:00"
+  },
+  {
+    "REVIEW_ID": 22,
+    "USER_ID": 211,
+    "ACTIVITY_ID": 8,
+    "RATING": 5,
+    "CONTENT": "深刻感受到達悟族對海洋的敬畏。雖然沒看到海龜，但看到了很多椰子蟹！",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 19,
+    "CREATED_AT": "2024-06-11 08:45:00"
+  },
+  {
+    "REVIEW_ID": 23,
+    "USER_ID": 226,
+    "ACTIVITY_ID": 8,
+    "RATING": 4,
+    "CONTENT": "行前教育很嚴肅，但也學到很多。礁岩真的很刺，還好有穿膠鞋。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 8,
+    "CREATED_AT": "2024-06-11 19:30:00"
+  },
+  {
+    "REVIEW_ID": 24,
+    "USER_ID": 242,
+    "ACTIVITY_ID": 8,
+    "RATING": 5,
+    "CONTENT": "晚上的拼板舟有一種神祕的美感。聽著海浪聲巡邏，心靈很平靜。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 11,
+    "CREATED_AT": "2024-06-12 10:15:00"
+  },
+  {
+    "REVIEW_ID": 25,
+    "USER_ID": 216,
+    "ACTIVITY_ID": 9,
+    "RATING": 5,
+    "CONTENT": "小海龜超可愛！高壓水槍很好玩，池子變乾淨很有成就感。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 28,
+    "CREATED_AT": "2024-06-16 11:00:00"
+  },
+  {
+    "REVIEW_ID": 26,
+    "USER_ID": 232,
+    "ACTIVITY_ID": 9,
+    "RATING": 4,
+    "CONTENT": "腰有點痠，年紀大的要斟酌。地板真的很滑要小心。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 4,
+    "CREATED_AT": "2024-06-16 15:40:00"
+  },
+  {
+    "REVIEW_ID": 27,
+    "USER_ID": 248,
+    "ACTIVITY_ID": 9,
+    "RATING": 5,
+    "CONTENT": "看到海龜在乾淨的水裡游，覺得很值得。研究員講解很詳細。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 13,
+    "CREATED_AT": "2024-06-17 09:20:00"
+  },
+  {
+    "REVIEW_ID": 28,
+    "USER_ID": 213,
+    "ACTIVITY_ID": 10,
+    "RATING": 5,
+    "CONTENT": "望安是海龜的故鄉，一定要好好守護。雖然沒看到海龜，但看到爬痕也很興奮。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 21,
+    "CREATED_AT": "2024-07-06 10:00:00"
+  },
+  {
+    "REVIEW_ID": 29,
+    "USER_ID": 229,
+    "ACTIVITY_ID": 10,
+    "RATING": 4,
+    "CONTENT": "海風真的很大，吹得頭有點痛。半夜肚子很餓，記得帶點乾糧。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 6,
+    "CREATED_AT": "2024-07-06 14:10:00"
+  },
+  {
+    "REVIEW_ID": 30,
+    "USER_ID": 246,
+    "ACTIVITY_ID": 10,
+    "RATING": 5,
+    "CONTENT": "沙灘很乾淨，星空很美，很享受這份寧靜。記錄數據感覺自己像科學家。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 17,
+    "CREATED_AT": "2024-07-07 11:00:00"
+  },
+  {
+    "REVIEW_ID": 31,
+    "USER_ID": 207,
+    "ACTIVITY_ID": 11,
+    "RATING": 5,
+    "CONTENT": "夕陽超美！邊撿垃圾邊看風景很享受。聽耆老講故事很懷念。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 24,
+    "CREATED_AT": "2024-07-16 09:30:00"
+  },
+  {
+    "REVIEW_ID": 32,
+    "USER_ID": 223,
+    "ACTIVITY_ID": 11,
+    "RATING": 4,
+    "CONTENT": "垃圾比想像中多，撿得腰好痠。蚊子真的有點多，防蚊液要噴好噴滿。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 8,
+    "CREATED_AT": "2024-07-16 13:45:00"
+  },
+  {
+    "REVIEW_ID": 33,
+    "USER_ID": 236,
+    "ACTIVITY_ID": 11,
+    "RATING": 5,
+    "CONTENT": "很適合帶小孩來放電兼做公益。工作人員很熱情，氣氛很好。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 15,
+    "CREATED_AT": "2024-07-17 10:20:00"
+  },
+  {
+    "REVIEW_ID": 34,
+    "USER_ID": 217,
+    "ACTIVITY_ID": 12,
+    "RATING": 5,
+    "CONTENT": "超酷的體驗！能親手摸到鯨豚骨骼。感受到生命的脆弱與莊嚴。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 18,
+    "CREATED_AT": "2024-07-21 11:00:00"
+  },
+  {
+    "REVIEW_ID": 35,
+    "USER_ID": 233,
+    "ACTIVITY_ID": 12,
+    "RATING": 4,
+    "CONTENT": "味道真的有點重，但為了知識可以忍受。拼骨頭像在玩高難度拼圖。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 5,
+    "CREATED_AT": "2024-07-21 16:30:00"
+  },
+  {
+    "REVIEW_ID": 36,
+    "USER_ID": 249,
+    "ACTIVITY_ID": 12,
+    "RATING": 5,
+    "CONTENT": "標本師解說很詳細，學到很多解剖知識。對想走生物研究的人很有幫助。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 12,
+    "CREATED_AT": "2024-07-22 09:40:00"
+  },
+  {
+    "REVIEW_ID": 37,
+    "USER_ID": 219,
+    "ACTIVITY_ID": 13,
+    "RATING": 5,
+    "CONTENT": "親手摸到海龜背甲，感受到生命的重量。看到海龜健康的樣子，覺得很感動。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 40,
+    "CREATED_AT": "2024-08-13 10:00:00"
+  },
+  {
+    "REVIEW_ID": 38,
+    "USER_ID": 234,
+    "ACTIVITY_ID": 13,
+    "RATING": 4,
+    "CONTENT": "海龜力氣超大，抓得手好痠但很值得。雖然不能錄影有點可惜，但能理解。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 9,
+    "CREATED_AT": "2024-08-13 14:15:00"
+  },
+  {
+    "REVIEW_ID": 39,
+    "USER_ID": 250,
+    "ACTIVITY_ID": 13,
+    "RATING": 5,
+    "CONTENT": "安裝發報器過程很嚴謹，學到很多。獸醫團隊很專業，對志工也很友善。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 16,
+    "CREATED_AT": "2024-08-14 09:30:00"
+  },
+  {
+    "REVIEW_ID": 40,
+    "USER_ID": 214,
+    "ACTIVITY_ID": 14,
+    "RATING": 5,
+    "CONTENT": "幫陸蟹媽媽過馬路很有成就感。雖然沒看到海龜，但救了很多陸蟹。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 22,
+    "CREATED_AT": "2024-08-16 01:00:00"
+  },
+  {
+    "REVIEW_ID": 41,
+    "USER_ID": 227,
+    "ACTIVITY_ID": 14,
+    "RATING": 4,
+    "CONTENT": "車速真的很快，大家要在路邊小心。蚊子超級多，一定要噴防蚊液。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 7,
+    "CREATED_AT": "2024-08-16 10:45:00"
+  },
+  {
+    "REVIEW_ID": 42,
+    "USER_ID": 243,
+    "ACTIVITY_ID": 14,
+    "RATING": 5,
+    "CONTENT": "生態解說很棒，這是一堂最真實的生命教育課。看到陸蟹釋幼的畫面很感動。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 14,
+    "CREATED_AT": "2024-08-17 09:00:00"
+  },
+  {
+    "REVIEW_ID": 43,
+    "USER_ID": 221,
+    "ACTIVITY_ID": 15,
+    "RATING": 5,
+    "CONTENT": "高美夕陽超美！淨灘完看夕陽很享受。垃圾真的好多，尤其是堤防死角。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 26,
+    "CREATED_AT": "2024-08-21 09:20:00"
+  },
+  {
+    "REVIEW_ID": 44,
+    "USER_ID": 237,
+    "ACTIVITY_ID": 15,
+    "RATING": 4,
+    "CONTENT": "風真的很大，頭髮都被吹亂了。泥濘地稍微難走，還好有穿雨鞋。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 10,
+    "CREATED_AT": "2024-08-21 12:50:00"
+  },
+  {
+    "REVIEW_ID": 45,
+    "USER_ID": 247,
+    "ACTIVITY_ID": 15,
+    "RATING": 5,
+    "CONTENT": "跟一群志同道合的人一起努力很棒。分類垃圾的時候才發現吸管真的很多。",
+    "IS_VISIBLE": 1,
+    "LIKE_COUNT": 19,
+    "CREATED_AT": "2024-08-22 10:10:00"
+  }
+]

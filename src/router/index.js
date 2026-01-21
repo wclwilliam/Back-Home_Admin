@@ -1,19 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-// 1. 根據你的檔案結構截圖，Layout 在 layouts 資料夾
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import { authGuard } from './guards'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // --- 前台路由 (保持原狀，若有 HomeView 可加回) ---
-    // {
-    //   path: '/',
-    //   name: 'home',
-    //   component: () => import('@/views/HomeView.vue')
-    // },
-
     {
       path: '/login',
       name: 'login',
@@ -25,9 +17,7 @@ const router = createRouter({
     {
       path: '/',
       component: AdminLayout,
-      // 2. 修改預設導向：因為目前只有 ActivityView 是真的存在的，先導向這裡
-      redirect: 'activity',
-      meta: { requiresAuth: true },
+      redirect: '/',
       children: [
         {
           path: 'account',
@@ -48,6 +38,16 @@ const router = createRouter({
           path: 'activity',
           name: 'admin-activity',
           component: () => import('@/views/ActivityView.vue'),
+        },
+        {
+          path: 'activity/creat',
+          name: 'activityCreate',
+          component: () => import('@/views/ActivityDetailView.vue'),
+        },
+        {
+          path: 'activity/edit/:id',
+          name: 'activityEdit',
+          component: () => import('@/views/ActivityDetailView.vue'),
         },
         {
           path: 'donations',
