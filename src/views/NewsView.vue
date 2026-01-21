@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
+import AdminHeader from '@/components/AdminHeader.vue'
 
 const router = useRouter()
 const handleAdd = () => {
@@ -9,8 +10,8 @@ const handleAdd = () => {
 }
 
 
-// const sortBy = ref('')
-// const searchQuery = ref('')
+const sortBy = ref('')
+const searchQuery = ref('')
 
 // 模擬資料
 const tableData = [
@@ -68,13 +69,7 @@ const tableData = [
 
 <template>
   <div class="pageContainer">
-    <div class="headerSection">
-      <h2 class="pageTitle">最新消息管理</h2>
-      <div class="userInfo">
-        <span>管理者帳號</span>
-        <el-button size="small" plain class="logoutBtn">登出</el-button>
-      </div>
-    </div>
+      <AdminHeader title="最新消息管理" />
 
     <div class="toolbarSection">
       <div class="filters">

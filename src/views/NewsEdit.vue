@@ -1,6 +1,7 @@
 <script setup>
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import AdminHeader from '@/components/AdminHeader.vue'
 import { Ckeditor } from '@ckeditor/ckeditor5-vue'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import Swal from 'sweetalert2'
@@ -120,13 +121,7 @@ const goBack = () => {
 
 <template>
   <div class="pageContainer">
-    <div class="headerSection">
-      <h2 class="pageTitle">新增最新消息</h2>
-      <div class="userInfo">
-        <span>管理者帳號</span>
-        <el-button size="small" plain class="logoutBtn">登出</el-button>
-      </div>
-    </div>
+ <AdminHeader title="新增最新消息" />
 
     <div class="formContainer">
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
