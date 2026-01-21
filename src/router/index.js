@@ -23,6 +23,18 @@ const router = createRouter({
           component: () => import('@/views/AccountView.vue'),
         },
         {
+          path: 'account/create',
+          name: 'admin-account-create',
+          component: () => import('@/views/AccountForm.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
+          path: 'account/:id/edit',
+          name: 'admin-account-edit',
+          component: () => import('@/views/AccountForm.vue'),
+          meta: { requiresAuth: true },
+        },
+        {
           path: 'news',
           name: 'admin-news',
           component: () => import('@/views/NewsView.vue'),
@@ -56,7 +68,7 @@ const router = createRouter({
           path: 'data',
           name: 'admin-data',
           component: () => import('@/views/DataView.vue'),
-          redirect: {name: 'impact'},
+          redirect: { name: 'impact' },
           children: [
             {
               path: 'impact',
@@ -73,7 +85,7 @@ const router = createRouter({
               name: 'rescue',
               component: () => import('@/views/RescueView.vue'),
             },
-          ]
+          ],
         },
         {
           path: 'members',
