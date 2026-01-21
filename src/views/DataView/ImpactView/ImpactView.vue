@@ -1,5 +1,11 @@
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const handleAdd = () => {
+  router.push({ name: 'impactAdd' })
+}
 
 // 搜尋與篩選
 const sortBy = ref('')
@@ -24,7 +30,7 @@ const tableData = [
                 </el-select>
             </div>
 
-            <el-button plain class="addBtn">新增資料</el-button>
+            <el-button plain class="addBtn" @click="handleAdd">新增資料</el-button>
         </div>
 
         <el-table :data="tableData" style="width: 100%" class="customTable">
