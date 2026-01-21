@@ -93,6 +93,16 @@ const router = createRouter({
           component: () => import('@/views/DataView/ImpactView/ImpactAdd.vue'),
         },
         {
+          path: 'data/rescue/add',
+          name: 'rescueAdd',
+          component: () => import('@/views/DataView/RescueView/RescueForm.vue'),
+        },
+        {
+          path: 'data/rescue/edit/:id',
+          name: 'rescueEdit',
+          component: () => import('@/views/DataView/RescueView/RescueForm.vue'),
+        },
+        {
           path: 'data/report/add',
           name: 'reportAdd',
           component: () => import('@/views/DataView/ReportView/ReportAdd.vue'),
