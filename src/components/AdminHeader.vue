@@ -1,4 +1,7 @@
 <script setup>
+import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+
 const props = defineProps({
   showLoginoutBtn: {
     //如果不要登出按鈕在自己頁面設  :showLoginoutBtn=false
@@ -12,13 +15,25 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['logout'])
+
+const router = useRouter()
+const userStore = useUserStore()
+
+const handleLogoutClick = () => {
+  // 內建登出行為
+  userStore.logout()
+  router.replace({ name: 'login' })
+
+  // 仍然通知父層（如果有想做額外事：清資料、提示訊息...）
+  emit('logout')
+}
 </script>
 <template>
   <div class="headerSection">
     <h2 class="pageTitle">{{ props.title }}</h2>
     <div class="userInfo" v-if="props.showLoginoutBtn">
       <span>管理者帳號</span>
-      <el-button class="logoutBtn" size="small" plain @click="emit('logout')">登出</el-button>
+      <el-button class="logoutBtn" size="small" plain @click="handleLogoutClick">登出</el-button>
     </div>
   </div>
 </template>

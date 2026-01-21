@@ -4,10 +4,8 @@ import Pagination from '@/components/Pagination.vue'
 import AdminHeader from '@/components/AdminHeader.vue'
 import TableToolbar from '@/components/TableToolbar.vue'
 import { formatLastLogin } from '@/utils/formatTime'
-import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 
-const userStore = useUserStore()
 const router = useRouter()
 
 const handleAdd = () => {
@@ -62,11 +60,6 @@ const filteredTableData = computed(() => {
   })
 })
 
-const handleLogout = () => {
-  userStore.logout() // 清掉登入狀態（token + localStorage）
-  router.replace({ name: 'login' }) // 導回登入頁
-}
-
 // 明確的「搜尋行為」：按 Enter / 點放大鏡才觸發（若你 TableToolbar 有 search emit）
 const handleSearch = ({ sortBy: sb, searchQuery }) => {
   sortBy.value = sb ?? sortBy.value
@@ -83,7 +76,7 @@ const handleStatusChange = (row, val) => {
 
 <template>
   <div class="pageContainer">
-    <AdminHeader title="後台帳號管理" @logout="handleLogout" />
+    <AdminHeader title="後台帳號管理" />
 
     <TableToolbar
       v-model:modelValueSort="sortBy"
