@@ -10,14 +10,12 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/Login.vue'),
-      meta: { requiresAuth: false }, // 登入頁不需要驗證
     },
-
-    // --- 後台管理路由 ---
     {
       path: '/',
       component: AdminLayout,
-      redirect: '/',
+      redirect: { name: 'admin-account' },
+      meta: { requiresAuth: true }, // 後台全部要登入
       children: [
         {
           path: 'account',
@@ -30,7 +28,7 @@ const router = createRouter({
           component: () => import('@/views/NewsView.vue'),
         },
         {
-          path: '/news/add',
+          path: 'news/add',
           name: 'news-add',
           component: () => import('@/views/NewsEdit.vue'),
         },
@@ -40,7 +38,7 @@ const router = createRouter({
           component: () => import('@/views/ActivityView.vue'),
         },
         {
-          path: 'activity/creat',
+          path: 'activity/create',
           name: 'activityCreate',
           component: () => import('@/views/ActivityDetailView.vue'),
         },
@@ -58,6 +56,24 @@ const router = createRouter({
           path: 'data',
           name: 'admin-data',
           component: () => import('@/views/DataView.vue'),
+          redirect: {name: 'impact'},
+          children: [
+            {
+              path: 'impact',
+              name: 'impact',
+              component: () => import('@/views/ImpactView.vue'),
+            },
+            {
+              path: 'report',
+              name: 'report',
+              component: () => import('@/views/ReportView.vue'),
+            },
+            {
+              path: 'rescue',
+              name: 'rescue',
+              component: () => import('@/views/RescueView.vue'),
+            },
+          ]
         },
         {
           path: 'members',
@@ -68,6 +84,7 @@ const router = createRouter({
     },
     {
       path: '/:pathMatch(.*)*',
+      name: 'not-found',
       component: () => import('@/views/NotFound.vue'),
     },
   ],

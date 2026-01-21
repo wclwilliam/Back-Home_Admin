@@ -13,14 +13,17 @@ export const useUserStore = defineStore('user', () => {
   const isLogin = computed(() => token.value !== '')
 
   const loadStorage = () => {
-    // 讀取localStorage
-    const cache = localStorage.getItem(localStorageKey)
-    if (cache) {
-      token.value = cache
+    try {
+      const cache = localStorage.getItem(localStorageKey)
+      if (cache) token.value = cache
+    } catch (e) {
+      // localStorage 不能用時不要炸掉 app
+      token.value = ''
     }
   }
 
   const login = (accountValue, passwordValue) => {
+    errorMsg.value = ''
     // 先判斷
     if (!accountValue || !passwordValue) {
       errorMsg.value = '請輸入帳號或密碼'
@@ -36,11 +39,13 @@ export const useUserStore = defineStore('user', () => {
     // 成功登入再寫入localStorage
     token.value = result.token
     localStorage.setItem(localStorageKey, result.token) // 只吃字串(用JSON.stringify字串化)
+    return true
   }
   const logout = () => {
     token.value = ''
+    errorMsg.value = ''
     localStorage.removeItem(localStorageKey)
   }
   loadStorage()
-  return { token, isLogin, login, logout }
+  return { token, errorMsg, isLogin, login, logout }
 })

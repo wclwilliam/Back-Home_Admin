@@ -7,7 +7,7 @@ import { User, Bell, Calendar, Wallet, DataLine, ArrowRight, Avatar } from '@ele
 const route = useRoute()
 
 // 自動對應當前路由路徑，保持菜單高亮
-const activeMenu = computed(() => route.path)
+const activeMenu = computed(() => '/' + route.path.split('/')[1])
 </script>
 
 <template>
