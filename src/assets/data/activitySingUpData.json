@@ -1122,7 +1122,7 @@
   {
     "ACTIVITY_SIGNUP_ID": 71,
     "USER_ID": 271,
-    "ACTIVITY_ID": 15,
+    "ACTIVITY_ID": 20,
     "ATTENDED": 1,
     "ACTIVITY_SVC_HOURS": 3,
     "REAL_NAME": "鄧紫棋",
@@ -1138,7 +1138,7 @@
   {
     "ACTIVITY_SIGNUP_ID": 72,
     "USER_ID": 272,
-    "ACTIVITY_ID": 15,
+    "ACTIVITY_ID": 20,
     "ATTENDED": 1,
     "ACTIVITY_SVC_HOURS": 3,
     "REAL_NAME": "李榮浩",
@@ -1154,7 +1154,7 @@
   {
     "ACTIVITY_SIGNUP_ID": 73,
     "USER_ID": 273,
-    "ACTIVITY_ID": 15,
+    "ACTIVITY_ID": 20,
     "ATTENDED": 1,
     "ACTIVITY_SVC_HOURS": 3,
     "REAL_NAME": "楊丞琳",
@@ -1170,7 +1170,7 @@
   {
     "ACTIVITY_SIGNUP_ID": 74,
     "USER_ID": 274,
-    "ACTIVITY_ID": 15,
+    "ACTIVITY_ID": 20,
     "ATTENDED": 0,
     "ACTIVITY_SVC_HOURS": 0,
     "REAL_NAME": "潘瑋柏",
@@ -1186,7 +1186,7 @@
   {
     "ACTIVITY_SIGNUP_ID": 75,
     "USER_ID": 275,
-    "ACTIVITY_ID": 15,
+    "ACTIVITY_ID": 20,
     "ATTENDED": 1,
     "ACTIVITY_SVC_HOURS": 3,
     "REAL_NAME": "王心凌",
