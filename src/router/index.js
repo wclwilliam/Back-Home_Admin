@@ -10,14 +10,12 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('@/views/Login.vue'),
-      meta: { requiresAuth: false }, // 登入頁不需要驗證
     },
-
-    // --- 後台管理路由 ---
     {
       path: '/',
       component: AdminLayout,
-      redirect: '/',
+      redirect: { name: 'admin-account' },
+      meta: { requiresAuth: true }, // 後台全部要登入
       children: [
         {
           path: 'account',
@@ -30,7 +28,7 @@ const router = createRouter({
           component: () => import('@/views/NewsView.vue'),
         },
         {
-          path: '/news/add',
+          path: 'news/add',
           name: 'news-add',
           component: () => import('@/views/NewsEdit.vue'),
         },
@@ -40,7 +38,7 @@ const router = createRouter({
           component: () => import('@/views/ActivityView.vue'),
         },
         {
-          path: 'activity/creat',
+          path: 'activity/create',
           name: 'activityCreate',
           component: () => import('@/views/ActivityDetailView.vue'),
         },
@@ -68,6 +66,7 @@ const router = createRouter({
     },
     {
       path: '/:pathMatch(.*)*',
+      name: 'not-found',
       component: () => import('@/views/NotFound.vue'),
     },
   ],
