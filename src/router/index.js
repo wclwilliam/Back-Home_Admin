@@ -67,30 +67,55 @@ const router = createRouter({
         {
           path: 'data',
           name: 'admin-data',
-          component: () => import('@/views/DataView.vue'),
+          component: () => import('@/views/DataView/DataView.vue'),
           redirect: { name: 'impact' },
           children: [
             {
               path: 'impact',
               name: 'impact',
-              component: () => import('@/views/ImpactView.vue'),
+              component: () => import('@/views/DataView/ImpactView/ImpactView.vue'),
             },
             {
               path: 'report',
               name: 'report',
-              component: () => import('@/views/ReportView.vue'),
+              component: () => import('@/views/DataView/ReportView/ReportView.vue'),
             },
             {
               path: 'rescue',
               name: 'rescue',
-              component: () => import('@/views/RescueView.vue'),
+              component: () => import('@/views/DataView/RescueView/RescueView.vue'),
             },
           ],
+        },
+        {
+          path: 'data/impact/add',
+          name: 'impactAdd',
+          component: () => import('@/views/DataView/ImpactView/ImpactAdd.vue'),
+        },
+        {
+          path: 'data/rescue/add',
+          name: 'rescueAdd',
+          component: () => import('@/views/DataView/RescueView/RescueForm.vue'),
+        },
+        {
+          path: 'data/rescue/edit/:id',
+          name: 'rescueEdit',
+          component: () => import('@/views/DataView/RescueView/RescueForm.vue'),
+        },
+        {
+          path: 'data/report/add',
+          name: 'reportAdd',
+          component: () => import('@/views/DataView/ReportView/ReportAdd.vue'),
         },
         {
           path: 'members',
           name: 'admin-members',
           component: () => import('@/views/MembersView.vue'),
+        },
+        {
+          path: 'members/:id',
+          name: 'admin-members-detail',
+          component: () => import('@/views/MembersDetailView.vue'),
         },
       ],
     },

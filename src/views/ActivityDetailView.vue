@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useRoute } from 'vue-router'
+import AdminHeader from '@/components/AdminHeader.vue'
 import ActivityForm from '@/components/activity/ActivityForm.vue'
 import ActivityResult from '@/components/activity/ActivityResult.vue'
 import ActivitySignUpList from '@/components/activity/ActivitySignUpList.vue'
@@ -8,6 +9,9 @@ import ActivityComments from '@/components/activity/ActivityComments.vue'
 import CommonTabs from '@/components/activity/CommonTabs.vue'
 // 1. 引入 JSON 資料
 import ActivityData from '@/assets/data/activityData.json'
+import ResultData from '@/assets/data/activityResultData.json'
+import ReviewData from '@/assets/data/activityReview.json'
+import ReportData from '@/assets/data/activityReview_Report.json'
 
 const route = useRoute()
 const activeTab = ref('detail')
@@ -121,23 +125,59 @@ const currentActivityForm = computed(() => {
   }
 })
 const currentResults = computed(() => {
-  if (rawData.value) {
-    return transformToFormData(rawData.value)
-  } else {
-    return getEmptyFormData()
-  }
+  if (!targetId.value) return []
+  return ResultData.filter((item) => item.ACTIVITY_ID === targetId.value)
 })
 
+const reportReasonMap = {
+  1: '含有仇恨、歧視性內容',
+  2: '商業廣告或垃圾訊息',
+  3: '內容與事實不符',
+  4: '其他原因',
+}
 // 處理留言資料
 const currentMessages = computed(() => {
-  return []
+  if (!targetId.value) return []
+
+  // 1. 找出此活動的所有留言
+  const reviews = ReviewData.filter((r) => r.ACTIVITY_ID === targetId.value)
+
+  // 2. 整合檢舉紀錄
+  return reviews.map((r) => {
+    // 找出針對此留言的檢舉
+    const reports = ReportData.filter((rep) => rep.REVIEW_ID === r.REVIEW_ID).map((rep) => ({
+      id: rep.REPORT_ID,
+      reporter: rep.USER_ID,
+      reason: reportReasonMap[rep.REASON] || '其他',
+      time: rep.CREATED_AT,
+      status: rep.REPORT_STATUS, // "待處理", "已駁回", "已處理"
+    }))
+
+    return {
+      id: r.REVIEW_ID,
+      memberId: r.USER_ID,
+      rating: r.RATING,
+      content: r.CONTENT,
+      likeCount: r.LIKE_COUNT,
+      reportCount: reports.length, // 計算檢舉數
+      reports: reports,
+      isVisible: r.IS_VISIBLE === 1,
+    }
+  })
 })
 </script>
 
 <template>
-  <div class="common-layout">
+  <div class="pageContainer">
     <el-container style="height: 100vh">
       <el-main style="background-color: #f4f4f4; padding: 0">
+        <AdminHeader title="志工活動詳情管理" />
+        <div class="info-bar">
+          <span class="label">活動編號：</span>
+          <span class="val" style="margin-right: 30px">{{ currentActivityForm.id }}</span>
+          <span class="label">活動名稱：</span>
+          <span class="val">{{ currentActivityForm.title }}</span>
+        </div>
         <CommonTabs v-model="activeTab" :tabs="activityTabs" />
 
         <div v-if="activeTab === 'detail'">
@@ -159,6 +199,8 @@ const currentMessages = computed(() => {
             :activity-id="currentActivityForm.id"
             :activity-title="currentActivityForm.title"
             :results-data="currentResults"
+            :category-id="rawData?.ACTIVITY_CATEGORY_ID"
+            :signup-count="rawData?.ACTIVITY_SIGNUP_PEOPLE"
             :cover-image="currentActivityForm.imageUrl"
           />
           <div v-else class="empty-msg">活動未結束，請結束後輸入活動的成果</div>
@@ -178,6 +220,22 @@ const currentMessages = computed(() => {
   </div>
 </template>
 <style scoped>
+.pageContainer {
+  padding: 30px;
+  min-height: 100vh;
+}
+.info-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.label {
+  font-weight: bold;
+  color: #102a43;
+}
+.val {
+  color: #333;
+}
 .empty-msg {
   padding: 40px;
   text-align: center;

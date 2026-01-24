@@ -1,12 +1,127 @@
+<script setup>
+import { reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import AdminHeader from '@/components/AdminHeader.vue'
+import { Ckeditor } from '@ckeditor/ckeditor5-vue'
+import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import Swal from 'sweetalert2'
+
+const getTodayDate = () => {
+  const date = new Date()
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+//CKEditor上傳
+class MyUploadAdapter {
+  constructor(loader) {
+    this.loader = loader;
+  }
+  upload() {
+    return this.loader.file
+      .then(file => new Promise((resolve) => {
+        resolve({
+          default: URL.createObjectURL(file)
+        });
+      }));
+  }
+  abort() {}
+}
+
+function MyCustomUploadAdapterPlugin(editor) {
+  editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+    return new MyUploadAdapter(loader);
+  };
+}
+
+const editor = ClassicEditor
+const editorConfig = {
+  placeholder: '請在此輸入詳細內容...',
+  extraPlugins: [MyCustomUploadAdapterPlugin], 
+  toolbar: [
+    'heading', '|',
+    'bold', 'italic', 'link', '|',
+    'bulletedList', 'numberedList', '|',
+    'uploadImage', 'blockQuote', '|',
+    'undo', 'redo'
+  ],
+}
+
+// 表單資料
+const formData = reactive({
+  id: '01',
+  admin: 'cathy',
+  title: '',
+  category: 'important',
+  date: getTodayDate(),
+  content: '',
+  imageUrl: '',
+  imageName: '測試.png'
+})
+
+
+const handleImageChange = (uploadFile) => {
+  formData.imageName = uploadFile.name
+  formData.imageUrl = URL.createObjectURL(uploadFile.raw)
+}
+
+const router = useRouter()
+
+const goBack = () => {
+  Swal.fire({
+    title: '確定要取消嗎？',
+    text: "未儲存的內容將會遺失",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#E14720',
+    cancelButtonColor: '#0E6273',
+    confirmButtonText: '確定離開',
+    cancelButtonText: '留在此頁'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      router.back()
+    }
+  })
+}
+
+const postNews = () => {
+  Swal.fire({
+    title: "文章已發布!",
+    icon: 'success',
+    draggable: true
+  })
+}
+
+// import { ElMessage, ElMessageBox } from 'element-plus'
+
+/* element plus內建提示框
+const goBack = () => {
+  ElMessageBox.confirm(
+    '未儲存的內容將會遺失，確定要取消編輯嗎？', //內文
+    '警告', //標題
+    {
+      confirmButtonText: '確定離開',
+      cancelButtonText: '留在此頁',
+      type: 'warning', 
+    }
+  )
+    .then(() => {
+     
+      router.back()
+      
+    })
+    .catch(() => {
+ 
+    })
+}
+    */
+</script>
+
 <template>
   <div class="pageContainer">
-    <div class="headerSection">
-      <h2 class="pageTitle">新增最新消息</h2>
-      <div class="userInfo">
-        <span>管理者帳號</span>
-        <el-button size="small" plain class="logoutBtn">登出</el-button>
-      </div>
-    </div>
+ <AdminHeader title="新增最新消息" />
 
     <div class="formContainer">
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
@@ -76,105 +191,6 @@
   </div>
 </template>
 
-<script setup>
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { Ckeditor } from '@ckeditor/ckeditor5-vue'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
-import Swal from 'sweetalert2'
-
-const getTodayDate = () => {
-  const date = new Date()
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-const editor = ClassicEditor
-const editorConfig = {
-  placeholder: '請在此輸入詳細內容...',
-  toolbar: [
-    'heading', '|',
-    'bold', 'italic', 'link', '|',
-    'bulletedList', 'numberedList', '|',
-    'uploadImage', 'blockQuote', '|',
-    'undo', 'redo'
-  ],
-}
-// 表單資料
-const formData = reactive({
-  id: '01',
-  admin: 'cathy',
-  title: '',
-  category: 'important',
-  date: getTodayDate(),
-  content: '',
-  imageUrl: '',
-  imageName: '測試.png'
-})
-
-
-const handleImageChange = (uploadFile) => {
-  formData.imageName = uploadFile.name
-  formData.imageUrl = URL.createObjectURL(uploadFile.raw)
-}
-
-const router = useRouter()
-
-const goBack = () => {
-  Swal.fire({
-    title: '確定要取消嗎？',
-    text: "未儲存的內容將會遺失",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#E14720',
-    cancelButtonColor: '#0E6273',
-    confirmButtonText: '確定離開',
-    cancelButtonText: '留在此頁'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      router.back()
-    }
-  })
-}
-
-const postNews = () => {
-  Swal.fire({
-    title: "文章已發布!",
-    icon: 'success',
-    draggable: true
-  })
-}
-
-// import { ElMessage, ElMessageBox } from 'element-plus'
-
-/* element plus內建提示框
-const goBack = () => {
-  ElMessageBox.confirm(
-    '未儲存的內容將會遺失，確定要取消編輯嗎？', //內文
-    '警告', //標題
-    {
-      confirmButtonText: '確定離開',
-      cancelButtonText: '留在此頁',
-      type: 'warning', 
-    }
-  )
-    .then(() => {
-     
-      router.back()
-      
-    })
-    .catch(() => {
-
-    })
-}
-    */
-
-
-
-
-</script>
 
 <style lang="scss" scoped>
 .pageContainer {
@@ -226,11 +242,10 @@ const goBack = () => {
       color: #000;
       font-weight: bold;
       text-align: center;
-      //-webkit-text-fill-color: #000; 
     }
   }
 
-  /* 一般輸入框樣式微調 */
+
   :deep(.el-input__wrapper),
   :deep(.el-textarea__inner) {
     border-color: $secondary-color;

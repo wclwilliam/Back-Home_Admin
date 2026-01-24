@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { ArrowRight } from '@element-plus/icons-vue'
+import AdminHeader from '@/components/AdminHeader.vue'
 import ActivityListPanel from '@/components/activity/ActivityListPanel.vue'
 
 import jsonData from '@/assets/data/activityData.json'
@@ -16,13 +16,7 @@ const handleCreate = () => {
   <div class="pageContainer">
     <el-container style="height: 100vh">
       <el-main style="background-color: #f4f4f4; padding: 0">
-        <div class="page-header">
-          <h1 class="page-title">志工活動管理</h1>
-          <div class="user-actions">
-            <span class="role-text">管理者帳號</span>
-            <el-button class="logout-btn">登出</el-button>
-          </div>
-        </div>
+        <AdminHeader title="志工活動管理" />
 
         <div>
           <ActivityListPanel :raw-data="activityData" @create="handleCreate" />
