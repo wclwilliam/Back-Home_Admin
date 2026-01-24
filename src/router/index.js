@@ -20,18 +20,18 @@ const router = createRouter({
         {
           path: 'account',
           name: 'admin-account',
-          component: () => import('@/views/AccountView.vue'),
+          component: () => import('@/views/Account/AccountView.vue'),
         },
         {
           path: 'account/create',
           name: 'admin-account-create',
-          component: () => import('@/views/AccountForm.vue'),
+          component: () => import('@/views/Account/AccountCreate.vue'),
           meta: { requiresAuth: true },
         },
         {
           path: 'account/:id/edit',
           name: 'admin-account-edit',
-          component: () => import('@/views/AccountForm.vue'),
+          component: () => import('@/views/Account/AccountEdit.vue'),
           meta: { requiresAuth: true },
         },
         {

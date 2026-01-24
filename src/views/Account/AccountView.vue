@@ -26,8 +26,8 @@ const sortOptions = [
   { label: '最後登入最晚', value: 'last_login_desc' },
 
   // 管理員姓名
-  { label: '姓名（A → Z）', value: 'name_asc' },
-  { label: '姓名（Z → A）', value: 'name_desc' },
+  { label: '姓名筆畫 (少 → 多)', value: 'name_asc' },
+  { label: '姓名筆畫 (多 → 少)', value: 'name_desc' },
 
   // 狀態
   { label: '啟用優先', value: 'status_enabled_first' },
@@ -67,11 +67,6 @@ const handleSearch = ({ sortBy: sb, searchQuery }) => {
   // TODO: 這裡呼叫 API：fetchUsers({ sortBy: sortBy.value, keyword: keyword.value })
   console.log('搜尋', { sortBy: sortBy.value, keyword: keyword.value })
 }
-
-const handleStatusChange = (row, val) => {
-  // 之後接 API 更新狀態
-  console.log('狀態變更', { id: row.id, status: val })
-}
 </script>
 
 <template>
@@ -96,16 +91,9 @@ const handleStatusChange = (row, val) => {
 
       <el-table-column label="狀態" width="100" align="center">
         <template #default="{ row }">
-          <el-select
-            v-model="row.status"
-            size="small"
-            :class="{ disabled: row.status === false }"
-            style="width: 70px"
-            @change="(val) => handleStatusChange(row, val)"
-          >
-            <el-option label="啟用" :value="true" />
-            <el-option label="停用" :value="false" />
-          </el-select>
+          <span :class="{ disabled: row.status === false }">
+            {{ row.status ? '啟用' : '停用' }}
+          </span>
         </template>
       </el-table-column>
 
