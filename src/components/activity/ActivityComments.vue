@@ -1,5 +1,6 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
+import Swal from 'sweetalert2'
 
 const props = defineProps({
   activityId: { type: [String, Number], default: '' },
@@ -10,6 +11,7 @@ const props = defineProps({
 
 // 直接使用父層傳來的資料
 const messages = computed(() => props.rawMessages)
+const tableRef = ref(null)
 
 // 計算平均評分
 const averageRating = computed(() => {
@@ -17,6 +19,59 @@ const averageRating = computed(() => {
   const sum = messages.value.reduce((acc, curr) => acc + (curr.rating || 0), 0)
   return (sum / messages.value.length).toFixed(1)
 })
+
+// 控制展開邏輯
+const toggleExpand = (row) => {
+  tableRef.value.toggleRowExpansion(row)
+  const index = expandedRows.value.indexOf(row.id)
+  if (index > -1) {
+    expandedRows.value.splice(index, 1)
+  } else {
+    expandedRows.value.push(row.id)
+  }
+}
+
+//隱藏留言
+const hideComment = (commentId) => {
+  Swal.fire({
+    icon: 'warning',
+    title: '確定隱藏此留言嗎？',
+    showCancelButton: true,
+    confirmButtonText: '確定',
+    cancelButtonText: '取消',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 調用後端 API 隱藏留言
+      hideCommentApi(commentId)
+    }
+  })
+}
+
+//取消隱藏
+const unhideComment = (commentId) => {
+  Swal.fire({
+    icon: 'warning',
+    title: '確定取消隱藏此留言嗎？',
+    showCancelButton: true,
+    confirmButtonText: '確定',
+    cancelButtonText: '取消',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 調用後端 API 取消隱藏留言
+      unhideCommentApi(commentId)
+    }
+  })
+}
+
+//調用後端 API 隱藏留言
+const hideCommentApi = (commentId) => {
+  // TODO: 調用後端 API 隱藏留言
+}
+
+//調用後端 API 取消隱藏留言
+const unhideCommentApi = (commentId) => {
+  // TODO: 調用後端 API 取消隱藏留言
+}
 </script>
 
 <template>
@@ -31,8 +86,9 @@ const averageRating = computed(() => {
       style="width: 100%"
       header-row-class-name="custom-header"
       row-class-name="custom-row"
+      ref="tableRef"
     >
-      <el-table-column type="expand">
+      <el-table-column type="expand" class="hide-expand-icon" width="1">
         <template #default="props">
           <div class="report-detail-container">
             <div class="report-header">
@@ -52,7 +108,6 @@ const averageRating = computed(() => {
                   <el-select v-model="rep.status" size="small" style="width: 110px">
                     <el-option label="待處理" value="待處理" />
                     <el-option label="已處理" value="已處理" />
-                    <el-option label="已駁回" value="已駁回" />
                   </el-select>
                 </div>
               </div>
@@ -62,7 +117,11 @@ const averageRating = computed(() => {
         </template>
       </el-table-column>
 
-      <el-table-column label="編號" prop="id" width="80" align="center" />
+      <el-table-column label="編號" width="80" align="center">
+        <template #default="scope">
+          {{ scope.$index + 1 }}
+        </template>
+      </el-table-column>
       <el-table-column label="會員編號" prop="memberId" width="100" align="center" />
       <el-table-column label="評分" prop="rating" width="80" align="center" />
 
@@ -76,7 +135,11 @@ const averageRating = computed(() => {
 
       <el-table-column label="檢舉紀錄" width="120" align="center">
         <template #default="scope">
-          <span v-if="scope.row.reportCount > 0" style="color: #e65d4f; font-weight: bold">
+          <span
+            v-if="scope.row.reportCount > 0"
+            style="color: #e65d4f; font-weight: bold"
+            @click="toggleExpand(scope.row)"
+          >
             {{ scope.row.reportCount }} 則檢舉
           </span>
           <span v-else>無</span>
@@ -85,23 +148,18 @@ const averageRating = computed(() => {
 
       <el-table-column label="操作" width="100" align="center">
         <template #default="scope">
-          <el-link
-            class="hide-link"
-            :underline="false"
-            :type="scope.row.isVisible ? 'default' : 'danger'"
+          <button
+            class="hide-btn"
+            @click="scope.row.isVisible ? hideComment(scope.row.id) : unhideComment(scope.row.id)"
           >
             {{ scope.row.isVisible ? '隱藏留言' : '取消隱藏' }}
-          </el-link>
+          </button>
         </template>
       </el-table-column>
     </el-table>
 
     <div class="pagination-container">
-      <el-pagination
-        layout="prev, pager, next"
-        :total="messages.length"
-        class="custom-pagination"
-      />
+      <el-pagination background layout="prev, pager, next" :total="messages.length" class="mt-4" />
     </div>
   </div>
 </template>
@@ -134,21 +192,16 @@ $title-col: #153450;
 }
 
 :deep(.custom-header th) {
-  background-color: $game-line-color !important;
+  background-color: $card-color !important;
   color: #102a43;
   font-size: 14px;
   font-weight: bold;
   border-bottom: 1px solid $btn-bg;
 }
 
-.hide-link {
-  font-weight: bold;
-  cursor: pointer;
+:deep(.el-table__expand-column .el-table__expand-icon) {
+  display: none;
 }
-.hide-link:hover {
-  color: #2c6e88;
-}
-
 /* 檢舉展開區塊 (米色) */
 :deep(.el-table__expanded-cell) {
   background-color: $disable-col !important;
@@ -185,18 +238,8 @@ $title-col: #153450;
 
 /* 分頁 (共用樣式) */
 .pagination-container {
+  margin-top: 24px;
   display: flex;
   justify-content: center;
-  margin-top: 30px;
-}
-:deep(.el-pagination .el-pager li) {
-  background: transparent;
-  border-bottom: 2px solid $btn-bg;
-  border-radius: 0;
-}
-:deep(.el-pagination .el-pager li.is-active) {
-  color: $text-color;
-  border-bottom-color: $text-color;
-  font-weight: bold;
 }
 </style>
