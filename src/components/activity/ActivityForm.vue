@@ -1,7 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
+import Swal from 'sweetalert2'
 
 const props = defineProps({
   formData: {
@@ -15,23 +16,36 @@ const router = useRouter()
 
 // 控制編輯狀態
 const isEditing = ref(false)
-
+//建立本地響應式物件
+const localForm = ref({})
+//偵測到複層資料後存入localForm
+watch(
+  () => props.formData,
+  (newVal) => {
+    localForm.value = JSON.parse(JSON.stringify(newVal))
+  },
+  { immediate: true, deep: true },
+)
+//判斷活動是否已結束
+const isActivityEnded = computed(() => {
+  return localForm.value.detailStatus === '已結束'
+})
 // 備份資料用
 let backupData = {}
 onMounted(() => {
-  if (props.formData.isNew) {
+  if (localForm.value.isNew) {
     isEditing.value = true
   }
 })
-
 const enableEdit = () => {
-  const rawCopy = JSON.parse(JSON.stringify(props.formData))
+  // 編輯前，先把目前的狀態備份起來
+  const rawCopy = JSON.parse(JSON.stringify(localForm.value))
   backupData = rawCopy
   isEditing.value = true
 }
 
 const cancelEdit = () => {
-  if (props.formData.isNew) {
+  if (localForm.value.isNew) {
     router.go(-1)
     return
   }
@@ -49,19 +63,41 @@ const cancelEdit = () => {
       new Date(backupData.registrationTime[1]),
     ]
   }
+  //備份資料覆蓋localForm
+  localForm.value = { ...backupData }
+
   //取消編輯
-  Object.assign(props.formData, backupData)
   isEditing.value = false
   ElMessage.info('已取消編輯')
+  Swal.fire({
+    icon: 'info',
+    title: '已取消編輯',
+    showConfirmButton: false,
+    timer: 1500,
+  })
+}
+//圖片上傳
+const handleImageUpload = (uploadFile) => {
+  //取得檔案名稱
+  localForm.value.imageName = uploadFile.name
+  //預覽
+  localForm.value.imageUrl = URL.createObjectURL(uploadFile.raw)
+  localForm.value.imageFile = uploadFile.raw
 }
 //儲存編輯
 const saveEdit = () => {
   isEditing.value = false
-  emit('save', props.formData)
+  emit('save', localForm.value)
   ElMessage.success('儲存成功')
-  if (props.formData.isNew) {
-    props.formData.isNew = false
+  if (localForm.value.isNew) {
+    localForm.value.isNew = false
   }
+  Swal.fire({
+    icon: 'success',
+    title: '儲存成功',
+    showConfirmButton: false,
+    timer: 1500,
+  })
 }
 </script>
 
@@ -71,7 +107,16 @@ const saveEdit = () => {
       <h2 class="section-title">活動詳細資訊</h2>
       <div class="action-buttons">
         <template v-if="!isEditing">
-          <el-button class="actionBtn" plain @click="enableEdit"> 編輯 </el-button>
+          <el-button
+            class="actionBtn"
+            plain
+            @click="enableEdit"
+            :title="isActivityEnded ? '活動已結束，無法編輯' : ''"
+          >
+            <!--  :disabled="isActivityEnded"等修改完成在加上去去-->
+            <!-- {{ isActivityEnded ? '活動已結束' : '編輯' }} -->
+            編輯
+          </el-button>
         </template>
         <template v-else>
           <el-button class="actionBtn" plain @click="cancelEdit">取消</el-button>
@@ -80,15 +125,15 @@ const saveEdit = () => {
       </div>
     </div>
 
-    <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
+    <el-form :model="localForm" label-width="100px" label-position="left" class="customForm">
       <el-row :gutter="40">
         <el-col :span="12">
           <el-form-item label="活動編號">
-            <el-input v-model="formData.id" disabled class="readOnlyInput" />
+            <el-input v-model="localForm.id" disabled class="readOnlyInput" />
           </el-form-item>
           <el-form-item label="活動類別">
             <el-select
-              v-model="formData.category"
+              v-model="localForm.category"
               placeholder="請選擇類別"
               :disabled="!isEditing"
               style="width: 100%"
@@ -99,38 +144,38 @@ const saveEdit = () => {
             </el-select>
           </el-form-item>
           <el-form-item label="活動區域">
-            <el-input v-model="formData.region" disabled class="readOnlyInput" />
+            <el-input v-model="localForm.region" disabled class="readOnlyInput" />
           </el-form-item>
           <el-form-item label="最大志工數">
-            <el-input v-model="formData.maxVolunteers" :disabled="!isEditing" />
+            <el-input v-model="localForm.maxVolunteers" :disabled="!isEditing" />
           </el-form-item>
           <el-form-item label="目前報名數">
-            <el-input v-model="formData.currentVolunteers" disabled class="readOnlyInput" />
+            <el-input v-model="localForm.currentVolunteers" disabled class="readOnlyInput" />
           </el-form-item>
         </el-col>
 
         <el-col :span="12">
           <el-form-item label="管理者帳號">
-            <el-input v-model="formData.publisher" disabled class="readOnlyInput" />
+            <el-input v-model="localForm.publisher" disabled class="readOnlyInput" />
           </el-form-item>
           <el-form-item label="發布時間">
-            <el-input v-model="formData.publishTime" disabled class="readOnlyInput" />
+            <el-input v-model="localForm.publishTime" disabled class="readOnlyInput" />
           </el-form-item>
           <el-form-item label="活動標題">
-            <el-input v-model="formData.title" :disabled="!isEditing" />
+            <el-input v-model="localForm.title" :disabled="!isEditing" />
           </el-form-item>
           <el-form-item label="活動狀態">
             <el-select
-              v-model="formData.status"
+              v-model="localForm.status"
               placeholder="請選擇狀態"
               :disabled="!isEditing"
               style="width: 100%"
             >
               <el-option label="草稿" value="草稿" />
-              <el-option :label="'發布 ( ' + formData.detailStatus + ' )'" value="發布">
+              <el-option :label="'發布 ( ' + localForm.detailStatus + ' )'" value="發布">
                 <span>發布</span>
                 <span
-                  v-if="formData.status === '發布'"
+                  v-if="localForm.status === '發布'"
                   style="
                     float: right;
                     color: #4fa8c3;
@@ -139,21 +184,21 @@ const saveEdit = () => {
                     margin-left: 10px;
                   "
                 >
-                  ( {{ formData.detailStatus }} )
+                  ( {{ localForm.detailStatus }} )
                 </span>
               </el-option>
               <el-option label="取消" value="取消" />
             </el-select>
           </el-form-item>
           <el-form-item label="活動地點">
-            <el-input v-model="formData.location" :disabled="!isEditing" />
+            <el-input v-model="localForm.location" :disabled="!isEditing" />
           </el-form-item>
         </el-col>
       </el-row>
 
       <el-form-item label="活動時間">
         <el-date-picker
-          v-model="formData.activityTime"
+          v-model="localForm.activityTime"
           type="datetimerange"
           range-separator="---"
           format="YYYY-MM-DD HH:mm"
@@ -164,7 +209,7 @@ const saveEdit = () => {
 
       <el-form-item label="報名期間">
         <el-date-picker
-          v-model="formData.registrationTime"
+          v-model="localForm.registrationTime"
           type="datetimerange"
           range-separator="---"
           format="YYYY-MM-DD HH:mm"
@@ -175,7 +220,7 @@ const saveEdit = () => {
 
       <el-form-item label="活動簡介">
         <el-input
-          v-model="formData.intro"
+          v-model="localForm.intro"
           type="textarea"
           :rows="5"
           :disabled="!isEditing"
@@ -185,7 +230,7 @@ const saveEdit = () => {
 
       <el-form-item label="注意事項">
         <el-input
-          v-model="formData.note"
+          v-model="localForm.note"
           type="textarea"
           :rows="6"
           :disabled="!isEditing"
@@ -200,14 +245,15 @@ const saveEdit = () => {
             action="#"
             :auto-upload="false"
             :show-file-list="false"
+            :on-change="handleImageUpload"
             :disabled="!isEditing"
           >
-            <el-button :disabled="!isEditing">上傳檔案 +</el-button>
+            <el-button :disabled="!isEditing">上傳封面照片</el-button>
           </el-upload>
 
-          <div class="imagePreview" v-if="formData.imageUrl">
-            <el-image :src="formData.imageUrl" fit="cover" class="previewImg" />
-            <span class="fileName">{{ formData.imageName }}</span>
+          <div class="imagePreview" v-if="localForm.imageUrl">
+            <el-image :src="localForm.imageUrl" fit="cover" class="previewImg" />
+            <span class="fileName">{{ localForm.imageName }}</span>
           </div>
           <div class="imagePreview" v-else>
             <div class="image-placeholder"></div>

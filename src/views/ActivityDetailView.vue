@@ -75,9 +75,9 @@ const transformToFormData = (data) => {
 
   // 邏輯：已結束> 進行中 > 報名截止 > 已額滿  > 報名中
   const now = new Date()
-  const actStart = new Date(data.ACTIVITY_START_DATETIME)
-  const actEnd = new Date(data.ACTIVITY_END_DATETIME)
-  const signupEnd = new Date(data.ACTIVITY_SIGNUP_END_DATETIME)
+  const actStart = new Date(data.ACTIVITY_START_DATETIME.replace('T', ' '))
+  const actEnd = new Date(data.ACTIVITY_END_DATETIME.replace('T', ' '))
+  const signupEnd = new Date(data.ACTIVITY_SIGNUP_END_DATETIME.replace('T', ' '))
   const regStart = new Date(data.ACTIVITY_SIGNUP_START_DATETIME)
   const regEnd = new Date(data.ACTIVITY_SIGNUP_END_DATETIME)
 
@@ -189,6 +189,7 @@ const currentMessages = computed(() => {
             v-if="!currentActivityForm.isNew"
             :activity-id="currentActivityForm.id"
             :activity-title="currentActivityForm.title"
+            :activity-status="currentActivityForm.detailStatus"
           />
           <div v-else class="empty-msg">活動未發布，尚未有名單</div>
         </div>
@@ -198,6 +199,7 @@ const currentMessages = computed(() => {
             v-if="!currentActivityForm.isNew"
             :activity-id="currentActivityForm.id"
             :activity-title="currentActivityForm.title"
+            :activity-status="currentActivityForm.detailStatus"
             :results-data="currentResults"
             :category-id="rawData?.ACTIVITY_CATEGORY_ID"
             :signup-count="rawData?.ACTIVITY_SIGNUP_PEOPLE"
@@ -211,6 +213,7 @@ const currentMessages = computed(() => {
             v-if="!currentActivityForm.isNew"
             :activity-id="currentActivityForm.id"
             :activity-title="currentActivityForm.title"
+            :activity-status="currentActivityForm.detailStatus"
             :raw-messages="currentMessages"
           />
           <div v-else class="empty-msg">活動未結束，目前無人留言</div>
@@ -219,7 +222,8 @@ const currentMessages = computed(() => {
     </el-container>
   </div>
 </template>
-<style scoped>
+
+<style scoped lang="scss">
 .pageContainer {
   padding: 30px;
   min-height: 100vh;
@@ -231,7 +235,7 @@ const currentMessages = computed(() => {
 }
 .label {
   font-weight: bold;
-  color: #102a43;
+  color: $primary-color;
 }
 .val {
   color: #333;

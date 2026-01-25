@@ -221,7 +221,7 @@ const paginatedData = computed(() => {
       </el-table-column>
     </el-table>
 
-    <div class="paginationSection">
+    <div class="pagination-container">
       <el-pagination
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
@@ -279,7 +279,7 @@ const paginatedData = computed(() => {
 }
 .customTable {
   :deep(th.el-table__cell) {
-    background-color: $backstage-bar-color;
+    background-color: $card-color;
     font-size: 14px;
     color: $text-color;
     font-weight: bold;
@@ -292,8 +292,7 @@ const paginatedData = computed(() => {
   }
 }
 
-// 分頁樣式 (對齊 NewsView)
-.paginationSection {
+.pagination-container {
   margin-top: 24px;
   display: flex;
   justify-content: center;

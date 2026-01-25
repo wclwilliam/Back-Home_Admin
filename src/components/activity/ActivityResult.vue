@@ -1,10 +1,13 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { SuccessFilled } from '@element-plus/icons-vue'
+import { ElMessage } from 'element-plus'
+import Swal from 'sweetalert2'
 
 const props = defineProps({
   activityId: { type: [String, Number], default: '' },
   activityTitle: { type: String, default: '' },
+  activityStatus: { type: String, default: '' },
   resultsData: { type: Array, default: () => [] },
   // 活動分類 ID (1:淨灘, 2:巡守, 3:照護)
   categoryId: { type: Number, default: 1 },
@@ -38,6 +41,11 @@ const photoList = ref([])
 const currentCategoryMetrics = computed(() => {
   return metricGroups[props.categoryId] || metricGroups[1]
 })
+//判斷活動是否結束，結束才可以編輯
+const canEditResults = computed(() => {
+  return props.activityStatus === '已結束'
+})
+
 //初始化資料
 const initData = () => {
   resultItems.value = []
@@ -62,11 +70,8 @@ const initData = () => {
     })
   }
 
-  if (props.coverImage) {
-    photoList.value = [
-      { src: props.coverImage, selected: true },
-      { src: props.coverImage, selected: false },
-    ]
+  if (props.coverImage && photoList.value.length === 0) {
+    photoList.value = [{ src: props.coverImage, selected: true }]
   }
 }
 
@@ -83,12 +88,24 @@ const getOpts = (currentRow) => {
       value: id,
     }))
 }
-
 const addItem = () => {
+  //活動未結束，提示不能新增
+  if (!canEditResults.value) {
+    ElMessage.warning('活動尚未結束，不能新增成果')
+    return
+  }
+
   const usedCount = resultItems.value.length
   const totalCount = currentCategoryMetrics.value.length
   if (usedCount >= totalCount) {
     alert('已無其他可新增的成果項目')
+    return
+  }
+
+  // 檢查是否有未完成的編輯項目
+  const hasUnsaved = resultItems.value.some((item) => item.isEditing)
+  if (hasUnsaved) {
+    alert('請先完成目前成果項目的編輯')
     return
   }
 
@@ -98,8 +115,44 @@ const addItem = () => {
     isEditing: true, // 新增時直接進入編輯模式
   })
 }
+
+//確認input框都有內容
+const confirmInput = () => {
+  resultItems.value.forEach((item) => {
+    item.isEditing = false
+  })
+}
 const removeItem = (index) => {
-  resultItems.value.splice(index, 1)
+  Swal.fire({
+    title: '確定要刪除嗎？',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: '確定',
+    cancelButtonText: '取消',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      resultItems.value.splice(index, 1)
+    }
+  })
+}
+const handlePhotoUpload = (uploadFile) => {
+  photoList.value.push({
+    src: URL.createObjectURL(uploadFile.raw),
+    file: uploadFile.raw,
+    selected: false,
+    name: uploadFile.name,
+  })
+}
+//全選照片
+const selectAllPhotos = () => {
+  photoList.value.forEach((photo) => {
+    photo.selected = true
+  })
+}
+//刪除照片
+const handlePhotoRemove = () => {
+  //刪除選取的項目
+  photoList.value = photoList.value.filter((photo) => !photo.selected)
 }
 watch(() => props.activityId, initData)
 onMounted(initData)
@@ -137,19 +190,27 @@ onMounted(initData)
         <div class="col-value">
           <span v-if="!item.isEditing">{{ item.value }}</span>
           <el-input v-else v-model="item.value" placeholder="請輸入數值或內容" />
+          <span v-if="item.isEditing && item.value === ''" style="color: red; text-align: left"
+            >*請輸入數值或內容</span
+          >
         </div>
 
         <div class="col-action">
           <template v-if="!item.isEditing">
-            <el-link class="link-btn" @click="item.isEditing = true">編輯</el-link>
-            <span style="color: #ccc; margin: 0 5px">|</span>
-            <el-link class="link-btn" type="danger" @click="removeItem(index)">刪除</el-link>
+            <template v-if="canEditResults">
+              <el-link class="link-btn" @click="item.isEditing = true">編輯</el-link>
+              <span style="color: #ccc; margin: 0 5px">|</span>
+              <el-link class="link-btn" type="danger" @click="removeItem(index)">刪除</el-link>
+            </template>
+            <span v-else>(唯讀)</span>
           </template>
           <template v-else>
+            <el-link class="link-btn" @click="removeItem(index)">取消</el-link>
+            <span style="color: #ccc; margin: 0 5px">|</span>
             <el-link
               class="link-btn"
-              :disabled="item.metricId === null"
-              @click="item.metricId !== null ? (item.isEditing = false) : null"
+              :disabled="item.metricId === null || !item.value"
+              @click="item.metricId !== null && item.value ? (item.isEditing = false) : null"
               >完成</el-link
             >
           </template>
@@ -165,18 +226,12 @@ onMounted(initData)
       <div class="section-header">
         <h3>成果照片</h3>
         <div class="photo-actions">
-          <el-button class="action-btn outline">全選圖片</el-button>
-          <el-button class="action-btn outline">刪除</el-button>
+          <el-button class="action-btn outline" @click="selectAllPhotos">全選圖片</el-button>
+          <el-button class="action-btn outline" @click="handlePhotoRemove">刪除</el-button>
         </div>
       </div>
 
       <div class="photo-grid">
-        <div class="photo-item upload-block">
-          <el-upload action="#" :auto-upload="false" :show-file-list="false">
-            <el-button class="inner-upload-btn">上傳檔案 +</el-button>
-          </el-upload>
-        </div>
-
         <div
           v-for="(img, idx) in photoList"
           :key="idx"
@@ -188,6 +243,17 @@ onMounted(initData)
           <div class="check-icon" v-if="img.selected">
             <el-icon><SuccessFilled /></el-icon>
           </div>
+        </div>
+        <div class="photo-item upload-block">
+          <el-upload
+            action="#"
+            :auto-upload="false"
+            :show-file-list="false"
+            :disabled="!canEditResults"
+            :on-change="handlePhotoUpload"
+          >
+            <el-button class="inner-upload-btn" :disabled="!canEditResults">上傳照片</el-button>
+          </el-upload>
         </div>
       </div>
     </div>
@@ -228,11 +294,11 @@ $title-col: #153450;
 }
 .table-header {
   display: flex;
-  background-color: $backstage-bar-color;
+  background-color: $card-color;
   font-size: 14px;
   color: $text-color;
   font-weight: bold;
-  border-bottom: none;
+  border: none;
   padding: 15px;
 }
 .table-row {
@@ -240,7 +306,7 @@ $title-col: #153450;
   padding: 15px;
   border-bottom: 1px solid $disable-col;
   background: $text-white;
-  align-items: center;
+  align-items: flex-start;
 }
 .col-type {
   flex: 1;
@@ -248,7 +314,7 @@ $title-col: #153450;
 }
 .col-value {
   flex: 1;
-  text-align: center;
+  text-align: left;
 }
 .col-action {
   width: 150px;
