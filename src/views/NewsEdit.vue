@@ -132,7 +132,7 @@ const goBack = () => {
               <el-input v-model="formData.id" disabled class="readOnlyInput" />
             </el-form-item>
           </el-col>
-          <el-col :span="10" :offset="2">
+          <el-col :span="10" :offset="4">
             <el-form-item label="發布管理者帳號" label-width="120px">
               <el-input v-model="formData.admin" disabled class="readOnlyInput" />
             </el-form-item>
@@ -153,7 +153,7 @@ const goBack = () => {
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="10" :offset="2">
+          <el-col :span="10" :offset="4">
             <el-form-item label="日期" label-width="120px">
               <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
