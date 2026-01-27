@@ -1,8 +1,8 @@
 <script setup>
-import { ref,computed } from 'vue'
+import { ref,computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
-
+import { backHomeApi } from '@/utils/publicApi'
 
 
 const route = useRoute()
@@ -17,6 +17,13 @@ const handleTabClick = (tab) => {
   router.push({ name: tab.paneName })
 }
 
+
+// 測試api是否成功 可刪
+onMounted(async () => {
+        await backHomeApi.get('donation/report_get.php').then((response) => {
+            console.log(response.data);
+        })
+    })
 
 </script>
 
@@ -57,6 +64,7 @@ padding: 30px;
         }
         .el-tabs__item {
             border: 1px solid $highlight-color1 !important;
+            background-color: #fff;
             color: $text-color;
             height: 45px;
             line-height: 45px;

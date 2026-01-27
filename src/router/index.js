@@ -93,6 +93,11 @@ const router = createRouter({
           component: () => import('@/views/DataView/ImpactView/ImpactAdd.vue'),
         },
         {
+          path: 'data/impact/edit',
+          name: 'impactEdit',
+          component: () => import('@/views/DataView/ImpactView/ImpactEdit.vue'),
+        },
+        {
           path: 'data/rescue/add',
           name: 'rescueAdd',
           component: () => import('@/views/DataView/RescueView/RescueForm.vue'),
@@ -106,6 +111,11 @@ const router = createRouter({
           path: 'data/report/add',
           name: 'reportAdd',
           component: () => import('@/views/DataView/ReportView/ReportAdd.vue'),
+        },
+        {
+          path: 'data/report/edit',
+          name: 'reportEdit',
+          component: () => import('@/views/DataView/ReportView/ReportEdit.vue'),
         },
         {
           path: 'members',
