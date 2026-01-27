@@ -9,14 +9,20 @@ const userStore = useUserStore()
 
 const account = ref('')
 const password = ref('')
+const loading = ref(false)
 
-const onLogin = () => {
-  const success = userStore.login(account.value, password.value)
-  if (!success) return
+const onLogin = async () => {
+  loading.value = true
+  try {
+    const success = await userStore.login(account.value, password.value)
+    if (!success) return
 
-  // 登入成功 → 回原本頁面 or 後台首頁
-  const redirect = route.query.redirect || { name: 'admin-account' }
-  router.replace(redirect)
+    // 登入成功 → 回原本頁面 or 後台首頁
+    const redirect = route.query.redirect || { name: 'admin-account' }
+    router.replace(redirect)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -33,20 +39,17 @@ const onLogin = () => {
         </el-form-item>
 
         <el-form-item>
-          <el-input
-            v-model="password"
-            type="password"
-            placeholder="請輸入密碼"
-            show-password
-            clearable
-          />
+          <el-input v-model="password" type="password" placeholder="請輸入密碼" show-password clearable
+            @keyup.enter="onLogin" />
         </el-form-item>
 
         <p v-if="userStore.errorMsg" class="error">
           {{ userStore.errorMsg }}
         </p>
 
-        <el-button type="primary" class="login-btn" size="large" @click="onLogin"> 登入 </el-button>
+        <el-button type="primary" class="login-btn" size="large" :loading="loading" @click="onLogin">
+          登入
+        </el-button>
       </el-form>
     </div>
   </div>
@@ -92,7 +95,10 @@ const onLogin = () => {
 .error {
   color: #f56c6c;
   font-size: 14px;
-  text-align: right;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.8);
+  padding: 4px;
+  border-radius: 4px;
 }
 
 .title {

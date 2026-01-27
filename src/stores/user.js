@@ -1,51 +1,76 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
+import { authAPI } from '@/utils/adminApi'
 
-const localStorageKey = 'USER' // 定義key的名字
-const USERS = [
-  { account: 'demo', password: '1234', token: 'fake_token_demo' },
-  { account: 'ingrid', password: '5678', token: 'fake_token_ingrid' },
-]
+const TOKEN_KEY = 'ADMIN_TOKEN'
+const USER_KEY = 'ADMIN_USER'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref('')
+  const user = ref(null)
   const errorMsg = ref('')
   const isLogin = computed(() => token.value !== '')
 
+  // 從 localStorage 載入資料
   const loadStorage = () => {
     try {
-      const cache = localStorage.getItem(localStorageKey)
-      if (cache) token.value = cache
+      const cachedToken = localStorage.getItem(TOKEN_KEY)
+      const cachedUser = localStorage.getItem(USER_KEY)
+      if (cachedToken) token.value = cachedToken
+      if (cachedUser) user.value = JSON.parse(cachedUser)
     } catch (e) {
-      // localStorage 不能用時不要炸掉 app
       token.value = ''
+      user.value = null
     }
   }
 
-  const login = (accountValue, passwordValue) => {
+  // 登入
+  const login = async (accountValue, passwordValue) => {
     errorMsg.value = ''
-    // 先判斷
+
+    // 驗證輸入
     if (!accountValue || !passwordValue) {
       errorMsg.value = '請輸入帳號或密碼'
       return false
     }
-    const result = USERS.find((user) => {
-      return user.account === accountValue && user.password === passwordValue
-    })
-    if (!result) {
-      errorMsg.value = '登入失敗'
+
+    try {
+      // 調用登入 API
+      const response = await authAPI.login({
+        admin_id: accountValue,
+        password: passwordValue,
+      })
+
+      // 儲存 token 和用戶資訊
+      token.value = response.token
+      user.value = response.admin
+
+      localStorage.setItem(TOKEN_KEY, response.token)
+      localStorage.setItem(USER_KEY, JSON.stringify(response.admin))
+
+      return true
+    } catch (error) {
+      console.error('登入失敗:', error)
+      if (error.message === 'invalid_credentials') {
+        errorMsg.value = '帳號或密碼錯誤'
+      } else {
+        errorMsg.value = '登入失敗，請稍後重試'
+      }
       return false
     }
-    // 成功登入再寫入localStorage
-    token.value = result.token
-    localStorage.setItem(localStorageKey, result.token) // 只吃字串(用JSON.stringify字串化)
-    return true
   }
+
+  // 登出
   const logout = () => {
     token.value = ''
+    user.value = null
     errorMsg.value = ''
-    localStorage.removeItem(localStorageKey)
+    localStorage.removeItem(TOKEN_KEY)
+    localStorage.removeItem(USER_KEY)
   }
+
+  // 初始化時載入
   loadStorage()
-  return { token, errorMsg, isLogin, login, logout }
+
+  return { token, user, errorMsg, isLogin, login, logout }
 })

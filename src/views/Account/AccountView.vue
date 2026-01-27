@@ -1,19 +1,29 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { ElMessage } from 'element-plus'
 import Pagination from '@/components/Pagination.vue'
 import AdminHeader from '@/components/AdminHeader.vue'
 import TableToolbar from '@/components/TableToolbar.vue'
 import { formatLastLogin } from '@/utils/formatTime'
+import { adminAccountAPI } from '@/utils/adminApi'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
+
+// 判斷當前用戶是否為一般管理員
+const isGeneralAdmin = computed(() => userStore.user?.admin_role === 'general')
+
+// 一般管理員只能看到自己的帳號，不能新增
+const canAddAccount = computed(() => !isGeneralAdmin.value)
 
 const handleAdd = () => {
   router.push({ name: 'admin-account-create' })
 }
 
 const handleEdit = (row) => {
-  router.push({ name: 'admin-account-edit', params: { id: row.id } })
+  router.push({ name: 'admin-account-edit', params: { id: row.admin_id } })
 }
 
 const sortOptions = [
@@ -38,34 +48,62 @@ const sortOptions = [
 const sortBy = ref('')
 const keyword = ref('')
 
-// demo 資料（之後換 API）
-const tableData = ref([
-  {
-    id: 'admin01',
-    name: '王小明',
-    role: '超級管理員',
-    status: true, // true = 啟用, false = 停用
-    createdAt: '2026-01-01\n10:30',
-    lastLoginAt: '2026-01-20\n22:10',
-  },
-])
+// 分頁狀態
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
 
-// 如果之後要做「前端搜尋」可以先用 computed；
-// 若你是後端搜尋，就在 handleSearch 內打 API 更新 tableData 即可。
-const filteredTableData = computed(() => {
-  if (!keyword.value) return tableData.value
-  const q = keyword.value.trim().toLowerCase()
-  return tableData.value.filter((row) => {
-    return String(row.id).toLowerCase().includes(q) || String(row.name).toLowerCase().includes(q)
-  })
-})
+// 表格資料
+const tableData = ref([])
+const loading = ref(false)
 
-// 明確的「搜尋行為」：按 Enter / 點放大鏡才觸發（若你 TableToolbar 有 search emit）
-const handleSearch = ({ sortBy: sb, searchQuery }) => {
+// 排序和搜尋的回調
+const handleSearch = async ({ sortBy: sb, searchQuery }) => {
   sortBy.value = sb ?? sortBy.value
   keyword.value = searchQuery ?? keyword.value
-  // TODO: 這裡呼叫 API：fetchUsers({ sortBy: sortBy.value, keyword: keyword.value })
-  console.log('搜尋', { sortBy: sortBy.value, keyword: keyword.value })
+  currentPage.value = 1 // 搜尋時重置到第一頁
+  await fetchAccountList()
+}
+
+// 調用 API 獲取帳號列表
+const fetchAccountList = async () => {
+  loading.value = true
+  try {
+    // 一般管理員只搜尋自己的帳號
+    const searchKeyword = isGeneralAdmin.value ? userStore.user.admin_id : keyword.value
+
+    const response = await adminAccountAPI.getList({
+      page: currentPage.value,
+      pageSize: pageSize.value,
+      keyword: searchKeyword,
+      sortBy: sortBy.value,
+    })
+
+    tableData.value = response.items || []
+    total.value = response.pagination?.total || 0
+  } catch (error) {
+    console.error('獲取帳號列表失敗:', error)
+    ElMessage.error('獲取帳號列表失敗，請稍後重試')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 頁面載入時獲取資料
+onMounted(() => {
+  fetchAccountList()
+})
+
+// 分頁變化時的回調（需要連接 Pagination 組件）
+const handlePageChange = async (page) => {
+  currentPage.value = page
+  await fetchAccountList()
+}
+
+// 角色對應表
+const roleMap = {
+  super: '超級管理員',
+  general: '一般管理員',
 }
 </script>
 
@@ -73,39 +111,37 @@ const handleSearch = ({ sortBy: sb, searchQuery }) => {
   <div class="pageContainer">
     <AdminHeader title="後台帳號管理" />
 
-    <TableToolbar
-      v-model:modelValueSort="sortBy"
-      v-model:modelValueSearch="keyword"
-      :sort-options="sortOptions"
-      search-placeholder="搜尋帳號 / 姓名"
-      add-text="新增管理員"
-      @search="handleSearch"
-      @add="handleAdd"
-    />
+    <TableToolbar v-model:modelValueSort="sortBy" v-model:modelValueSearch="keyword" :sort-options="sortOptions"
+      :add-disabled="!canAddAccount" search-placeholder="搜尋帳號 / 姓名" add-text="新增管理員" @search="handleSearch"
+      @change="handleSearch" @add="handleAdd" />
 
-    <el-table :data="filteredTableData" style="width: 100%" class="customTable">
-      <el-table-column prop="id" label="管理員帳號" align="center" />
+    <el-table :data="tableData" style="width: 100%" class="customTable" v-loading="loading">
+      <el-table-column prop="admin_id" label="管理員帳號" align="center" />
 
-      <el-table-column prop="name" label="管理員姓名" align="center" />
-      <el-table-column prop="role" label="管理員角色" align="center" />
+      <el-table-column prop="admin_name" label="管理員姓名" align="center" />
+      <el-table-column label="管理員角色" align="center">
+        <template #default="{ row }">
+          {{ roleMap[row.admin_role] || row.admin_role }}
+        </template>
+      </el-table-column>
 
       <el-table-column label="狀態" width="100" align="center">
         <template #default="{ row }">
-          <span :class="{ disabled: row.status === false }">
-            {{ row.status ? '啟用' : '停用' }}
+          <span :class="{ disabled: row.admin_active === 0 }">
+            {{ row.admin_active === 1 ? '啟用' : '停用' }}
           </span>
         </template>
       </el-table-column>
 
-      <el-table-column prop="createdAt" label="帳號建立時間" align="center">
+      <el-table-column prop="admin_created_at" label="帳號建立時間" align="center">
         <template #default="{ row }">
-          <div class="dateCell">{{ row.createdAt }}</div>
+          <div class="dateCell">{{ row.admin_created_at }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column prop="lastLoginAt" label="最後登入時間" align="center">
+      <el-table-column prop="admin_last_login_time" label="最後登入時間" align="center">
         <template #default="{ row }">
-          <span>{{ formatLastLogin(row.lastLoginAt) }}</span>
+          <span>{{ formatLastLogin(row.admin_last_login_time) }}</span>
         </template>
       </el-table-column>
 
@@ -116,7 +152,7 @@ const handleSearch = ({ sortBy: sb, searchQuery }) => {
       </el-table-column>
     </el-table>
 
-    <Pagination />
+    <Pagination :total="total" :page-size="pageSize" :current-page="currentPage" @change="handlePageChange" />
   </div>
 </template>
 
@@ -126,6 +162,7 @@ const handleSearch = ({ sortBy: sb, searchQuery }) => {
   min-height: 100vh;
   box-sizing: border-box;
 }
+
 .customTable {
   :deep(th.el-table__cell) {
     background-color: $backstage-bar-color;
@@ -140,6 +177,7 @@ const handleSearch = ({ sortBy: sb, searchQuery }) => {
   white-space: pre-line;
   font-size: 13px;
 }
+
 :deep(.disabled .el-select__selected-item) {
   color: #f56c6c;
 }
