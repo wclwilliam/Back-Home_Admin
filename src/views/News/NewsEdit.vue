@@ -66,7 +66,6 @@ const handleImageChange = (uploadFile) => {
   formData.imageName = uploadFile.name
   formData.imageUrl = URL.createObjectURL(uploadFile.raw)
 }
-
 const router = useRouter()
 
 const goBack = () => {
@@ -91,37 +90,18 @@ const postNews = () => {
     title: "文章已發布!",
     icon: 'success',
     draggable: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      router.back()
+    }
   })
 }
 
-// import { ElMessage, ElMessageBox } from 'element-plus'
-
-/* element plus內建提示框
-const goBack = () => {
-  ElMessageBox.confirm(
-    '未儲存的內容將會遺失，確定要取消編輯嗎？', //內文
-    '警告', //標題
-    {
-      confirmButtonText: '確定離開',
-      cancelButtonText: '留在此頁',
-      type: 'warning', 
-    }
-  )
-    .then(() => {
-     
-      router.back()
-      
-    })
-    .catch(() => {
- 
-    })
-}
-    */
 </script>
 
 <template>
   <div class="pageContainer">
- <AdminHeader title="新增最新消息" />
+ <AdminHeader title="編輯最新消息" />
 
     <div class="formContainer">
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">

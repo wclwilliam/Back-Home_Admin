@@ -3,15 +3,43 @@ import { ref } from 'vue'
 import { Search } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 const handleAdd = () => {
   router.push({ name: 'news-add' })
 }
 
+const listEdit = (row) => {
+  router.push({ name: 'news-edit', params: { id: row.id } })
+}
 
 const sortBy = ref('')
 const searchQuery = ref('')
+
+const listDelete = (row) => {
+  Swal.fire({
+    title: '確定要刪除嗎？',
+    text: "刪除後將無法還原此文章",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#E14720',
+    cancelButtonColor: '#0E6273',
+    confirmButtonText: '確定刪除',
+    cancelButtonText: '取消'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 在這裡執行刪除 API 邏輯
+      console.log('執行刪除編號：', row.id);
+
+      Swal.fire(
+        '已刪除！',
+        '該內容已被移除。',
+        'success'
+      )
+    }
+  })
+}
 
 // 模擬資料
 const tableData = [
@@ -69,15 +97,15 @@ const tableData = [
 
 <template>
   <div class="pageContainer">
-      <AdminHeader title="最新消息管理" />
+    <AdminHeader title="最新消息管理" />
 
     <div class="toolbarSection">
       <div class="filters">
         <el-select v-model="sortBy" placeholder="排序" style="width: 120px; margin-right: 12px;">
-          <el-option label="最新發布" value="newest" />
-          <el-option label="最早發布" value="oldest" />
+          <el-option label="由近到遠" value="newest" />
+          <el-option label="由遠到近" value="oldest" />
         </el-select>
-
+          
         <el-input v-model="searchQuery" placeholder="搜尋" style="width: 200px">
           <template #suffix>
             <el-icon>
@@ -114,10 +142,9 @@ const tableData = [
       <el-table-column prop="status" label="狀態" width="100" align="center" />
 
       <el-table-column label="操作" width="150" align="center" fixed="right">
-        <template #default>
-          <el-button link type="primary" size="small">編輯</el-button>
+        <template #default="scope"> <el-button link type="primary" size="small" @click="listEdit(scope.row)">編輯</el-button>
           <span style="color: #dcdfe6; margin: 0 8px">|</span>
-          <el-button link type="danger" size="small">刪除</el-button>
+          <el-button link type="danger" size="small" @click="listDelete(scope.row)">刪除</el-button>
         </template>
       </el-table-column>
     </el-table>

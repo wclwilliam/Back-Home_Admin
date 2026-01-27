@@ -37,12 +37,17 @@ const router = createRouter({
         {
           path: 'news',
           name: 'admin-news',
-          component: () => import('@/views/NewsView.vue'),
+          component: () => import('@/views/News/NewsView.vue'),
         },
         {
           path: 'news/add',
           name: 'news-add',
-          component: () => import('@/views/NewsEdit.vue'),
+          component: () => import('@/views/News/NewsAdd.vue'),
+        },
+         {
+          path: 'news/edit',
+          name: 'news-edit',
+          component: () => import('@/views/News/NewsEdit.vue'),
         },
         {
           path: 'activity',
