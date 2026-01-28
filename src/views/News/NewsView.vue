@@ -1,11 +1,14 @@
 <script setup>
-import { ref, computed } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import { Search, Picture } from '@element-plus/icons-vue'
 import { useRouter } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import Swal from 'sweetalert2'
+import { backHomeApi } from '@/utils/publicApi'
+import Pagination from '@/components/Pagination.vue'
 
 const router = useRouter()
+
 const handleAdd = () => {
   router.push({ name: 'news-add' })
 }
@@ -16,11 +19,64 @@ const listEdit = (row) => {
 
 const sortBy = ref('')
 const searchQuery = ref('')
-const statusFilter = ref('全部') // 狀態篩選器，預設為「全部」
+const statusFilter = ref('全部') // 狀態篩選器,預設為「全部」
+const loading = ref(false) // 載入狀態
+const tableDataOriginal = ref([]) // 從 API 獲取的原始資料
 
-const listDelete = (row) => {
-  Swal.fire({
-    title: '確定要刪除嗎？',
+// 分頁相關
+const currentPage = ref(1) // 當前頁碼
+
+// 從 API 獲取資料
+const fetchNewsData = async () => {
+  loading.value = true
+  try {
+    const response = await backHomeApi.get('./news/news_get.php')
+
+    // 轉換資料格式以符合前端顯示需求
+    tableDataOriginal.value = response.data.map(item => ({
+      id: String(item.id).padStart(2, '0'), // 格式化為兩位數字串
+      category: item.category,
+      imageUrl: item.image_path || 'https://placehold.co/300x200?text=No+Image', // 如果沒有圖片則使用預設圖
+      title: item.title,
+      date: formatDateTime(item.published_at), // 格式化日期時間
+      status: item.status === 'published' ? '已發布' : '草稿',
+      rawStatus: item.status, // 保留原始狀態用於後續操作
+      author_id: item.author_id,
+      content: item.content
+    }))
+
+  } catch (error) {
+    console.error('獲取新聞資料失敗:', error)
+    Swal.fire({
+      title: '錯誤',
+      text: '無法載入新聞資料,請稍後再試',
+      icon: 'error',
+      confirmButtonColor: '#E14720'
+    })
+  } finally {
+    loading.value = false
+  }
+}
+
+// 格式化日期時間
+const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return ''
+
+  const date = new Date(dateTimeString)
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+
+  return `${year}-${month}-${day}\n${hours}:${minutes}:${seconds}`
+}
+
+// 刪除文章
+const listDelete = async (row) => {
+  const result = await Swal.fire({
+    title: '確定要刪除嗎?',
     text: "刪除後將無法還原此文章",
     icon: 'warning',
     showCancelButton: true,
@@ -28,111 +84,91 @@ const listDelete = (row) => {
     cancelButtonColor: '#0E6273',
     confirmButtonText: '確定刪除',
     cancelButtonText: '取消'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // 在這裡執行刪除 API 邏輯
-      console.log('執行刪除編號：', row.id);
-
-      Swal.fire(
-        '已刪除！',
-        '該內容已被移除。',
-        'success'
-      )
-    }
   })
+
+  if (result.isConfirmed) {
+    try {
+      // 執行刪除 API - 你需要另外建立 news_delete.php
+      await backHomeApi.delete(`./news/news_delete.php?id=${row.id}`)
+
+      Swal.fire({
+        title: '已刪除!',
+        text: '該內容已被移除。',
+        icon: 'success',
+        confirmButtonColor: '#0E6273'
+      })
+
+      // 重新獲取資料
+      fetchNewsData()
+
+    } catch (error) {
+      console.error('刪除失敗:', error)
+      Swal.fire({
+        title: '錯誤',
+        text: '刪除失敗,請稍後再試',
+        icon: 'error',
+        confirmButtonColor: '#E14720'
+      })
+    }
+  }
 }
 
+// 計算屬性：篩選+排序後的完整資料（不含分頁）
+const filteredData = computed(() => {
+  let result = [...tableDataOriginal.value]
 
-// 計算屬性：整合三個篩選器的邏輯
-const tableData = computed(() => {
-  let filteredData = [...tableDataOriginal]
-  
   // 1. 狀態篩選
   if (statusFilter.value !== '全部') {
-    filteredData = filteredData.filter(item => item.status === statusFilter.value)
+    result = result.filter(item => item.status === statusFilter.value)
   }
-  
+
   // 2. 搜尋篩選
   if (searchQuery.value.trim()) {
     const query = searchQuery.value.toLowerCase()
-    filteredData = filteredData.filter(item => 
-    item.title.toLowerCase().includes(query) ||
-    item.category.toLowerCase().includes(query) ||
-    item.id.toLowerCase().includes(query)
-  )
-}
+    result = result.filter(item =>
+      item.title.toLowerCase().includes(query) ||
+      item.category.toLowerCase().includes(query) ||
+      item.id.toLowerCase().includes(query)
+    )
+  }
 
-// 3. 排序
-if (sortBy.value === 'newest') {
-  // 由近到遠（日期較新的在前面）
-  filteredData.sort((a, b) => {
-    const dateA = new Date(a.date.replace('\n', ' '))
-    const dateB = new Date(b.date.replace('\n', ' '))
-    return dateB - dateA
-  })
-} else if (sortBy.value === 'oldest') {
-  // 由遠到近（日期較舊的在前面）
-  filteredData.sort((a, b) => {
-    const dateA = new Date(a.date.replace('\n', ' '))
-    const dateB = new Date(b.date.replace('\n', ' '))
-    return dateA - dateB
-  })
-}
+  // 3. 排序
+  if (sortBy.value === 'newest') {
+    // 由近到遠(日期較新的在前面)
+    result.sort((a, b) => {
+      const dateA = new Date(a.date.replace('\n', ' '))
+      const dateB = new Date(b.date.replace('\n', ' '))
+      return dateB - dateA
+    })
+  } else if (sortBy.value === 'oldest') {
+    // 由遠到近(日期較舊的在前面)
+    result.sort((a, b) => {
+      const dateA = new Date(a.date.replace('\n', ' '))
+      const dateB = new Date(b.date.replace('\n', ' '))
+      return dateA - dateB
+    })
+  }
 
-return filteredData
+  return result
 })
 
-// 模擬資料
-const tableDataOriginal = [
-  {
-    id: '01',
-    category: '重要公告',
-    imageUrl: 'https://placehold.co/300x200?text=Turtle+1',
-    title: '守護海洋安全第一：【龜途】2025 綠蠵龜棲地守護淨灘活動延期通知',
-    date: '2025-12-10\n10:50:04',
-    status: '已發布',
-  },
-  {
-    id: '02',
-    category: '異動通知',
-    imageUrl: 'https://placehold.co/300x200?text=Turtle+2',
-    title: '【系統維護】網站伺服器將於 2026/02/01 暫停服務兩小時',
-    date: '2025-11-20\n18:30:05',
-    status: '草稿',
-  },
-  {
-    id: '03',
-    category: '重要公告',
-    imageUrl: 'https://placehold.co/300x200?text=Turtle+3',
-    title: '還給海龜乾淨的家：2026 小琉球春季大型淨灘招募啟動',
-    date: '2025-11-15\n09:00:00',
-    status: '已發布',
-  },
-  {
-    id: '04',
-    category: '異動通知',
-    imageUrl: 'https://placehold.co/300x200?text=Turtle+4',
-    title: '【緊急異動】因強烈颱風接近，本週六「海龜生態講座」延期',
-    date: '2025-11-08\n14:20:00',
-    status: '已發布',
-  },
-  {
-    id: '05',
-    category: '異動通知',
-    imageUrl: 'https://placehold.co/300x200?text=Turtle+5',
-    title: '好消息！重傷綠蠵龜「安安」康復，將於本週日進行野放',
-    date: '2025-11-08\n14:20:00',
-    status: '已發布',
-  },
-  {
-    id: '06',
-    category: '異動通知',
-    imageUrl: 'https://placehold.co/300x200?text=Turtle+6',
-    title: '【資安升級】會員系統更新說明，請盡快重設您的密碼',
-    date: '2025-11-08\n14:20:00',
-    status: '已發布',
-  },
-]
+// 計算屬性：當前頁面要顯示的資料（分頁後）
+const pageNumber = computed(() => {
+  const start = (currentPage.value - 1) * 7  // 每頁 7 筆
+  const end = start + 7
+  return filteredData.value.slice(start, end)
+})
+
+// 監聽篩選條件變化，自動回到第一頁
+watch([statusFilter, searchQuery, sortBy], () => {
+  currentPage.value = 1
+})
+
+// 組件載入時獲取資料
+onMounted(() => {
+  fetchNewsData()
+})
+
 </script>
 
 
@@ -154,7 +190,7 @@ const tableDataOriginal = [
           <el-option label="由近到遠" value="newest" />
           <el-option label="由遠到近" value="oldest" />
         </el-select>
-        
+
         <!-- 搜尋篩選器 -->
         <el-input v-model="searchQuery" placeholder="搜尋" style="width: 200px">
           <template #suffix>
@@ -168,7 +204,15 @@ const tableDataOriginal = [
       <el-button plain class="addBtn" @click="handleAdd">新增資料</el-button>
     </div>
 
-    <el-table :data="tableData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
+    <!-- 添加載入狀態 -->
+    <el-table 
+      :data="pageNumber" 
+      style="width: 100%" 
+      class="customTable" 
+      header-row-class-name="tableHeader"
+      v-loading="loading" 
+      element-loading-text="載入中..."
+    >
 
       <el-table-column prop="id" label="文章編號" width="100" align="center" />
 
@@ -176,8 +220,20 @@ const tableDataOriginal = [
 
       <el-table-column label="封面圖" width="150" align="center">
         <template #default="scope">
-          <el-image style="width: 100%; height: 60px; border-radius: 4px; display: block; margin: 0 auto;"
-            :src="scope.row.imageUrl" fit="cover" />
+          <el-image 
+            style="width: 100%; height: 60px; border-radius: 4px; display: block; margin: 0 auto;"
+            :src="scope.row.imageUrl" 
+            fit="cover" 
+            :preview-src-list="[scope.row.imageUrl]"
+          >
+            <template #error>
+              <div class="image-slot">
+                <el-icon>
+                  <Picture />
+                </el-icon>
+              </div>
+            </template>
+          </el-image>
         </template>
       </el-table-column>
 
@@ -192,7 +248,8 @@ const tableDataOriginal = [
       <el-table-column prop="status" label="狀態" width="100" align="center" />
 
       <el-table-column label="操作" width="150" align="center" fixed="right">
-        <template #default="scope"> <el-button link type="primary" size="small" @click="listEdit(scope.row)">編輯</el-button>
+        <template #default="scope">
+          <el-button link type="primary" size="small" @click="listEdit(scope.row)">編輯</el-button>
           <span style="color: #dcdfe6; margin: 0 8px">|</span>
           <el-button link type="danger" size="small" @click="listDelete(scope.row)">刪除</el-button>
         </template>
@@ -200,7 +257,10 @@ const tableDataOriginal = [
     </el-table>
 
     <div class="paginationSection">
-      <el-pagination background layout="prev, pager, next" :total="50" class="mt-4" />
+      <Pagination 
+        v-model:current-page="currentPage"
+        :total="filteredData.length"
+      />
     </div>
   </div>
 </template>
@@ -266,7 +326,7 @@ const tableDataOriginal = [
 
 .customTable {
   :deep(th.el-table__cell) {
-    background-color: $card-color ; 
+    background-color: $card-color ;
     font-size: 14px;
     color: $text-color;
     font-weight: bold;
@@ -274,6 +334,16 @@ const tableDataOriginal = [
   }
 }
 
+.image-slot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background: #f5f7fa;
+  color: #909399;
+  font-size: 20px;
+}
 
 .paginationSection {
   margin-top: 24px;
