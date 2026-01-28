@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 
-const localStorageKey = 'USER' // 定義key的名字
+const localStorageKey = 'USER' // 定義key的名字，不要跟前台一樣
 const USERS = [
   { account: 'demo', password: '1234', token: 'fake_token_demo' },
   { account: 'ingrid', password: '5678', token: 'fake_token_ingrid' },
