@@ -8,6 +8,7 @@ import { backHomeApi } from '@/utils/publicApi'
 import Pagination from '@/components/Pagination.vue'
 
 const router = useRouter()
+const fileUrl = import.meta.env.VITE_FILE_URL
 
 const handleAdd = () => {
   router.push({ name: 'news-add' })
@@ -19,12 +20,10 @@ const listEdit = (row) => {
 
 const sortBy = ref('')
 const searchQuery = ref('')
-const statusFilter = ref('全部') // 狀態篩選器,預設為「全部」
-const loading = ref(false) // 載入狀態
+const statusFilter = ref('全部')
+const loading = ref(false)
 const tableDataOriginal = ref([]) // 從 API 獲取的原始資料
 
-// 分頁相關
-const currentPage = ref(1) // 當前頁碼
 
 // 從 API 獲取資料
 const fetchNewsData = async () => {
@@ -36,7 +35,7 @@ const fetchNewsData = async () => {
     tableDataOriginal.value = response.data.map(item => ({
       id: String(item.id).padStart(2, '0'), // 格式化為兩位數字串
       category: item.category,
-      imageUrl: item.image_path || 'https://placehold.co/300x200?text=No+Image', // 如果沒有圖片則使用預設圖
+      imageUrl: item.image_path ? (fileUrl + item.image_path) : 'https://placehold.co/300x200?text=No+Image',
       title: item.title,
       date: formatDateTime(item.published_at), // 格式化日期時間
       status: item.status === 'published' ? '已發布' : '草稿',
@@ -134,14 +133,14 @@ const filteredData = computed(() => {
 
   // 3. 排序
   if (sortBy.value === 'newest') {
-    // 由近到遠(日期較新的在前面)
+    // 由近到遠
     result.sort((a, b) => {
       const dateA = new Date(a.date.replace('\n', ' '))
       const dateB = new Date(b.date.replace('\n', ' '))
       return dateB - dateA
     })
   } else if (sortBy.value === 'oldest') {
-    // 由遠到近(日期較舊的在前面)
+    // 由遠到近
     result.sort((a, b) => {
       const dateA = new Date(a.date.replace('\n', ' '))
       const dateB = new Date(b.date.replace('\n', ' '))
@@ -152,10 +151,11 @@ const filteredData = computed(() => {
   return result
 })
 
-// 計算屬性：當前頁面要顯示的資料（分頁後）
+// 分頁後切換邏輯
+const currentPage = ref(1) // 當前頁碼
 const pageNumber = computed(() => {
-  const start = (currentPage.value - 1) * 7  // 每頁 7 筆
-  const end = start + 7
+  const start = (currentPage.value - 1) * 10
+  const end = start + 10
   return filteredData.value.slice(start, end)
 })
 
@@ -168,6 +168,8 @@ watch([statusFilter, searchQuery, sortBy], () => {
 onMounted(() => {
   fetchNewsData()
 })
+
+
 
 </script>
 
@@ -205,14 +207,8 @@ onMounted(() => {
     </div>
 
     <!-- 添加載入狀態 -->
-    <el-table 
-      :data="pageNumber" 
-      style="width: 100%" 
-      class="customTable" 
-      header-row-class-name="tableHeader"
-      v-loading="loading" 
-      element-loading-text="載入中..."
-    >
+    <el-table :data="pageNumber" style="width: 100%" class="customTable" header-row-class-name="tableHeader"
+      v-loading="loading" element-loading-text="載入中...">
 
       <el-table-column prop="id" label="文章編號" width="100" align="center" />
 
@@ -220,12 +216,8 @@ onMounted(() => {
 
       <el-table-column label="封面圖" width="150" align="center">
         <template #default="scope">
-          <el-image 
-            style="width: 100%; height: 60px; border-radius: 4px; display: block; margin: 0 auto;"
-            :src="scope.row.imageUrl" 
-            fit="cover" 
-            :preview-src-list="[scope.row.imageUrl]"
-          >
+          <el-image style="width: 100%; height: 60px; border-radius: 4px; display: block; margin: 0 auto;"
+            :src="scope.row.imageUrl" fit="cover">
             <template #error>
               <div class="image-slot">
                 <el-icon>
@@ -257,10 +249,7 @@ onMounted(() => {
     </el-table>
 
     <div class="paginationSection">
-      <Pagination 
-        v-model:current-page="currentPage"
-        :total="filteredData.length"
-      />
+      <Pagination v-model:current-page="currentPage" :total="filteredData.length" />
     </div>
   </div>
 </template>
