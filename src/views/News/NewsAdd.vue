@@ -98,6 +98,18 @@ const postNews = () => {
   })
 }
 
+const saveDraft = () => {
+  Swal.fire({
+    title: "文章已儲存草稿!",
+    icon: 'success',
+    draggable: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      router.back()
+    }
+  })
+}
+
 // import { ElMessage, ElMessageBox } from 'element-plus'
 
 /* element plus內建提示框
@@ -186,7 +198,7 @@ const goBack = () => {
 
         <div class="formFooter">
           <el-button class="actionBtn" plain @click="postNews">發布</el-button>
-          <el-button class="actionBtn" plain>儲存草稿</el-button>
+          <el-button class="actionBtn" plain @click="saveDraft">儲存草稿</el-button>
           <el-button class="actionBtn" plain @click="goBack">取消</el-button>
         </div>
 

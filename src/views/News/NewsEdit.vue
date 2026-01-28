@@ -27,7 +27,7 @@ class MyUploadAdapter {
         });
       }));
   }
-  abort() {}
+  abort() { }
 }
 
 function MyCustomUploadAdapterPlugin(editor) {
@@ -39,7 +39,7 @@ function MyCustomUploadAdapterPlugin(editor) {
 const editor = ClassicEditor
 const editorConfig = {
   placeholder: '請在此輸入詳細內容...',
-  extraPlugins: [MyCustomUploadAdapterPlugin], 
+  extraPlugins: [MyCustomUploadAdapterPlugin],
   toolbar: [
     'heading', '|',
     'bold', 'italic', 'link', '|',
@@ -97,11 +97,13 @@ const postNews = () => {
   })
 }
 
+
+
 </script>
 
 <template>
   <div class="pageContainer">
- <AdminHeader title="編輯最新消息" />
+    <AdminHeader title="編輯最新消息" />
 
     <div class="formContainer">
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
@@ -162,7 +164,7 @@ const postNews = () => {
 
         <div class="formFooter">
           <el-button class="actionBtn" plain @click="postNews">發布</el-button>
-          <el-button class="actionBtn" plain>儲存草稿</el-button>
+          <el-button class="disableBtn" disabled plain>儲存草稿</el-button>
           <el-button class="actionBtn" plain @click="goBack">取消</el-button>
         </div>
 
@@ -225,6 +227,12 @@ const postNews = () => {
     }
   }
 
+  .disableBtn {
+    background-color: #dcdcdc;
+    border: 1px solid #999;
+    color: #999;
+    font-weight: bold;
+  }
 
   :deep(.el-input__wrapper),
   :deep(.el-textarea__inner) {
