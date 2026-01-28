@@ -30,6 +30,12 @@ const props = defineProps({
     default: true,
   },
 
+  // 是否禁用新增按鈕
+  addDisabled: {
+    type: Boolean,
+    default: false,
+  },
+
   // 外部可傳入初始值（可選）
   modelValueSort: {
     type: String,
@@ -74,37 +80,25 @@ watch(searchQuery, (v) => {
 })
 
 const handleAdd = () => emit('add')
-const handleSearch = () => {
-  emit('search', { sortBy: sortBy.value, searchQuery: searchQuery.value })
-}
 </script>
 
 <template>
   <div class="toolbarSection">
     <div class="filters">
       <el-select v-model="sortBy" placeholder="排序" clearable style="width: 120px">
-        <el-option
-          v-for="opt in sortOptions"
-          :key="opt.value"
-          :label="opt.label"
-          :value="opt.value"
-        />
+        <el-option v-for="opt in sortOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
       </el-select>
 
-      <el-input
-        v-model="searchQuery"
-        :placeholder="searchPlaceholder"
-        clearable
-        style="width: 200px"
-        @keyup.enter="handleSearch"
-      >
-        <template #append>
-          <el-button :icon="Search" @click="handleSearch" />
+      <el-input v-model="searchQuery" :placeholder="searchPlaceholder" clearable style="width: 200px">
+        <template #suffix>
+          <el-icon>
+            <Search />
+          </el-icon>
         </template>
       </el-input>
     </div>
 
-    <el-button v-if="showAdd" plain class="addBtn" @click="handleAdd">
+    <el-button v-if="showAdd" plain class="addBtn" :disabled="addDisabled" @click="handleAdd">
       {{ addText }}
     </el-button>
   </div>

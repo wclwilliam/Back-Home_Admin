@@ -20,18 +20,18 @@ const router = createRouter({
         {
           path: 'account',
           name: 'admin-account',
-          component: () => import('@/views/AccountView.vue'),
+          component: () => import('@/views/Account/AccountView.vue'),
         },
         {
           path: 'account/create',
           name: 'admin-account-create',
-          component: () => import('@/views/AccountForm.vue'),
+          component: () => import('@/views/Account/AccountCreate.vue'),
           meta: { requiresAuth: true },
         },
         {
           path: 'account/:id/edit',
           name: 'admin-account-edit',
-          component: () => import('@/views/AccountForm.vue'),
+          component: () => import('@/views/Account/AccountEdit.vue'),
           meta: { requiresAuth: true },
         },
         {
@@ -67,25 +67,55 @@ const router = createRouter({
         {
           path: 'data',
           name: 'admin-data',
-          component: () => import('@/views/DataView.vue'),
+          component: () => import('@/views/DataView/DataView.vue'),
           redirect: { name: 'impact' },
           children: [
             {
               path: 'impact',
               name: 'impact',
-              component: () => import('@/views/ImpactView.vue'),
+              component: () => import('@/views/DataView/ImpactView/ImpactView.vue'),
             },
             {
               path: 'report',
               name: 'report',
-              component: () => import('@/views/ReportView.vue'),
+              component: () => import('@/views/DataView/ReportView/ReportView.vue'),
             },
             {
               path: 'rescue',
               name: 'rescue',
-              component: () => import('@/views/RescueView.vue'),
+              component: () => import('@/views/DataView/RescueView/RescueView.vue'),
             },
           ],
+        },
+        {
+          path: 'data/impact/add',
+          name: 'impactAdd',
+          component: () => import('@/views/DataView/ImpactView/ImpactAdd.vue'),
+        },
+        {
+          path: 'data/impact/edit',
+          name: 'impactEdit',
+          component: () => import('@/views/DataView/ImpactView/ImpactEdit.vue'),
+        },
+        {
+          path: 'data/rescue/add',
+          name: 'rescueAdd',
+          component: () => import('@/views/DataView/RescueView/RescueForm.vue'),
+        },
+        {
+          path: 'data/rescue/edit/:id',
+          name: 'rescueEdit',
+          component: () => import('@/views/DataView/RescueView/RescueForm.vue'),
+        },
+        {
+          path: 'data/report/add',
+          name: 'reportAdd',
+          component: () => import('@/views/DataView/ReportView/ReportAdd.vue'),
+        },
+        {
+          path: 'data/report/edit',
+          name: 'reportEdit',
+          component: () => import('@/views/DataView/ReportView/ReportEdit.vue'),
         },
         {
           path: 'members',

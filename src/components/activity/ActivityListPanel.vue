@@ -137,7 +137,12 @@ const paginatedData = computed(() => {
           <el-option label="照護" value="照護" />
         </el-select>
 
-        <el-input v-model="searchKeyword" placeholder="搜尋活動名稱 / 地點" style="width: 250px">
+        <el-input
+          v-model="searchKeyword"
+          placeholder="搜尋活動名稱 / 地點"
+          clearable
+          style="width: 200px"
+        >
           <template #suffix>
             <el-icon><Search /></el-icon>
           </template>
@@ -216,7 +221,7 @@ const paginatedData = computed(() => {
       </el-table-column>
     </el-table>
 
-    <div class="paginationSection">
+    <div class="pagination-container">
       <el-pagination
         v-model:current-page="currentPage"
         v-model:page-size="pageSize"
@@ -238,38 +243,40 @@ const paginatedData = computed(() => {
 .toolbarSection {
   display: flex;
   justify-content: space-between;
-  align-datas: center;
+  align-items: center;
   margin-bottom: 20px;
   padding: 12px 16px;
 
   // 篩選器群組
   .filters {
     display: flex;
-    align-datas: center;
-  }
-
-  // 覆寫 Element Plus 輸入框顏色 ($secondary-color)
-  :deep(.el-input__wrapper),
-  :deep(.el-select__wrapper) {
-    border-radius: 0 !important;
-    box-shadow: 0 0 0 1px $secondary-color inset;
-    padding: 8px 12px;
-    height: 40px;
-    line-height: 24px;
+    align-items: center;
+    // gap: 12px;
   }
 
   :deep(.el-input) {
-    --el-input-border-color: $secondary-color;
-    --el-input-focus-border-color: $secondary-color;
-    --el-input-hover-border-color: $secondary-color;
+    --el-input-border-color: #0e6273;
+    --el-input-focus-border-color: #0e6273;
+    --el-input-hover-border-color: #0e6273;
   }
 
   :deep(.el-select) {
-    --el-border-color: $secondary-color;
-    --el-border-color-hover: $secondary-color;
+    --el-border-color: #0e6273;
+    --el-border-color-hover: #0e6273;
+    --el-color-primary: #0e6273;
+    --el-select-input-focus-border-color: #0e6273;
   }
 }
-
+// 新增按鈕樣式
+.addBtn {
+  border: 1px solid $secondary-color;
+  color: $secondary-color;
+  background: transparent;
+  &:hover {
+    background-color: $secondary-color;
+    color: $text-white;
+  }
+}
 .customTable {
   :deep(th.el-table__cell) {
     background-color: $card-color;
@@ -277,7 +284,6 @@ const paginatedData = computed(() => {
     color: $text-color;
     font-weight: bold;
     border-bottom: none;
-    height: 50px;
   }
 
   // 讓表格內容垂直置中
@@ -286,25 +292,9 @@ const paginatedData = computed(() => {
   }
 }
 
-// 分頁樣式 (對齊 NewsView)
-.paginationSection {
+.pagination-container {
   margin-top: 24px;
   display: flex;
   justify-content: center;
-}
-
-// 新增按鈕樣式
-.addBtn {
-  border-radius: 0 !important; /* 關鍵：去除圓角 */
-  border: 2px solid $secondary-color; /* 關鍵：加粗邊框 */
-  color: $secondary-color;
-  background: $bg-color;
-  font-weight: bold;
-  padding: 12px 24px;
-  height: auto;
-  &:hover {
-    background-color: $secondary-color;
-    color: $text-white;
-  }
 }
 </style>

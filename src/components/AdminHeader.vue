@@ -33,7 +33,14 @@ const handleLogoutClick = () => {
     <h2 class="pageTitle">{{ props.title }}</h2>
     <div class="userInfo" v-if="props.showLoginoutBtn">
       <span>管理者帳號</span>
-      <el-button class="logoutBtn" size="small" plain @click="handleLogoutClick">登出</el-button>
+      <el-button
+        class="logoutBtn"
+        size="small"
+        plain
+        @click="handleLogoutClick"
+        @keyup.enter="handleLogoutClick"
+        >登出</el-button
+      >
     </div>
   </div>
 </template>
