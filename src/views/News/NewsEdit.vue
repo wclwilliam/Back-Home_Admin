@@ -27,7 +27,7 @@ class MyUploadAdapter {
         });
       }));
   }
-  abort() {}
+  abort() { }
 }
 
 function MyCustomUploadAdapterPlugin(editor) {
@@ -39,7 +39,7 @@ function MyCustomUploadAdapterPlugin(editor) {
 const editor = ClassicEditor
 const editorConfig = {
   placeholder: '請在此輸入詳細內容...',
-  extraPlugins: [MyCustomUploadAdapterPlugin], 
+  extraPlugins: [MyCustomUploadAdapterPlugin],
   toolbar: [
     'heading', '|',
     'bold', 'italic', 'link', '|',
@@ -66,7 +66,6 @@ const handleImageChange = (uploadFile) => {
   formData.imageName = uploadFile.name
   formData.imageUrl = URL.createObjectURL(uploadFile.raw)
 }
-
 const router = useRouter()
 
 const goBack = () => {
@@ -91,37 +90,20 @@ const postNews = () => {
     title: "文章已發布!",
     icon: 'success',
     draggable: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      router.back()
+    }
   })
 }
 
-// import { ElMessage, ElMessageBox } from 'element-plus'
 
-/* element plus內建提示框
-const goBack = () => {
-  ElMessageBox.confirm(
-    '未儲存的內容將會遺失，確定要取消編輯嗎？', //內文
-    '警告', //標題
-    {
-      confirmButtonText: '確定離開',
-      cancelButtonText: '留在此頁',
-      type: 'warning', 
-    }
-  )
-    .then(() => {
-     
-      router.back()
-      
-    })
-    .catch(() => {
- 
-    })
-}
-    */
+
 </script>
 
 <template>
   <div class="pageContainer">
- <AdminHeader title="新增最新消息" />
+    <AdminHeader title="編輯最新消息" />
 
     <div class="formContainer">
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
@@ -132,7 +114,7 @@ const goBack = () => {
               <el-input v-model="formData.id" disabled class="readOnlyInput" />
             </el-form-item>
           </el-col>
-          <el-col :span="10" :offset="2">
+          <el-col :span="10" :offset="4">
             <el-form-item label="發布管理者帳號" label-width="120px">
               <el-input v-model="formData.admin" disabled class="readOnlyInput" />
             </el-form-item>
@@ -153,7 +135,7 @@ const goBack = () => {
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="10" :offset="2">
+          <el-col :span="10" :offset="4">
             <el-form-item label="日期" label-width="120px">
               <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
@@ -182,7 +164,7 @@ const goBack = () => {
 
         <div class="formFooter">
           <el-button class="actionBtn" plain @click="postNews">發布</el-button>
-          <el-button class="actionBtn" plain>儲存草稿</el-button>
+          <el-button class="disableBtn" disabled plain>儲存草稿</el-button>
           <el-button class="actionBtn" plain @click="goBack">取消</el-button>
         </div>
 
@@ -245,6 +227,12 @@ const goBack = () => {
     }
   }
 
+  .disableBtn {
+    background-color: #dcdcdc;
+    border: 1px solid #999;
+    color: #999;
+    font-weight: bold;
+  }
 
   :deep(.el-input__wrapper),
   :deep(.el-textarea__inner) {
