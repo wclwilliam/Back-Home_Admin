@@ -36,13 +36,14 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       proxy: {
-        '/API': {
+        '/api': {
           target: 'http://localhost:8888',
           changeOrigin: true,
         },
       },
     },
-    base: env.VITE_BASE || '/admin/',
+    // 開發環境用根路徑，生產環境用 /admin/
+    base: mode === 'development' ? '/' : env.VITE_BASE || '/admin/',
     build: { outDir: env.VITE_OUT_DIR || 'dist' },
   }
 })

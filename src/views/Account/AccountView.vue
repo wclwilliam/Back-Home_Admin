@@ -82,8 +82,7 @@ const fetchAccountList = async () => {
     tableData.value = response.items || []
     total.value = response.pagination?.total || 0
   } catch (error) {
-    console.error('獲取帳號列表失敗:', error)
-    ElMessage.error('獲取帳號列表失敗，請稍後重試')
+    ElMessage.error(error.message || '獲取帳號列表失敗，請稍後重試')
   } finally {
     loading.value = false
   }

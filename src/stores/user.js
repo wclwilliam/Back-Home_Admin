@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { authAPI } from '@/utils/adminApi'
 
+// JWT Token 儲存在 localStorage（不使用 token table）
 const TOKEN_KEY = 'ADMIN_TOKEN'
 const USER_KEY = 'ADMIN_USER'
 
@@ -41,6 +42,12 @@ export const useUserStore = defineStore('user', () => {
         password: passwordValue,
       })
 
+      // 檢查回應中是否有 token
+      if (!response.token) {
+        errorMsg.value = '登入失敗：未取得 token'
+        return false
+      }
+
       // 儲存 token 和用戶資訊
       token.value = response.token
       user.value = response.admin
@@ -50,7 +57,6 @@ export const useUserStore = defineStore('user', () => {
 
       return true
     } catch (error) {
-      console.error('登入失敗:', error)
       if (error.message === 'invalid_credentials') {
         errorMsg.value = '帳號或密碼錯誤'
       } else {

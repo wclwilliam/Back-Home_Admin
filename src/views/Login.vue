@@ -17,7 +17,10 @@ const onLogin = async () => {
     const success = await userStore.login(account.value, password.value)
     if (!success) return
 
-    // 登入成功 → 回原本頁面 or 後台首頁
+    // 登入成功 → 使用 nextTick 確保 store 更新完成後再跳轉
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    // 回原本頁面 or 後台首頁
     const redirect = route.query.redirect || { name: 'admin-account' }
     router.replace(redirect)
   } finally {
