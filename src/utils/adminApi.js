@@ -1,6 +1,103 @@
 /**
  * 後台 API 服務
+ * 使用 JWT Token 驗證
+ * Token 儲存在 localStorage，不建立 token table
  */
+
+// API 基礎路徑（從環境變數讀取）
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:8888/api/'
+
+// 移除末尾的斜線（如果有的話），統一格式
+const normalizeApiBase = (base) => base.replace(/\/$/, '')
+
+/**
+ * 獲取儲存的 Token（從 localStorage）
+ * @returns {string|null}
+ */
+const getToken = () => {
+  return localStorage.getItem('ADMIN_TOKEN')
+}
+
+/**
+ * 建立帶有認證的 Headers
+ * @param {boolean} includeAuth - 是否包含 Authorization header
+ * @returns {Object}
+ */
+const createHeaders = (includeAuth = true) => {
+  const headers = {
+    'Content-Type': 'application/json',
+  }
+
+  if (includeAuth) {
+    const token = getToken()
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+  }
+
+  return headers
+}
+
+/**
+ * 處理 API 錯誤回應
+ * @param {Response} response
+ * @param {boolean} isLoginRequest - 是否為登入請求
+ * @returns {Promise}
+ */
+const handleResponse = async (response, isLoginRequest = false) => {
+  // 檢查 Content-Type 是否為 JSON
+  const contentType = response.headers.get('content-type')
+  const isJson = contentType && contentType.includes('application/json')
+
+  if (response.ok) {
+    if (isJson) {
+      return response.json()
+    } else {
+      throw new Error('伺服器返回格式錯誤：預期 JSON，收到 HTML')
+    }
+  }
+
+  // 401 未授權 - 可能 token 過期或無效
+  if (response.status === 401) {
+    // 如果是登入請求的 401，不要清除 token（因為本來就沒有）
+    if (isLoginRequest) {
+      throw new Error('invalid_credentials')
+    }
+
+    // 其他 API 的 401，清除 token 並導向登入頁
+    localStorage.removeItem('ADMIN_TOKEN')
+    localStorage.removeItem('ADMIN_USER')
+
+    // 導向登入頁
+    if (window.location.pathname !== '/login') {
+      window.location.href = '/login'
+    }
+
+    throw new Error('請重新登入')
+  }
+
+  // 其他錯誤
+  let errorMessage = `${response.status} ${response.statusText}`
+
+  if (isJson) {
+    try {
+      const error = await response.json()
+      errorMessage = error.error || error.message || errorMessage
+    } catch (e) {
+      // JSON 解析失敗
+    }
+  } else {
+    // 如果不是 JSON，可能是 PHP 錯誤頁面
+    const text = await response.text()
+    if (text.includes('<?php') || text.includes('<br />')) {
+      errorMessage = 'PHP 腳本錯誤，請檢查後端 API'
+    } else {
+      errorMessage = `伺服器錯誤：${errorMessage}`
+    }
+  }
+
+  throw new Error(errorMessage)
+}
 
 // 登入 API
 export const authAPI = {
@@ -12,23 +109,16 @@ export const authAPI = {
    * @returns {Promise}
    */
   login: async (params) => {
-    const response = await fetch('/API/admin/auth_login.php', {
+    const response = await fetch(`${normalizeApiBase(API_BASE)}/admin/auth_login.php`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: createHeaders(false),
       body: JSON.stringify({
         admin_id: params.admin_id,
         password: params.password,
       }),
     })
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Login failed')
-    }
-
-    return response.json()
+    return handleResponse(response, true) // 標記為登入請求
   },
 }
 
@@ -51,18 +141,15 @@ export const adminAccountAPI = {
       sortBy: params.sortBy || '',
     })
 
-    const response = await fetch(`/API/admin/users_list.php?${queryParams}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      `${normalizeApiBase(API_BASE)}/admin/users_list.php?${queryParams}`,
+      {
+        method: 'GET',
+        headers: createHeaders(),
       },
-    })
+    )
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`)
-    }
-
-    return response.json()
+    return handleResponse(response)
   },
 
   /**
@@ -71,18 +158,15 @@ export const adminAccountAPI = {
    * @returns {Promise}
    */
   getDetail: async (admin_id) => {
-    const response = await fetch(`/API/admin/users_get.php?admin_id=${admin_id}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      `${normalizeApiBase(API_BASE)}/admin/users_get.php?admin_id=${admin_id}`,
+      {
+        method: 'GET',
+        headers: createHeaders(),
       },
-    })
+    )
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`)
-    }
-
-    return response.json()
+    return handleResponse(response)
   },
 
   /**
@@ -91,11 +175,9 @@ export const adminAccountAPI = {
    * @returns {Promise}
    */
   create: async (data) => {
-    const response = await fetch('/API/admin/users_create.php', {
+    const response = await fetch(`${normalizeApiBase(API_BASE)}/admin/users_create.php`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: createHeaders(),
       body: JSON.stringify({
         admin_id: data.admin_id,
         admin_name: data.admin_name,
@@ -105,12 +187,7 @@ export const adminAccountAPI = {
       }),
     })
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Create failed')
-    }
-
-    return response.json()
+    return handleResponse(response)
   },
 
   /**
@@ -131,19 +208,15 @@ export const adminAccountAPI = {
       body.password = data.admin_pwd
     }
 
-    const response = await fetch(`/API/admin/users_update.php?admin_id=${admin_id}`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
+    const response = await fetch(
+      `${normalizeApiBase(API_BASE)}/admin/users_update.php?admin_id=${admin_id}`,
+      {
+        method: 'PATCH',
+        headers: createHeaders(),
+        body: JSON.stringify(body),
       },
-      body: JSON.stringify(body),
-    })
+    )
 
-    if (!response.ok) {
-      const error = await response.json()
-      throw new Error(error.error || 'Update failed')
-    }
-
-    return response.json()
+    return handleResponse(response)
   },
 }
