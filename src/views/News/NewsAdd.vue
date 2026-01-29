@@ -3,7 +3,11 @@ import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import { Ckeditor } from '@ckeditor/ckeditor5-vue'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+import { 
+  ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic, 
+  Link, List, BlockQuote, Image, ImageUpload, FileRepository 
+} from 'ckeditor5'
+import 'ckeditor5/ckeditor5.css'
 import Swal from 'sweetalert2'
 
 const getTodayDate = () => {
@@ -38,14 +42,15 @@ function MyCustomUploadAdapterPlugin(editor) {
 
 const editor = ClassicEditor
 const editorConfig = {
-  placeholder: '請在此輸入詳細內容...',
-  extraPlugins: [MyCustomUploadAdapterPlugin], 
+  plugins: [ 
+    Essentials, Paragraph, Heading, Bold, Italic, Link, 
+    List, BlockQuote, Image, ImageUpload, FileRepository 
+  ],
+  extraPlugins: [MyCustomUploadAdapterPlugin],
   toolbar: [
-    'heading', '|',
-    'bold', 'italic', 'link', '|',
-    'bulletedList', 'numberedList', '|',
-    'uploadImage', 'blockQuote', '|',
-    'undo', 'redo'
+    'heading', '|', 'bold', 'italic', 'link', '|',
+    'bulletedList', 'numberedList', '|', 'uploadImage', 
+    'blockQuote', '|', 'undo', 'redo'
   ],
 }
 

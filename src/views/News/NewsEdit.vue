@@ -3,7 +3,12 @@ import { reactive, onMounted} from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import { Ckeditor } from '@ckeditor/ckeditor5-vue'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
+// 從主套件 ckeditor5 引入所有需要的組件
+import { 
+  ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic, 
+  Link, List, BlockQuote, Image, ImageUpload, FileRepository 
+} from 'ckeditor5'
+import 'ckeditor5/ckeditor5.css' // 必須引入 CSS 樣式才會正常顯示
 import Swal from 'sweetalert2'
 import { backHomeApi } from "@/utils/publicApi"
 
@@ -33,6 +38,11 @@ function MyCustomUploadAdapterPlugin(editor) {
 const editor = ClassicEditor
 const editorConfig = {
   placeholder: '請在此輸入詳細內容...',
+  // 必須加入這些 plugins 才能運作
+  plugins: [ 
+    Essentials, Paragraph, Heading, Bold, Italic, Link, 
+    List, BlockQuote, Image, ImageUpload, FileRepository 
+  ],
   extraPlugins: [MyCustomUploadAdapterPlugin],
   toolbar: [
     'heading', '|',
