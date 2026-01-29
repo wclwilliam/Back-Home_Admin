@@ -1,18 +1,12 @@
 <script setup>
-import { reactive } from 'vue'
-import { useRouter } from 'vue-router'
+import { reactive, onMounted} from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import { Ckeditor } from '@ckeditor/ckeditor5-vue'
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 import Swal from 'sweetalert2'
+import { backHomeApi } from "@/utils/publicApi"
 
-const getTodayDate = () => {
-  const date = new Date()
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
 
 //CKEditor上傳
 class MyUploadAdapter {
@@ -49,16 +43,53 @@ const editorConfig = {
   ],
 }
 
+
+
+const router = useRouter()
+const route = useRoute()
+const fileUrl = import.meta.env.VITE_FILE_URL
 // 表單資料
 const formData = reactive({
-  id: '01',
-  admin: 'cathy',
+  id: '',
+  admin: '',
   title: '',
   category: 'important',
-  date: getTodayDate(),
+  date: '',
   content: '',
   imageUrl: '',
-  imageName: '測試.png'
+  imageName: ''
+})
+
+// 載入單篇文章編輯
+const loadArticleData = async () => {
+  const id = route.params.id
+  if (!id) return // 沒有id就是新增模式
+
+  try {
+    const response = await backHomeApi.get(`./news/news_get.php?id=${id}`)
+    const data = response.data
+
+    //後端回傳的資料 map 到 formData
+    formData.id = data.id
+    formData.admin = data.author_id
+    formData.title = data.title
+    formData.category = data.category
+    formData.date = data.published_at
+    formData.content = data.content
+    // 圖片預覽
+    if (data.image_path) {
+      formData.imageUrl = fileUrl + data.image_path
+      formData.imageName = data.image_path.split('/').pop() // 取得檔名
+    }
+  } catch (error) {
+    console.error('載入資料失敗:', error)
+    Swal.fire('錯誤', '找不到該文章', 'error')
+  }
+}
+
+ // 組件掛載後執行
+onMounted(() => {
+  loadArticleData()
 })
 
 
@@ -66,7 +97,7 @@ const handleImageChange = (uploadFile) => {
   formData.imageName = uploadFile.name
   formData.imageUrl = URL.createObjectURL(uploadFile.raw)
 }
-const router = useRouter()
+
 
 const goBack = () => {
   Swal.fire({
@@ -96,9 +127,6 @@ const postNews = () => {
     }
   })
 }
-
-
-
 </script>
 
 <template>
