@@ -38,7 +38,7 @@ function MyCustomUploadAdapterPlugin(editor) {
 const editor = ClassicEditor
 const editorConfig = {
   placeholder: '請在此輸入詳細內容...',
-  // 必須加入這些 plugins 才能運作
+  licenseKey: 'GPL',
   plugins: [ 
     Essentials, Paragraph, Heading, Bold, Italic, Link, 
     List, BlockQuote, Image, ImageUpload, FileRepository 

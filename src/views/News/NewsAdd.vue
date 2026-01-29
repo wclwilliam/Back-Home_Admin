@@ -42,6 +42,7 @@ function MyCustomUploadAdapterPlugin(editor) {
 
 const editor = ClassicEditor
 const editorConfig = {
+  licenseKey: 'GPL',
   plugins: [ 
     Essentials, Paragraph, Heading, Bold, Italic, Link, 
     List, BlockQuote, Image, ImageUpload, FileRepository 
@@ -114,30 +115,6 @@ const saveDraft = () => {
     }
   })
 }
-
-// import { ElMessage, ElMessageBox } from 'element-plus'
-
-/* element plus內建提示框
-const goBack = () => {
-  ElMessageBox.confirm(
-    '未儲存的內容將會遺失，確定要取消編輯嗎？', //內文
-    '警告', //標題
-    {
-      confirmButtonText: '確定離開',
-      cancelButtonText: '留在此頁',
-      type: 'warning', 
-    }
-  )
-    .then(() => {
-     
-      router.back()
-      
-    })
-    .catch(() => {
- 
-    })
-}
-    */
 </script>
 
 <template>
