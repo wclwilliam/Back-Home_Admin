@@ -1,7 +1,9 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed,onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import Pagination from '@/components/Pagination.vue'
+import { backHomeApi } from '@/utils/publicApi'
+import Swal from 'sweetalert2'
 
 const router = useRouter()
 const handleAdd = () => {
@@ -9,23 +11,40 @@ const handleAdd = () => {
 }
 
 // --- 響應式狀態 ---
+const rawData = ref([])
 const sortBy = ref('newest')
 const currentPage = ref(1) // 當前頁碼
 const pageSize = ref(10)   // 每頁筆數
 
-// 模擬資料
-const rawData = [
-    { id: '01', year: '2023', date: '2023/01/01 18:08:21', fileName: '測試.jpg' },
-    { id: '02', year: '2024', date: '2024/01/03 12:12:12', fileName: '測試.jpg' },
-    { id: '03', year: '2025', date: '2025/01/02 17:55:30', fileName: '測試.jpg' },
-]
+// // 模擬資料
+// const rawData = [
+//     { id: '01', year: '2023', date: '2023/01/01 18:08:21', fileName: '測試.jpg' },
+//     { id: '02', year: '2024', date: '2024/01/03 12:12:12', fileName: '測試.jpg' },
+//     { id: '03', year: '2025', date: '2025/01/02 17:55:30', fileName: '測試.jpg' },
+// ]
+
+const fetchReportData = async () =>{
+  try {
+    const res = await backHomeApi.get("donation/report_get.php")
+    // 確保 res.data 是陣列，直接賦值給 rawData.value
+    rawData.value = res.data 
+    // console.log(rawData.value);
+    
+  } catch (error) {
+    console.error("獲取資料失敗:", error)
+  }
+}
+
+onMounted(async () => {
+  fetchReportData()
+})
 
 // 1. 處理「排序」後的完整數據
 const sortedData = computed(() => {
-  let result = [...rawData]
+  let result = [...rawData.value]
   result.sort((a, b) => {
-    const timeA = new Date(a.date).getTime()
-    const timeB = new Date(b.date).getTime()
+    const timeA = new Date(a.UPLOAD_DATE).getTime()
+    const timeB = new Date(b.UPLOAD_DATE).getTime()
     return sortBy.value === 'newest' ? timeB - timeA : timeA - timeB
   })
   
@@ -42,6 +61,42 @@ const displayData = computed(() => {
   const end = start + pageSize.value
   return sortedData.value.slice(start, end)
 })
+
+//刪除邏輯
+const deleteData = async (d) =>{
+  const result = await Swal.fire({
+    title: '確定要刪除嗎?',
+    text: "刪除後將無法還原此文章",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#E14720',
+    cancelButtonColor: '#0E6273',
+    confirmButtonText: '確定刪除',
+    cancelButtonText: '取消'
+  })
+  if (result.isConfirmed) {
+    try{
+      await backHomeApi.delete('donation/report_delete.php',{
+        data: {
+          id: d.FINANCIAL_REPORT_ID
+      }
+      })
+      fetchReportData()
+  
+    } catch(error){
+      console.error('刪除失敗：', error.response.data.message);
+      Swal.fire({
+        title: '錯誤',
+        text: '刪除失敗,請稍後再試',
+        icon: 'error',
+        confirmButtonColor: '#E14720'
+      })
+    }
+
+  }
+
+  
+}
 </script>
 
 <template>
@@ -57,17 +112,21 @@ const displayData = computed(() => {
         </div>
 
         <el-table :data="displayData" style="width: 100%" class="customTable">
-            <el-table-column prop="id" label="資料編號" width="100" align="center" />
-            <el-table-column prop="year" label="資料年份" width="120" align="center" />
-            <el-table-column prop="date" label="上傳日期" min-width="180" align="center" />
-            <el-table-column prop="fileName" label="檔案名稱" min-width="150" align="center" />
+            <el-table-column prop="FINANCIAL_REPORT_ID" label="資料編號" width="100" align="center" />
+            <el-table-column prop="DATA_YEAR" label="資料年份" width="120" align="center" />
+            <el-table-column prop="UPLOAD_DATE" label="上傳日期" min-width="180" align="center" />
+            <el-table-column prop="FILE_PATH" label="檔案名稱" min-width="150" align="center">
+                <template #default="scope">
+                    {{ scope.row.FILE_PATH.replace('reports/', '') }}
+                </template>
+            </el-table-column>
 
             <el-table-column label="操作" width="150" align="center">
-                <template #default>
+                <template #default="scope">
                     <div class="operation-cell">
                         <el-button link type="primary" size="small">編輯</el-button>
                         <span style="color: #dcdfe6; margin: 0 8px">|</span>
-                        <el-button link type="danger" size="small">刪除</el-button>
+                        <el-button link type="danger" size="small" @click="deleteData(scope.row)">刪除</el-button>
                     </div>
                 </template>
             </el-table-column>

@@ -1,7 +1,12 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive,ref } from 'vue'
 import AdminHeader from '@/components/AdminHeader.vue';
 import { useRouter } from 'vue-router'
+import { backHomeApi } from '@/utils/publicApi';
+
+const fileList = ref([])
+const dialogImageUrl = ref('')
+const dialogVisible = ref(false)
 
 const router = useRouter()
 const handleCancel = () => {
@@ -11,6 +16,29 @@ const handleCancel = () => {
 const form = reactive({
   year: ''
 })
+
+// 點擊放大圖示
+const handlePictureCardPreview = (uploadFile) => {
+  dialogImageUrl.value = uploadFile.url
+  dialogVisible.value = true
+}
+
+// 手動執行上傳邏輯 (對接你的 PHP)
+const submitUpload = async () => {
+  if (fileList.value.length === 0) return alert('請先選擇圖片')
+
+  const formData = new FormData()
+  // fileList.value[0].raw 才是真正的檔案物件
+  formData.append('report_file', fileList.value[0].raw)
+  formData.append('data_year', '2026') 
+
+  try {
+    const res = await backHomeApi.post('http://localhost:8888/api/create_report.php', formData)
+    alert('上傳成功')
+  } catch (err) {
+    console.error(err)
+  }
+}
 </script>
 <template>
     <div class="pageContainer">
@@ -34,19 +62,19 @@ const form = reactive({
                 :show-file-list="false"
                 class="custom-upload"
               >
-                <el-button class="upload-trigger">上傳檔案 +</el-button>
+                <el-button class="upload-trigger" >上傳檔案 +</el-button>
               </el-upload>
               
               <div class="preview-card">
                 <el-image style="width: 100%; height: 120px; border-radius: 4px; display: block; margin: 0 auto;"
-            src="https://placehold.co/300x200?text=Report" fit="cover" />
+            :src="dialogImageUrl" fit="cover" />
                 <p class="file-name">測試.png</p>
               </div>
             </div>
           </el-form-item>
 
           <div class="form-footer">
-            <el-button type="primary" class="btn-submit">資料上傳</el-button>
+            <el-button type="primary" class="btn-submit" @click="submitUpload">資料上傳</el-button>
             <el-button class="btn-cancel" @click="handleCancel">取消</el-button>
           </div>
         </el-form>

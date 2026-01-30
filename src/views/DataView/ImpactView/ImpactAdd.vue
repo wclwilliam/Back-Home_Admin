@@ -1,9 +1,10 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive,ref, onMounted } from 'vue'
 import AdminHeader from '@/components/AdminHeader.vue';
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
+import { backHomeApi } from '@/utils/publicApi';
 
-const router = useRouter()
+const router = useRouter();
 const handleCancel = () => {
   router.push({ name: 'impact' })
 }
