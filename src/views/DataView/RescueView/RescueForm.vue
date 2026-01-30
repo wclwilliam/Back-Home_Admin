@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, computed, onMounted } from 'vue'
+import { reactive, computed, onMounted, ref } from 'vue'
 import AdminHeader from '@/components/AdminHeader.vue'
 import { useRouter, useRoute } from 'vue-router'
 
@@ -18,12 +18,14 @@ const form = reactive({
   name: '',
   species: '綠蠵龜',
   location: '',
-  stage: '入院檢查',
-  photo: null,
-  story: '',
+  status: '入院檢查',
+  imageSrc: null,
+  description: '',
 })
 
-// 模擬資料載入
+const uploadRef = ref()
+const previewImageUrl = ref('')
+
 onMounted(() => {
   if (isEdit.value) {
     // 模擬從 API 獲取資料
@@ -31,12 +33,32 @@ onMounted(() => {
     form.name = '阿福'
     form.species = '綠蠵龜'
     form.location = '澎湖'
-    form.stage = '醫療照護'
-    form.story =
+    form.status = '醫療照護'
+    form.description =
       '2025年10月發現於澎湖龍門沙灘，遭廢棄漁網纏繞導致左前肢壞死。阿福剛來時極度虛弱，經過截肢手術後，目前正在練習用三隻鰭狀肢游泳，每天的餐費與藥費是牠最大的支柱。'
-    form.photo = 'afu.jpg'
+    form.imageSrc = 'afu.jpg'
   }
 })
+
+const handleFileChange = (uploadFile) => {
+  if (uploadFile.raw) {
+    previewImageUrl.value = URL.createObjectURL(uploadFile.raw)
+    form.imageSrc = uploadFile.name
+  }
+}
+
+const handleExceed = (files) => {
+  uploadRef.value.clearFiles()
+  const file = files[0]
+  file.uid = Date.now() // 給予新的 uid
+  uploadRef.value.handleStart(file)
+}
+
+const handleRemove = () => {
+  uploadRef.value.clearFiles()
+  previewImageUrl.value = ''
+  form.imageSrc = null
+}
 
 const handleSubmit = () => {
   console.log('Submit form:', form)
@@ -85,7 +107,7 @@ const handleSubmit = () => {
 
           <div class="form-row">
             <label>救治階段</label>
-            <el-select v-model="form.stage" placeholder="請選擇">
+            <el-select v-model="form.status" placeholder="請選擇">
               <el-option label="入院檢查" value="入院檢查" />
               <el-option label="醫療照護" value="醫療照護" />
               <el-option label="休養觀察" value="休養觀察" />
@@ -96,7 +118,16 @@ const handleSubmit = () => {
 
           <div class="form-row">
             <label>圖片上傳</label>
-            <el-upload action="#" :auto-upload="false" :limit="1" class="upload-demo">
+            <el-upload
+              ref="uploadRef"
+              action="#"
+              :auto-upload="false"
+              :limit="1"
+              class="upload-demo"
+              :on-change="handleFileChange"
+              :on-exceed="handleExceed"
+              :show-file-list="false"
+            >
               <el-button class="upload-btn">上傳檔案 +</el-button>
             </el-upload>
           </div>
@@ -116,15 +147,24 @@ const handleSubmit = () => {
 
           <!-- 圖片預覽區域 -->
           <div class="image-preview">
-            <img
-              v-if="form.photo"
-              src="@/assets/images/logo.png"
-              alt="Preview"
-              class="preview-img"
-            />
+            <div class="preview-wrapper" v-if="previewImageUrl || form.photo">
+              <img
+                v-if="previewImageUrl"
+                :src="previewImageUrl"
+                alt="Preview"
+                class="preview-img"
+              />
+              <img
+                v-else-if="form.imageSrc"
+                src="@/assets/images/logo.png"
+                alt="Preview"
+                class="preview-img"
+              />
+              <div class="remove-btn" @click="handleRemove">×</div>
+            </div>
             <!-- 暫時用 logo 代替，實際應顯示上傳圖片 -->
             <div v-else class="placeholder"></div>
-            <div class="filename" v-if="form.photo">{{ form.photo }}</div>
+            <div class="filename" v-if="form.imageSrc">{{ form.imageSrc }}</div>
           </div>
         </div>
       </div>
@@ -133,7 +173,7 @@ const handleSubmit = () => {
       <div class="bottom-section">
         <div class="form-row full-width">
           <label>受傷原因與故事文案</label>
-          <el-input v-model="form.story" type="textarea" :rows="8" resize="none" />
+          <el-input v-model="form.description" type="textarea" :rows="8" resize="none" />
         </div>
       </div>
 
@@ -235,17 +275,48 @@ const handleSubmit = () => {
   margin-left: 100px; // 對齊輸入框
   width: 200px;
 
+  .preview-wrapper {
+    position: relative;
+    width: 200px;
+    height: 150px;
+    margin-bottom: 5px;
+    overflow: hidden;
+
+    .preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      background-color: #d9d9d9;
+      display: block;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      z-index: 10;
+      width: 24px;
+      height: 24px;
+      background-color: rgba(0, 0, 0, 0.5);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: rgba(0, 0, 0, 0.8);
+      }
+    }
+  }
+
   .placeholder {
     width: 100%;
     height: 150px;
-    background-color: #d9d9d9;
-    margin-bottom: 5px;
-  }
-
-  .preview-img {
-    width: 100%;
-    height: 150px;
-    object-fit: cover;
     background-color: #d9d9d9;
     margin-bottom: 5px;
   }
@@ -255,6 +326,7 @@ const handleSubmit = () => {
     font-size: 12px;
     text-decoration: underline;
     color: #666;
+    word-break: break-all;
   }
 }
 

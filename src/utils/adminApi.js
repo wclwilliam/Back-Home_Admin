@@ -104,8 +104,8 @@ export const authAPI = {
   /**
    * 後台登入
    * @param {Object} params
-   * @param {string} params.admin_id - 管理員帳號
-   * @param {string} params.password - 密碼
+   * @param {string} params.ADMIN_ID - 管理員帳號
+   * @param {string} params.ADMIN_PWD - 密碼
    * @returns {Promise}
    */
   login: async (params) => {
@@ -113,8 +113,8 @@ export const authAPI = {
       method: 'POST',
       headers: createHeaders(false),
       body: JSON.stringify({
-        admin_id: params.admin_id,
-        password: params.password,
+        ADMIN_ID: params.ADMIN_ID,
+        ADMIN_PWD: params.ADMIN_PWD,
       }),
     })
 
@@ -154,12 +154,12 @@ export const adminAccountAPI = {
 
   /**
    * 獲取單個帳號資料
-   * @param {string} admin_id - 管理員帳號
+   * @param {string} adminId - 管理員帳號
    * @returns {Promise}
    */
-  getDetail: async (admin_id) => {
+  getDetail: async (adminId) => {
     const response = await fetch(
-      `${normalizeApiBase(API_BASE)}/admin/users_get.php?admin_id=${admin_id}`,
+      `${normalizeApiBase(API_BASE)}/admin/users_get.php?ADMIN_ID=${adminId}`,
       {
         method: 'GET',
         headers: createHeaders(),
@@ -179,11 +179,11 @@ export const adminAccountAPI = {
       method: 'POST',
       headers: createHeaders(),
       body: JSON.stringify({
-        admin_id: data.admin_id,
-        admin_name: data.admin_name,
-        password: data.admin_pwd, // 前端用 admin_pwd，後端用 password
-        admin_role: data.admin_role,
-        admin_active: data.admin_active,
+        ADMIN_ID: data.ADMIN_ID,
+        ADMIN_NAME: data.ADMIN_NAME,
+        ADMIN_PWD: data.ADMIN_PWD,
+        ADMIN_ROLE: data.ADMIN_ROLE,
+        ADMIN_ACTIVE: data.ADMIN_ACTIVE,
       }),
     })
 
@@ -192,24 +192,24 @@ export const adminAccountAPI = {
 
   /**
    * 更新帳號
-   * @param {string} admin_id - 管理員帳號
+   * @param {string} adminId - 管理員帳號
    * @param {Object} data - 要更新的資料
    * @returns {Promise}
    */
-  update: async (admin_id, data) => {
+  update: async (adminId, data) => {
     const body = {
-      admin_name: data.admin_name,
-      admin_role: data.admin_role,
-      admin_active: data.admin_active,
+      ADMIN_NAME: data.ADMIN_NAME,
+      ADMIN_ROLE: data.ADMIN_ROLE,
+      ADMIN_ACTIVE: data.ADMIN_ACTIVE,
     }
 
     // 只有密碼有值才傳送
-    if (data.admin_pwd && data.admin_pwd.trim() !== '') {
-      body.password = data.admin_pwd
+    if (data.ADMIN_PWD && data.ADMIN_PWD.trim() !== '') {
+      body.ADMIN_PWD = data.ADMIN_PWD
     }
 
     const response = await fetch(
-      `${normalizeApiBase(API_BASE)}/admin/users_update.php?admin_id=${admin_id}`,
+      `${normalizeApiBase(API_BASE)}/admin/users_update.php?ADMIN_ID=${adminId}`,
       {
         method: 'PATCH',
         headers: createHeaders(),

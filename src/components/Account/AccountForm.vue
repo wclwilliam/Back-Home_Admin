@@ -12,20 +12,20 @@ const props = defineProps({
   /**
    * 表單資料（支援 v-model）
    * 建議欄位：
-   * - admin_id: string
-   * - admin_name: string
-   * - admin_pwd: string
-   * - admin_role: 'general' | 'super' | string
-   * - admin_active: 1 | 0
+  * - ADMIN_ID: string
+  * - ADMIN_NAME: string
+  * - ADMIN_PWD: string
+  * - ADMIN_ROLE: 'general' | 'super' | string
+  * - ADMIN_ACTIVE: 1 | 0
    */
   modelValue: {
     type: Object,
     default: () => ({
-      admin_id: '',
-      admin_name: '',
-      admin_pwd: '',
-      admin_role: 'general',
-      admin_active: 1,
+      ADMIN_ID: '',
+      ADMIN_NAME: '',
+      ADMIN_PWD: '',
+      ADMIN_ROLE: 'general',
+      ADMIN_ACTIVE: 1,
     }),
   },
 
@@ -64,22 +64,22 @@ const submitText = computed(() => (isEdit.value ? '儲存' : '新增'))
 
 // 內部表單（避免直接改 props）
 const form = reactive({
-  admin_id: '',
-  admin_name: '',
-  admin_pwd: '',
-  admin_role: 'general',
-  admin_active: 1,
+  ADMIN_ID: '',
+  ADMIN_NAME: '',
+  ADMIN_PWD: '',
+  ADMIN_ROLE: 'general',
+  ADMIN_ACTIVE: 1,
 })
 
 watch(
   () => props.modelValue,
   (val) => {
     const safe = val ?? {}
-    form.admin_id = safe.admin_id ?? ''
-    form.admin_name = safe.admin_name ?? ''
-    form.admin_pwd = safe.admin_pwd ?? ''
-    form.admin_role = safe.admin_role ?? 'general'
-    form.admin_active = safe.admin_active ?? 1
+    form.ADMIN_ID = safe.ADMIN_ID ?? ''
+    form.ADMIN_NAME = safe.ADMIN_NAME ?? ''
+    form.ADMIN_PWD = safe.ADMIN_PWD ?? ''
+    form.ADMIN_ROLE = safe.ADMIN_ROLE ?? 'general'
+    form.ADMIN_ACTIVE = safe.ADMIN_ACTIVE ?? 1
   },
   { immediate: true, deep: true },
 )
@@ -105,7 +105,7 @@ const rules = computed(() => {
     ]
 
   return {
-    admin_id: [
+    ADMIN_ID: [
       { required: true, message: '請輸入管理員帳號', trigger: 'blur' },
       { min: 4, max: 30, message: '帳號長度需 4~30 字', trigger: 'blur' },
       {
@@ -114,10 +114,10 @@ const rules = computed(() => {
         trigger: 'blur',
       },
     ],
-    admin_name: [{ required: true, message: '請輸入管理員姓名', trigger: 'blur' }],
-    admin_pwd: isEdit.value ? editPasswordRules : passwordRules,
-    admin_role: [{ required: true, message: '請選擇管理角色', trigger: 'change' }],
-    admin_active: [{ required: true, message: '請選擇狀態', trigger: 'change' }],
+    ADMIN_NAME: [{ required: true, message: '請輸入管理員姓名', trigger: 'blur' }],
+    ADMIN_PWD: isEdit.value ? editPasswordRules : passwordRules,
+    ADMIN_ROLE: [{ required: true, message: '請選擇管理角色', trigger: 'change' }],
+    ADMIN_ACTIVE: [{ required: true, message: '請選擇狀態', trigger: 'change' }],
   }
 })
 
@@ -147,8 +147,8 @@ const handleSubmit = async () => {
 
     // 編輯模式：若密碼留空且允許不填，就不要送 admin_pwd（常見做法）
     const payload = { ...form }
-    if (isEdit.value && !props.requirePasswordOnEdit && !payload.admin_pwd) {
-      delete payload.admin_pwd
+    if (isEdit.value && !props.requirePasswordOnEdit && !payload.ADMIN_PWD) {
+      delete payload.ADMIN_PWD
     }
 
     emit('submit', payload)
@@ -165,32 +165,32 @@ const handleSubmit = async () => {
 
     <el-form ref="formRef" :model="form" :rules="rules" label-width="120px" class="account-form__el"
       @change="syncToVModel">
-      <el-form-item label="管理員帳號" prop="admin_id">
-        <el-input v-model.trim="form.admin_id" class="w-input" :disabled="accountDisabled || isEdit" autocomplete="off"
+      <el-form-item label="管理員帳號" prop="ADMIN_ID">
+        <el-input v-model.trim="form.ADMIN_ID" class="w-input" :disabled="accountDisabled || isEdit" autocomplete="off"
           @input="syncToVModel" />
       </el-form-item>
 
-      <el-form-item label="管理員姓名" prop="admin_name">
-        <el-input v-model.trim="form.admin_name" class="w-input" autocomplete="off" @input="syncToVModel" />
+      <el-form-item label="管理員姓名" prop="ADMIN_NAME">
+        <el-input v-model.trim="form.ADMIN_NAME" class="w-input" autocomplete="off" @input="syncToVModel" />
       </el-form-item>
 
-      <el-form-item label="管理員密碼" prop="admin_pwd">
-        <el-input v-model="form.admin_pwd" class="w-input" type="password" show-password autocomplete="new-password"
+      <el-form-item label="管理員密碼" prop="ADMIN_PWD">
+        <el-input v-model="form.ADMIN_PWD" class="w-input" type="password" show-password autocomplete="new-password"
           placeholder="請輸入密碼" @input="syncToVModel" />
         <div v-if="isEdit && !requirePasswordOnEdit" class="account-form__tip">
           留空代表不更改密碼
         </div>
       </el-form-item>
 
-      <el-form-item label="管理角色" prop="admin_role">
-        <el-select v-model="form.admin_role" class="w-select" placeholder="請選擇" :disabled="roleDisabled"
+      <el-form-item label="管理角色" prop="ADMIN_ROLE">
+        <el-select v-model="form.ADMIN_ROLE" class="w-select" placeholder="請選擇" :disabled="roleDisabled"
           @change="syncToVModel">
           <el-option v-for="opt in roleOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
       </el-form-item>
 
-      <el-form-item label="狀態" prop="admin_active">
-        <el-select v-model="form.admin_active" class="w-select-sm" placeholder="請選擇" :disabled="statusDisabled"
+      <el-form-item label="狀態" prop="ADMIN_ACTIVE">
+        <el-select v-model="form.ADMIN_ACTIVE" class="w-select-sm" placeholder="請選擇" :disabled="statusDisabled"
           @change="syncToVModel">
           <el-option v-for="opt in statusOptions" :key="opt.value" :label="opt.label" :value="opt.value" />
         </el-select>
