@@ -2,6 +2,7 @@
 import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
+import { backHomeApi } from '@/utils/publicApi'
 import { Ckeditor } from '@ckeditor/ckeditor5-vue'
 import { 
   ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic, 
@@ -57,12 +58,13 @@ const editorConfig = {
 
 // 表單資料
 const formData = reactive({
-  id: '01',
-  admin: 'cathy',
+  id: '',
+  admin: '',
   title: '',
-  category: 'important',
+  category: '',
   date: getTodayDate(),
   content: '',
+  imageFile: null, // 儲存原始檔案物件
   imageUrl: '',
   imageName: '測試.png'
 })
@@ -70,6 +72,7 @@ const formData = reactive({
 
 const handleImageChange = (uploadFile) => {
   formData.imageName = uploadFile.name
+  formData.imageFile = uploadFile.raw // 這才是要傳給後端的
   formData.imageUrl = URL.createObjectURL(uploadFile.raw)
 }
 
@@ -92,29 +95,61 @@ const goBack = () => {
   })
 }
 
-const postNews = () => {
-  Swal.fire({
-    title: "文章已發布!",
-    icon: 'success',
-    draggable: true
-  }).then((result) => {
-    if (result.isConfirmed) {
-      router.back()
-    }
-  })
-}
+// 統一提交處理函式
+const submitForm = async (targetStatus) => {
+  // 基礎驗證
+  if (!formData.title || !formData.content) {
+    Swal.fire("錯誤", "請輸入完整的標題與內容", "error");
+    return;
+  }
 
-const saveDraft = () => {
-  Swal.fire({
-    title: "文章已儲存草稿!",
-    icon: 'success',
-    draggable: true
-  }).then((result) => {
-    if (result.isConfirmed) {
-      router.back()
+  const postData = new FormData();
+  postData.append('title', formData.title);
+  postData.append('category', formData.category);
+  postData.append('content', formData.content);
+  postData.append('admin', formData.admin);
+  postData.append('status', targetStatus); // 傳入 'published' 或 'draft'
+
+  if (formData.imageFile) {
+    postData.append('image', formData.imageFile);
+  }
+
+  try {
+    // 使用你自定義的 api 寫法
+    const response = await backHomeApi.post('./news/news_add.php', postData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    if (response.data.success) {
+      Swal.fire({
+        title: targetStatus === 'published' ? "文章已發布!" : "草稿已儲存!",
+        icon: 'success',
+        confirmButtonColor: '#0E6273'
+      }).then(() => {
+        router.back();
+      });
     }
-  })
-}
+  } catch (error) {
+    console.error('操作失敗:', error);
+    Swal.fire("失敗", error.response?.data?.error || "系統連線錯誤", "error");
+  }
+};
+
+// 按鈕呼叫的函式
+const postNews = () => submitForm('published');
+const saveDraft = () => submitForm('draft');
+
+// const saveDraft = () => {
+//   Swal.fire({
+//     title: "文章已儲存草稿!",
+//     icon: 'success',
+//     draggable: true
+//   }).then((result) => {
+//     if (result.isConfirmed) {
+//       router.back()
+//     }
+//   })
+// }
 </script>
 
 <template>
@@ -146,8 +181,8 @@ const saveDraft = () => {
           <el-col :span="10">
             <el-form-item label="分類">
               <el-select v-model="formData.category" placeholder="請選擇分類" style="width: 100%">
-                <el-option label="重要公告" value="important" />
-                <el-option label="異動通知" value="change" />
+                <el-option label="重要公告" value="重要公告" />
+                <el-option label="異動通知" value="異動通知" />
               </el-select>
             </el-form-item>
           </el-col>
