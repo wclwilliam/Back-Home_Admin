@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import { backHomeApi } from '@/utils/publicApi'
@@ -58,8 +58,8 @@ const editorConfig = {
 
 // 表單資料
 const formData = reactive({
-  id: '',
-  admin: '',
+  id: '載入中...',
+  admin: 'cathy',
   title: '',
   category: '',
   date: getTodayDate(),
@@ -69,6 +69,23 @@ const formData = reactive({
   imageName: '測試.png'
 })
 
+// 取得下一個新聞編號
+const fetchNextNewsId = async () => {
+  try {
+    const response = await backHomeApi.get('./news/news_get_next_id.php')
+    if (response.data.success) {
+      formData.id = response.data.next_id
+    }
+  } catch (error) {
+    console.error('取得編號失敗:', error)
+    formData.id = '??'
+  }
+}
+
+// 頁面載入時自動取得編號
+onMounted(() => {
+  fetchNextNewsId()
+})
 
 const handleImageChange = (uploadFile) => {
   formData.imageName = uploadFile.name
