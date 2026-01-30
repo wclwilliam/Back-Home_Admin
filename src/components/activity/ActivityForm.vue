@@ -30,6 +30,15 @@ watch(
 const isActivityEnded = computed(() => {
   return localForm.value.detailStatus === '已結束'
 })
+
+// 限制結束時間不能早於開始時間
+const disabledEndDate = (time) => {
+  if (!localForm.value.registrationTime || !localForm.value.registrationTime[0]) {
+    return false
+  }
+  const startDate = new Date(localForm.value.registrationTime[0])
+  return time.getTime() < startDate.getTime()
+}
 // 備份資料用
 let backupData = {}
 onMounted(() => {
@@ -209,12 +218,21 @@ const saveEdit = () => {
 
       <el-form-item label="報名期間">
         <el-date-picker
-          v-model="localForm.registrationTime"
-          type="datetimerange"
-          range-separator="---"
+          v-model="localForm.registrationTime[0]"
+          type="datetime"
+          placeholder="開始時間"
+          format="YYYY-MM-DD HH:mm"
+          :disabled="true"
+          style="flex: 1"
+        />
+        <el-date-picker
+          v-model="localForm.registrationTime[1]"
+          type="datetime"
+          placeholder="結束時間"
           format="YYYY-MM-DD HH:mm"
           :disabled="!isEditing"
-          style="width: 100%"
+          :disabled-date="disabledEndDate"
+          style="flex: 1"
         />
       </el-form-item>
 

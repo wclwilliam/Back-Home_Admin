@@ -3,71 +3,92 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { SuccessFilled } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import Swal from 'sweetalert2'
+import { APIBase, backHomeApi } from '@/utils/publicApi'
+
+const url = `/activity/admin_activity_result_get.php`
 
 const props = defineProps({
   activityId: { type: [String, Number], default: '' },
   activityTitle: { type: String, default: '' },
   activityStatus: { type: String, default: '' },
-  resultsData: { type: Array, default: () => [] },
-  // 活動分類 ID (1:淨灘, 2:巡守, 3:照護)
-  categoryId: { type: Number, default: 1 },
   signupCount: { type: Number, default: 0 },
   coverImage: { type: String, default: '' },
 })
-
-const resultsMap = {
-  0: '參與活動志工人數(人)',
-  1: '垃圾總重量(公斤 (kg))',
-  2: '垃圾袋數(袋)',
-  3: '漁業廢棄物(件)',
-  4: '塑膠瓶/蓋(個)',
-  5: '發現痕跡數(道 (海龜爬痕))',
-  6: '確認卵窩數(窩)',
-  7: '目擊母龜數(隻)',
-  8: '海龜品種',
-  9: '照護海龜數(隻)',
-  10: '備餐重量(公斤 (kg))',
-  11: '清洗水池數(池)',
-  12: '環境整理時數(小時)',
-}
-const metricGroups = {
-  1: [0, 1, 2, 3, 4], // 淨灘
-  2: [0, 5, 6, 7, 8], // 巡守
-  3: [0, 9, 10, 11, 12], // 照護
-}
-
+const availableMetrics = ref([])
 const resultItems = ref([])
 const photoList = ref([])
-const currentCategoryMetrics = computed(() => {
-  return metricGroups[props.categoryId] || metricGroups[1]
-})
+
 //判斷活動是否結束，結束才可以編輯
 const canEditResults = computed(() => {
   return props.activityStatus === '已結束'
 })
 
 //初始化資料
-const initData = () => {
+const initData = async () => {
   resultItems.value = []
+  photoList.value = []
+  availableMetrics.value = [] // 重置選項
 
-  if (props.resultsData && props.resultsData.length > 0) {
-    props.resultsData.forEach((result) => {
-      if (currentCategoryMetrics.value.includes(result.METRIC_ID)) {
-        resultItems.value.push({
-          metricId: result.METRIC_ID,
-          value: result.VALUE,
-          isEditing: false, // 預設唯讀
-        })
+  const targetId = props.activityId
+  if (!targetId) return
+
+  try {
+    const response = await backHomeApi.get(`${url}?activity_id=${targetId}`)
+
+    if (response.data.status === 'success') {
+      const { metrics, photos, options } = response.data.data
+
+      // 下拉選單選項
+      if (options && options.length > 0) {
+        availableMetrics.value = options
       }
-    })
-  }
-  const hasPeopleMetric = resultItems.value.some((item) => item.metricId === 0)
-  if (!hasPeopleMetric) {
-    resultItems.value.unshift({
-      metricId: 0,
-      value: props.signupCount, // 預設帶入報名人數
-      isEditing: false,
-    })
+      //已儲存的數據
+      if (metrics && metrics.length > 0) {
+        resultItems.value = metrics.map((m) => ({
+          metricId: m.METRIC_ID,
+          value: m.VALUE,
+          metricName: m.METRIC_NAME,
+          unit: m.METRIC_UNIT,
+          isEditing: false,
+        }))
+      }
+      if (availableMetrics.value.length > 0) {
+        const volunteerMetric = availableMetrics.value.find((m) =>
+          m.METRIC_NAME.includes('志工人數'),
+        )
+        if (volunteerMetric) {
+          const existingIndex = resultItems.value.findIndex(
+            (item) => item.metricId === volunteerMetric.METRIC_ID,
+          )
+
+          if (existingIndex === -1) {
+            resultItems.value.unshift({
+              metricId: volunteerMetric.METRIC_ID,
+              value: props.signupCount, // 帶入報名人數
+              metricName: volunteerMetric.METRIC_NAME,
+              unit: volunteerMetric.METRIC_UNIT,
+              isEditing: false, // 或設為 true 讓他們確認
+            })
+          } else if (existingIndex > 0) {
+            const item = resultItems.value.splice(existingIndex, 1)[0]
+            resultItems.value.unshift(item)
+          }
+        }
+      }
+      if (photos && photos.length > 0) {
+        photoList.value = photos.map((photo) => ({
+          src: `${APIBase}uploads/actResult/${photo.PHOTO_URL}`,
+          selected: false,
+          name: photo.PHOTO_URL,
+        }))
+      } else if (props.coverImage) {
+        // 如果沒有成果照片，預設顯示封面圖 (若有需要)
+        photoList.value = [{ src: props.coverImage, selected: true }]
+      }
+    }
+  } catch (error) {
+    console.error('獲取成果資料失敗:', error)
+    return []
   }
 
   if (props.coverImage && photoList.value.length === 0) {
@@ -81,11 +102,13 @@ const getOpts = (currentRow) => {
     .filter((item) => item !== currentRow && item.metricId !== null)
     .map((item) => item.metricId)
 
-  return currentCategoryMetrics.value
-    .filter((id) => !usedIds.includes(id)) // 排除已用
-    .map((id) => ({
-      label: resultsMap[id],
-      value: id,
+  return availableMetrics.value
+    .filter((item) => !usedIds.includes(item.METRIC_ID)) // 排除已用
+    .map((item) => ({
+      label: item.METRIC_NAME,
+      value: item.METRIC_ID,
+      unit: item.METRIC_UNIT,
+      name: item.METRIC_NAME,
     }))
 }
 const addItem = () => {
@@ -96,7 +119,7 @@ const addItem = () => {
   }
 
   const usedCount = resultItems.value.length
-  const totalCount = currentCategoryMetrics.value.length
+  const totalCount = availableMetrics.value.length
   if (usedCount >= totalCount) {
     alert('已無其他可新增的成果項目')
     return
@@ -112,8 +135,19 @@ const addItem = () => {
   resultItems.value.push({
     metricId: null, // 尚未選擇
     value: '',
+    unit: '',
+    metricName: '',
     isEditing: true, // 新增時直接進入編輯模式
   })
+}
+
+// 當下拉選單改變時，同步更新單位與名稱
+const handleMetricChange = (row) => {
+  const selected = availableMetrics.value.find((m) => m.METRIC_ID === row.metricId)
+  if (selected) {
+    row.unit = selected.METRIC_UNIT
+    row.metricName = selected.METRIC_NAME
+  }
 }
 
 //確認input框都有內容
@@ -164,19 +198,21 @@ onMounted(initData)
       <div class="table-header">
         <div class="col-type">成果種類 (選單)</div>
         <div class="col-value">數值/內容</div>
+        <div class="col-unit">單位</div>
         <div class="col-action">操作</div>
       </div>
 
       <div v-for="(item, index) in resultItems" :key="index" class="table-row">
         <div class="col-type">
           <span v-if="!item.isEditing">
-            {{ item.metricId !== null ? resultsMap[item.metricId] : '請選擇' }}
+            {{ item.metricName || '請選擇' }}
           </span>
           <el-select
             v-else
             v-model="item.metricId"
             placeholder="請選擇成果種類"
             style="width: 100%"
+            @change="handleMetricChange(item)"
           >
             <el-option
               v-for="opt in getOpts(item)"
@@ -193,6 +229,10 @@ onMounted(initData)
           <span v-if="item.isEditing && item.value === ''" style="color: red; text-align: left"
             >*請輸入數值或內容</span
           >
+        </div>
+
+        <div class="col-unit" style="width: 50px">
+          <span disabled>{{ item.unit }}</span>
         </div>
 
         <div class="col-action">
@@ -309,10 +349,14 @@ $title-col: #153450;
   align-items: flex-start;
 }
 .col-type {
-  flex: 1;
+  flex: 2;
   padding-right: 10px;
 }
 .col-value {
+  flex: 2;
+  text-align: left;
+}
+.col-unit {
   flex: 1;
   text-align: left;
 }

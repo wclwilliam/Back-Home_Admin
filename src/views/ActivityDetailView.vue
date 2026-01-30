@@ -1,14 +1,14 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import ActivityForm from '@/components/activity/ActivityForm.vue'
 import ActivityResult from '@/components/activity/ActivityResult.vue'
 import ActivitySignUpList from '@/components/activity/ActivitySignUpList.vue'
-import ActivityComments from '@/components/activity/ActivityComments.vue'
+import ActivityReviews from '@/components/activity/ActivityReviews.vue'
 import CommonTabs from '@/components/activity/CommonTabs.vue'
-// 1. 引入 JSON 資料
-import ActivityData from '@/assets/data/activityData.json'
+
+import { backHomeApi, APIBase } from '@/utils/publicApi'
 import ResultData from '@/assets/data/activityResultData.json'
 import ReviewData from '@/assets/data/activityReview.json'
 import ReportData from '@/assets/data/activityReview_Report.json'
@@ -16,18 +16,11 @@ import ReportData from '@/assets/data/activityReview_Report.json'
 const route = useRoute()
 const activeTab = ref('detail')
 
-const activityTabs = [
-  { label: '活動詳情', value: 'detail' },
-  { label: '參與名單', value: 'list' },
-  { label: '活動成果', value: 'result' },
-  { label: '留言管理', value: 'comment' },
-]
+const url = `/activity/admin_activity_get.php`
+const rawActivityData = ref(null)
 //取得各項活動的資料
 const targetId = computed(() => (route.params.id ? parseInt(route.params.id) : null))
-const rawData = computed(() => {
-  if (!targetId.value) return null
-  return ActivityData.find((item) => item.ACTIVITY_ID === targetId.value)
-})
+
 const categoryMap = {
   1: '淨灘',
   2: '巡守',
@@ -54,13 +47,12 @@ const getEmptyFormData = () => {
     isNew: true, // 標記這是新資料
   }
 }
+
 const transformToFormData = (data) => {
   if (!data) return getEmptyFormData()
 
   // 狀態對應
-  let mainStatus = data.ACTIVITY_STATUS || '草稿'
-  let detailStatus = '未知'
-
+  let mainStatus = '草稿'
   // 判斷主狀態 ACTIVITY_STATUS
   // 2 (cancelled) -> 取消
   // 0 (draft) -> 草稿
@@ -74,12 +66,12 @@ const transformToFormData = (data) => {
   }
 
   // 邏輯：已結束> 進行中 > 報名截止 > 已額滿  > 報名中
+  let detailStatus = '未知'
   const now = new Date()
-  const actStart = new Date(data.ACTIVITY_START_DATETIME.replace('T', ' '))
-  const actEnd = new Date(data.ACTIVITY_END_DATETIME.replace('T', ' '))
-  const signupEnd = new Date(data.ACTIVITY_SIGNUP_END_DATETIME.replace('T', ' '))
-  const regStart = new Date(data.ACTIVITY_SIGNUP_START_DATETIME)
-  const regEnd = new Date(data.ACTIVITY_SIGNUP_END_DATETIME)
+  const actStart = new Date(data.ACTIVITY_START_DATETIME.replace(' ', 'T'))
+  const actEnd = new Date(data.ACTIVITY_END_DATETIME.replace(' ', 'T'))
+  const signupEnd = new Date(data.ACTIVITY_SIGNUP_END_DATETIME.replace(' ', 'T'))
+  const regEnd = new Date(data.ACTIVITY_SIGNUP_END_DATETIME.replace(' ', 'T'))
 
   if (now > actEnd) {
     detailStatus = '已結束'
@@ -92,6 +84,9 @@ const transformToFormData = (data) => {
   } else {
     detailStatus = '報名中'
   }
+  const imagePath = data.ACTIVITY_COVER_IMAGE
+    ? `${APIBase}uploads/actCover/${data.ACTIVITY_COVER_IMAGE}`
+    : ''
 
   return {
     id: data.ACTIVITY_ID.toString().padStart(2, '0'),
@@ -106,24 +101,56 @@ const transformToFormData = (data) => {
     detailStatus: detailStatus, // 這就是括號內顯示的文字
     location: data.ACTIVITY_LOCATION,
     activityTime: [actStart, actEnd],
-    registrationTime: [regStart, regEnd],
+    registrationTime: [data.ACTIVITY_CREATED_AT, regEnd],
     intro: data.ACTIVITY_DESCRIPTION,
     note: data.ACTIVITY_NOTES,
     imageName: data.ACTIVITY_COVER_IMAGE
       ? data.ACTIVITY_COVER_IMAGE.split('/').pop()
       : 'default.jpg',
-    imageUrl: data.ACTIVITY_COVER_IMAGE,
+    imageUrl: imagePath,
     isNew: false,
   }
 }
 
 const currentActivityForm = computed(() => {
-  if (rawData.value) {
-    return transformToFormData(rawData.value)
-  } else {
-    return getEmptyFormData()
-  }
+  return transformToFormData(rawActivityData.value)
 })
+
+const fetchActivityData = async () => {
+  if (!targetId.value) return // 如果是新增模式就不撈資料
+
+  try {
+    const response = await backHomeApi.get(`${url}?activity_id=${targetId.value}`)
+    if (response.data.status === 'success') {
+      rawActivityData.value = response.data.data
+    } else {
+      console.error('後端回傳錯誤:', response.data.message)
+    }
+  } catch (error) {
+    console.error('獲取活動資料失敗:', error)
+    return []
+  }
+}
+
+const reviewUrl = `/activity/admin_activity_review_list.php`
+const reviewsList = ref([])
+
+const fetchReviews = async () => {
+  if (!targetId.value) return
+
+  try {
+    const response = await backHomeApi.get(`${reviewUrl}?activity_id=${targetId.value}`)
+    if (response.data.status === 'success') {
+      reviewsList.value = Array.isArray(response.data.data) ? response.data.data : []
+    } else {
+      console.error('留言資料獲取失敗:', response.data.message)
+    }
+  } catch (error) {
+    console.error('獲取留言 API 錯誤:', error)
+    return []
+  }
+}
+
 const currentResults = computed(() => {
   if (!targetId.value) return []
   return ResultData.filter((item) => item.ACTIVITY_ID === targetId.value)
@@ -137,15 +164,12 @@ const reportReasonMap = {
 }
 // 處理留言資料
 const currentMessages = computed(() => {
-  if (!targetId.value) return []
-
-  // 1. 找出此活動的所有留言
-  const reviews = ReviewData.filter((r) => r.ACTIVITY_ID === targetId.value)
+  if (!reviewsList.value || reviewsList.value.length === 0) return []
 
   // 2. 整合檢舉紀錄
-  return reviews.map((r) => {
+  return reviewsList.value.map((r) => {
     // 找出針對此留言的檢舉
-    const reports = ReportData.filter((rep) => rep.REVIEW_ID === r.REVIEW_ID).map((rep) => ({
+    const processedReports = (r.reports || []).map((rep) => ({
       id: rep.REPORT_ID,
       reporter: rep.USER_ID,
       reason: reportReasonMap[rep.REASON] || '其他',
@@ -155,15 +179,26 @@ const currentMessages = computed(() => {
 
     return {
       id: r.REVIEW_ID,
-      memberId: r.USER_ID,
+      memberId: r.USER_NAME || r.USER_ID,
       rating: r.RATING,
       content: r.CONTENT,
       likeCount: r.LIKE_COUNT,
-      reportCount: reports.length, // 計算檢舉數
-      reports: reports,
+      reportCount: processedReports.length, // 計算檢舉數
+      reports: processedReports,
       isVisible: r.IS_VISIBLE === 1,
     }
   })
+})
+const activityTabs = [
+  { label: '活動詳情', value: 'detail' },
+  { label: '參與名單', value: 'list' },
+  { label: '活動成果', value: 'result' },
+  { label: '留言管理', value: 'comment' },
+]
+
+onMounted(() => {
+  fetchActivityData()
+  fetchReviews()
 })
 </script>
 
@@ -201,15 +236,15 @@ const currentMessages = computed(() => {
             :activity-title="currentActivityForm.title"
             :activity-status="currentActivityForm.detailStatus"
             :results-data="currentResults"
-            :category-id="rawData?.ACTIVITY_CATEGORY_ID"
-            :signup-count="rawData?.ACTIVITY_SIGNUP_PEOPLE"
+            :category-id="rawActivityData?.ACTIVITY_CATEGORY_ID"
+            :signup-count="rawActivityData?.ACTIVITY_SIGNUP_PEOPLE"
             :cover-image="currentActivityForm.imageUrl"
           />
           <div v-else class="empty-msg">活動未結束，請結束後輸入活動的成果</div>
         </div>
 
         <div v-else-if="activeTab === 'comment'">
-          <ActivityComments
+          <ActivityReviews
             v-if="!currentActivityForm.isNew"
             :activity-id="currentActivityForm.id"
             :activity-title="currentActivityForm.title"
