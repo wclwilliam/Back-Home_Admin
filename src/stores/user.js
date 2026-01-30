@@ -38,8 +38,8 @@ export const useUserStore = defineStore('user', () => {
     try {
       // 調用登入 API
       const response = await authAPI.login({
-        admin_id: accountValue,
-        password: passwordValue,
+        ADMIN_ID: accountValue,
+        ADMIN_PWD: passwordValue,
       })
 
       // 檢查回應中是否有 token
@@ -48,12 +48,18 @@ export const useUserStore = defineStore('user', () => {
         return false
       }
 
-      // 儲存 token 和用戶資訊
+      // 儲存 token 和用戶資訊（欄位統一為大寫）
       token.value = response.token
-      user.value = response.admin
+      const admin = response.admin || {}
+      const normalizedAdmin = {
+        ADMIN_ID: admin.ADMIN_ID ?? admin.admin_id ?? '',
+        ADMIN_NAME: admin.ADMIN_NAME ?? admin.admin_name ?? '',
+        ADMIN_ROLE: admin.ADMIN_ROLE ?? admin.admin_role ?? '',
+      }
+      user.value = normalizedAdmin
 
       localStorage.setItem(TOKEN_KEY, response.token)
-      localStorage.setItem(USER_KEY, JSON.stringify(response.admin))
+      localStorage.setItem(USER_KEY, JSON.stringify(normalizedAdmin))
 
       return true
     } catch (error) {
