@@ -4,9 +4,9 @@ import { useRouter } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import { backHomeApi } from '@/utils/publicApi'
 import { Ckeditor } from '@ckeditor/ckeditor5-vue'
-import { 
-  ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic, 
-  Link, List, BlockQuote, Image, ImageUpload, FileRepository 
+import {
+  ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic,
+  Link, List, BlockQuote, Image, ImageUpload, FileRepository, ImageResize, ImageStyle, ImageToolbar
 } from 'ckeditor5'
 import 'ckeditor5/ckeditor5.css'
 import Swal from 'sweetalert2'
@@ -20,45 +20,78 @@ const getTodayDate = () => {
 }
 
 //CKEditor上傳
+// 1. 定義真正的上傳轉接器
 class MyUploadAdapter {
   constructor(loader) {
     this.loader = loader;
   }
+
+  // 當圖片被丟入編輯器時觸發
   upload() {
-    return this.loader.file
-      .then(file => new Promise((resolve) => {
-        resolve({
-          default: URL.createObjectURL(file)
+    return this.loader.file.then(file => new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('upload', file);
+      const apiBase = import.meta.env.VITE_API_BASE;
+      fetch(`${apiBase}/news/news_upload_image.php`, {
+        method: 'POST',
+        body: formData,
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('伺服器回應錯誤');
+          return response.json();
+        })
+        .then(result => {
+          if (result.error) {
+            reject(result.error.message);
+          } else {
+            resolve({
+              default: result.url
+            });
+          }
+        })
+        .catch(error => {
+          reject('圖片上傳失敗：' + error.message);
         });
-      }));
+    }));
   }
-  abort() {}
 }
 
+// 2. 將轉接器掛載到 CKEditor 的外掛系統
 function MyCustomUploadAdapterPlugin(editor) {
   editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
     return new MyUploadAdapter(loader);
   };
 }
 
-const editor = ClassicEditor
+// 3. CKEditor 完整配置
+const editor = ClassicEditor;
 const editorConfig = {
   licenseKey: 'GPL',
-  plugins: [ 
-    Essentials, Paragraph, Heading, Bold, Italic, Link, 
-    List, BlockQuote, Image, ImageUpload, FileRepository 
+  plugins: [
+    Essentials, Paragraph, Heading, Bold, Italic, Link,
+    List, BlockQuote, Image, ImageUpload, FileRepository, ImageResize, ImageStyle, ImageToolbar
   ],
   extraPlugins: [MyCustomUploadAdapterPlugin],
+  image: {
+    toolbar: [
+      'imageStyle:inline',
+      'imageStyle:wrapText',
+      'imageStyle:breakText',
+      '|',
+      'toggleImageCaption',
+      'imageTextAlternative'
+    ]
+  },
   toolbar: [
     'heading', '|', 'bold', 'italic', 'link', '|',
-    'bulletedList', 'numberedList', '|', 'uploadImage', 
+    'bulletedList', 'numberedList', '|', 'uploadImage',
     'blockQuote', '|', 'undo', 'redo'
   ],
-}
+};
 
 // 表單資料
 const formData = reactive({
-  id: '載入中...',
+  id: '系統自動編號',
   admin: 'cathy',
   title: '',
   category: '',
@@ -70,26 +103,26 @@ const formData = reactive({
 })
 
 // 取得下一個新聞編號
-const fetchNextNewsId = async () => {
-  try {
-    const response = await backHomeApi.get('./news/news_get_next_id.php')
-    if (response.data.success) {
-      formData.id = response.data.next_id
-    }
-  } catch (error) {
-    console.error('取得編號失敗:', error)
-    formData.id = '??'
-  }
-}
+// const fetchNextNewsId = async () => {
+//   try {
+//     const response = await backHomeApi.get('./news/news_get_next_id.php')
+//     if (response.data.success) {
+//       formData.id = response.data.next_id
+//     }
+//   } catch (error) {
+//     console.error('取得編號失敗:', error)
+//     formData.id = '??'
+//   }
+// }
 
 // 頁面載入時自動取得編號
-onMounted(() => {
-  fetchNextNewsId()
-})
+// onMounted(() => {
+//   fetchNextNewsId()
+// })
 
 const handleImageChange = (uploadFile) => {
   formData.imageName = uploadFile.name
-  formData.imageFile = uploadFile.raw // 這才是要傳給後端的
+  formData.imageFile = uploadFile.raw
   formData.imageUrl = URL.createObjectURL(uploadFile.raw)
 }
 
@@ -114,7 +147,6 @@ const goBack = () => {
 
 // 統一提交處理函式
 const submitForm = async (targetStatus) => {
-  // 基礎驗證
   if (!formData.title || !formData.content) {
     Swal.fire("錯誤", "請輸入完整的標題與內容", "error");
     return;
@@ -125,14 +157,13 @@ const submitForm = async (targetStatus) => {
   postData.append('category', formData.category);
   postData.append('content', formData.content);
   postData.append('admin', formData.admin);
-  postData.append('status', targetStatus); // 傳入 'published' 或 'draft'
+  postData.append('status', targetStatus);
 
   if (formData.imageFile) {
     postData.append('image', formData.imageFile);
   }
 
   try {
-    // 使用你自定義的 api 寫法
     const response = await backHomeApi.post('./news/news_add.php', postData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });
@@ -171,7 +202,7 @@ const saveDraft = () => submitForm('draft');
 
 <template>
   <div class="pageContainer">
- <AdminHeader title="新增最新消息" />
+    <AdminHeader title="新增最新消息" />
 
     <div class="formContainer">
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
@@ -179,7 +210,7 @@ const saveDraft = () => submitForm('draft');
         <el-row :gutter="40">
           <el-col :span="10">
             <el-form-item label="文章編號">
-              <el-input v-model="formData.id" disabled class="readOnlyInput" />
+              <el-input v-model="formData.id" disabled class="readOnlyInput" placeholder="系統自動生成" />
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="4">
