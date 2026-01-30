@@ -48,37 +48,49 @@ const processedData = computed(() => {
   return props.rawData.map((data) => {
     // 活動狀態判斷
     let detailStatus = '未知'
-    // 邏輯：已結束> 進行中 > 報名截止 > 已額滿  > 報名中
-    const now = new Date()
-    const actStart = new Date(data.ACTIVITY_START_DATETIME)
-    const actEnd = new Date(data.ACTIVITY_END_DATETIME)
-    const signupEnd = new Date(data.ACTIVITY_SIGHUP_END_DATETIME)
 
-    if (now > actEnd) {
-      detailStatus = '已結束'
-    } else if (now >= actStart) {
-      detailStatus = '進行中'
-    } else if (now > signupEnd) {
-      detailStatus = '報名截止'
-    } else if (data.ACTIVITY_SIGNUP_PEOPLE >= data.ACTIVITY_MAX_PEOPLE) {
-      detailStatus = '已額滿'
+    //優先判斷 ACTIVITY_STATUS
+    const status = String(data.ACTIVITY_STATUS)
+    if (status === '0') {
+      detailStatus = '草稿'
+    } else if (status === '2') {
+      detailStatus = '取消'
     } else {
-      detailStatus = '報名中'
+      // 邏輯：已結束> 進行中 > 報名截止 > 已額滿  > 報名中
+      const now = new Date()
+      const actStart = new Date(data.ACTIVITY_START_DATETIME.replace(' ', 'T'))
+      const actEnd = new Date(data.ACTIVITY_END_DATETIME.replace(' ', 'T'))
+      const signupEnd = new Date(data.ACTIVITY_SIGNUP_END_DATETIME.replace(' ', 'T'))
+
+      if (now > actEnd) {
+        detailStatus = '已結束'
+      } else if (now >= actStart) {
+        detailStatus = '進行中'
+      } else if (now > signupEnd) {
+        detailStatus = '報名截止'
+      } else if (data.ACTIVITY_SIGNUP_PEOPLE >= data.ACTIVITY_MAX_PEOPLE) {
+        detailStatus = '已額滿'
+      } else {
+        detailStatus = '報名中'
+      }
     }
 
     // 日期與時間格式化，要顯示星期幾
     const toTW = (date) => new Date(date.getTime() + 28800000)
+    const actStart = new Date(data.ACTIVITY_START_DATETIME.replace(' ', 'T'))
+    const actEnd = new Date(data.ACTIVITY_END_DATETIME.replace(' ', 'T'))
+
     const twStart = toTW(actStart)
     const dateStr = twStart.toISOString().split('T')[0]
     const weekDay = ['日', '一', '二', '三', '四', '五', '六'][twStart.getUTCDay()]
-    const dateDisplay = `${dateStr}(${weekDay})`
-
-    const timeDisplay = `${toTW(actStart).toISOString().slice(11, 16)} ~ ${toTW(actEnd).toISOString().slice(11, 16)}`
+    const startTime = toTW(new Date(data.ACTIVITY_START_DATETIME)).toISOString().split('T')[1]
+    const endTime = toTW(new Date(data.ACTIVITY_END_DATETIME)).toISOString().split('T')[1]
+    const dateDisplay = `${dateStr}(${weekDay})  ${startTime.slice(0, 5)} ~ ${endTime.slice(0, 5)}`
 
     const pubTw = toTW(new Date(data.ACTIVITY_CREATED_AT))
 
     const publishDate = pubTw.toISOString().split('T')[0]
-    const publishTime = pubTw.toISOString().slice(11, 19)
+    // const publishTime = pubTw.toISOString().slice(11, 19)
 
     return {
       id: data.ACTIVITY_ID,
@@ -124,6 +136,8 @@ const paginatedData = computed(() => {
           style="width: 120px; margin-right: 12px"
         >
           <el-option label="全部" value="" />
+          <el-option label="草稿" value="草稿" />
+          <el-option label="取消" value="取消" />
           <el-option label="報名中" value="報名中" />
           <el-option label="已結束" value="已結束" />
           <el-option label="已額滿" value="已額滿" />
@@ -158,7 +172,7 @@ const paginatedData = computed(() => {
       class="customTable"
       header-row-class-name="tableHeader"
     >
-      <el-table-column prop="formattedId" label="活動編號" align="center" width="100" />
+      <el-table-column prop="formattedId" label="活動編號" align="center" width="120" sortable />
 
       <el-table-column
         prop="title"

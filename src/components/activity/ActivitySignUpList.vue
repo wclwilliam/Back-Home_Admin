@@ -3,7 +3,7 @@ import { ref, computed, reactive, watch } from 'vue'
 import { Check, CaretBottom, CaretTop, View, Hide } from '@element-plus/icons-vue'
 import { ElMessage } from 'element-plus'
 import Swal from 'sweetalert2'
-import SignUpData from '@/assets/data/activitySingUpData.json'
+import { backHomeApi } from '@/utils/publicApi'
 import ActivityData from '@/assets/data/activityData.json'
 
 // 接收父層傳來的基本資訊
@@ -34,32 +34,48 @@ const maxPeople = computed(() => {
   return activity ? activity.ACTIVITY_MAX_PEOPLE : 0
 })
 
-const initData = () => {
+const initData = async () => {
   const targetId = parseInt(props.activityId)
   if (!targetId) {
     memberList.value = []
     return
   }
+  const url = `/activity/admin_activity_signup_list_get.php?activity_id=${targetId}`
+  try {
+    const response = await backHomeApi.get(url)
+    if (response.data.status === 'success') {
+      const rawData = response.data.data
 
-  memberList.value = SignUpData.filter((item) => item.ACTIVITY_ID === targetId)
-    .sort((a, b) => a.ACTIVITY_SIGNUP_ID - b.ACTIVITY_SIGNUP_ID)
-    .map((item) => {
-      const isCancelled = item.CANCEL === 1
-      return {
-        id: item.ACTIVITY_SIGNUP_ID,
-        memberId: item.USER_ID,
-        name: item.REAL_NAME,
-        email: item.EMAIL,
-        phone: item.PHONE,
-        attended: isCancelled ? false : item.ATTENDED === 1,
-        signupTime: item.CREATED_AT ? item.CREATED_AT.replace(' ', '\n') : '',
-        isCancelled: isCancelled ? '是' : '否',
-        birthday: item.BIRTHDAY,
-        idNumber: item.ID_NUMBER,
-        emergencyContact: item.EMERGENCY,
-        emergencyPhone: item.EMERGENCY_TEL,
-      }
-    })
+      memberList.value = rawData.map((item) => {
+        // 資料庫: 1=取消, 0=正常
+        const isCancelled = item.CANCEL == 1
+        // 資料庫: 1=出席, 0=未出席
+        const isAttended = item.ATTENDED == 1
+        return {
+          id: item.ACTIVITY_SIGNUP_ID,
+          memberId: item.USER_ID,
+          name: item.REAL_NAME,
+          email: item.EMAIL,
+          phone: item.PHONE,
+          attended: isCancelled ? false : isAttended,
+          signupTime: item.CREATED_AT ? item.CREATED_AT.replace(' ', '\n') : '',
+          isCancelled: isCancelled ? '是' : '否',
+          birthday: item.BIRTHDAY,
+          idNumber: item.ID_NUMBER,
+          emergencyContact: item.EMERGENCY,
+          emergencyPhone: item.EMERGENCY_TEL,
+        }
+      })
+    } else {
+      console.log('取得活動報名列表失敗', response.data.message)
+      ElMessage.error('取得活動報名列表失敗')
+      memberList.value = []
+    }
+  } catch (error) {
+    console.error('取得活動報名列表失敗', error)
+    ElMessage.error('取得活動報名列表失敗')
+    memberList.value = []
+  }
 }
 //取得取消人數
 const cancelledNum = computed(
