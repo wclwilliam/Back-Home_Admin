@@ -10,6 +10,7 @@ import Pagination from '@/components/Pagination.vue'
 const router = useRouter()
 const fileUrl = import.meta.env.VITE_FILE_URL
 
+
 const handleAdd = () => {
   router.push({ name: 'news-add' })
 }
@@ -30,6 +31,7 @@ const fetchNewsData = async () => {
   loading.value = true
   try {
     const response = await backHomeApi.get('./news/news_get.php?mode=admin')
+    //const response = await backHomeApi.get(`./news/news_get.php?mode=admin&t=${Date.now()}`)
 
     // 轉換資料格式以符合前端顯示需求
     tableDataOriginal.value = response.data.map(item => ({

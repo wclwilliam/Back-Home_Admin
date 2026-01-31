@@ -1,82 +1,147 @@
 <script setup>
-import { reactive, onMounted} from 'vue'
+import { reactive, onMounted , computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
+import { backHomeApi } from '@/utils/publicApi'
 import { Ckeditor } from '@ckeditor/ckeditor5-vue'
-// 從主套件 ckeditor5 引入所有需要的組件
-import { 
-  ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic, 
-  Link, List, BlockQuote, Image, ImageUpload, FileRepository 
+import {
+  ClassicEditor, Essentials, Paragraph, Heading, Bold, Italic,
+  Link, List, BlockQuote, Image, ImageUpload, FileRepository, ImageResize, ImageStyle, ImageToolbar
 } from 'ckeditor5'
-import 'ckeditor5/ckeditor5.css' // 必須引入 CSS 樣式才會正常顯示
+import 'ckeditor5/ckeditor5.css'
 import Swal from 'sweetalert2'
-import { backHomeApi } from "@/utils/publicApi"
 
+// const handleSave = async (targetStatus) => {
+//   // 基本驗證
+//   if (!form.title || !form.content) {
+//     Swal.fire('錯誤', '標題與內容為必填', 'error');
+//     return;
+//   }
+
+//   const formData = new FormData();
+//   formData.append('id', route.params.id);
+//   formData.append('title', form.title);
+//   formData.append('category', form.category);
+//   formData.append('content', form.content);
+//   formData.append('status', targetStatus); // 使用傳入的目標狀態
+
+//   if (selectedFile.value) {
+//     formData.append('image', selectedFile.value);
+//   }
+
+//   try {
+//     const response = await backHomeApi.post('./news/news_edit.php', formData);
+//     if (response.data.success) {
+//       // 更新本地狀態，這樣按鈕會即時切換狀態
+//       form.status = targetStatus;
+
+//       Swal.fire({
+//         icon: 'success',
+//         title: targetStatus === 'published' ? '已發布並更新' : '草稿已儲存',
+//         showConfirmButton: false,
+//         timer: 1500
+//       });
+//     }
+//   } catch (error) {
+//     console.error('儲存失敗:', error);
+//     Swal.fire('錯誤', '儲存失敗，請檢查網路連線', 'error');
+//   }
+// };
 
 //CKEditor上傳
+// 1. 定義真正的上傳轉接器
 class MyUploadAdapter {
   constructor(loader) {
     this.loader = loader;
   }
+
+  // 當圖片被丟入編輯器時觸發
   upload() {
-    return this.loader.file
-      .then(file => new Promise((resolve) => {
-        resolve({
-          default: URL.createObjectURL(file)
+    return this.loader.file.then(file => new Promise((resolve, reject) => {
+      const formData = new FormData();
+      formData.append('upload', file);
+      const apiBase = import.meta.env.VITE_API_BASE;
+      fetch(`${apiBase}/news/news_upload_image.php`, {
+        method: 'POST',
+        body: formData,
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('伺服器回應錯誤');
+          return response.json();
+        })
+        .then(result => {
+          if (result.error) {
+            reject(result.error.message);
+          } else {
+            resolve({
+              default: result.url
+            });
+          }
+        })
+        .catch(error => {
+          reject('圖片上傳失敗:' + error.message);
         });
-      }));
+    }));
   }
-  abort() { }
 }
 
+// 2. 將轉接器掛載到 CKEditor 的外掛系統
 function MyCustomUploadAdapterPlugin(editor) {
   editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
     return new MyUploadAdapter(loader);
   };
 }
 
-const editor = ClassicEditor
+// 3. CKEditor 完整配置
+const editor = ClassicEditor;
 const editorConfig = {
-  placeholder: '請在此輸入詳細內容...',
   licenseKey: 'GPL',
-  plugins: [ 
-    Essentials, Paragraph, Heading, Bold, Italic, Link, 
-    List, BlockQuote, Image, ImageUpload, FileRepository 
+  plugins: [
+    Essentials, Paragraph, Heading, Bold, Italic, Link,
+    List, BlockQuote, Image, ImageUpload, FileRepository, ImageResize, ImageStyle, ImageToolbar
   ],
   extraPlugins: [MyCustomUploadAdapterPlugin],
+  image: {
+    toolbar: [
+      'imageStyle:inline',
+      'imageStyle:wrapText',
+      'imageStyle:breakText',
+      '|',
+      'toggleImageCaption',
+      'imageTextAlternative'
+    ]
+  },
   toolbar: [
-    'heading', '|',
-    'bold', 'italic', 'link', '|',
-    'bulletedList', 'numberedList', '|',
-    'uploadImage', 'blockQuote', '|',
-    'undo', 'redo'
+    'heading', '|', 'bold', 'italic', 'link', '|',
+    'bulletedList', 'numberedList', '|', 'uploadImage',
+    'blockQuote', '|', 'undo', 'redo'
   ],
-}
-
-
+};
 
 const router = useRouter()
 const route = useRoute()
 const fileUrl = import.meta.env.VITE_FILE_URL
-// 表單資料
+
 const formData = reactive({
   id: '',
   admin: '',
   title: '',
-  category: 'important',
+  category: '',
   date: '',
   content: '',
+  status: 'draft', // <--- 給它一個預設值 'draft'，避免變成 undefined
+  imageFile: null,
   imageUrl: '',
   imageName: ''
 })
-
 // 載入單篇文章編輯
 const loadArticleData = async () => {
+  //console.log(data)
   const id = route.params.id
   if (!id) return // 沒有id就是新增模式
 
   try {
-    const response = await backHomeApi.get(`./news/news_get.php?id=${id}`)
+    const response = await backHomeApi.get(`./news/news_get.php?id=${id}&mode=admin`)
     const data = response.data
 
     //後端回傳的資料 map 到 formData
@@ -86,6 +151,7 @@ const loadArticleData = async () => {
     formData.category = data.category
     formData.date = data.published_at
     formData.content = data.content
+    formData.status = data.status || 'draft'
     // 圖片預覽
     if (data.image_path) {
       formData.imageUrl = fileUrl + data.image_path
@@ -97,21 +163,26 @@ const loadArticleData = async () => {
   }
 }
 
- // 組件掛載後執行
+// 組件掛載後執行
 onMounted(() => {
   loadArticleData()
 })
 
-
 const handleImageChange = (uploadFile) => {
+  const isImage = uploadFile.raw.type.startsWith('image/');
+  if (!isImage) {
+    Swal.fire("錯誤", "只允許上傳圖片格式 (JPG/PNG)", "error");
+    return;
+  }
   formData.imageName = uploadFile.name
+  formData.imageFile = uploadFile.raw
   formData.imageUrl = URL.createObjectURL(uploadFile.raw)
 }
 
 
 const goBack = () => {
   Swal.fire({
-    title: '確定要取消嗎？',
+    title: '確定要取消嗎?',
     text: "未儲存的內容將會遺失",
     icon: 'warning',
     showCancelButton: true,
@@ -126,17 +197,61 @@ const goBack = () => {
   })
 }
 
-const postNews = () => {
-  Swal.fire({
-    title: "文章已發布!",
-    icon: 'success',
-    draggable: true
-  }).then((result) => {
-    if (result.isConfirmed) {
-      router.back()
+// 統一提交處理函式
+const submitForm = async (targetStatus) => {
+  console.log('準備提交 ID:', formData.id);
+  if (!formData.title || !formData.content) {
+    Swal.fire("錯誤", "標題與內容皆為必填", "error");
+    return;
+  }
+
+  const postData = new FormData();
+  postData.append('id', formData.id); // 編輯時需要傳 id
+  postData.append('title', formData.title);
+  postData.append('category', formData.category);
+  postData.append('content', formData.content);
+  postData.append('admin', formData.admin);
+  postData.append('status', targetStatus);
+
+  // 只有在有新上傳圖片時才傳送
+  if (formData.imageFile) {
+    postData.append('image', formData.imageFile);
+  }
+
+  try {
+    const response = await backHomeApi.post('./news/news_edit.php', postData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    if (response.data.success) {
+      formData.status = targetStatus;
+      console.log('當前狀態已更新為:', formData.status);
+      Swal.fire({
+        title: targetStatus === 'published' ? "文章已更新!" : "草稿已儲存!",
+        icon: 'success',
+        confirmButtonColor: '#0E6273'
+      }).then(() => {
+        router.back();
+      });
     }
-  })
-}
+  } catch (error) {
+    console.error('操作失敗:', error);
+    Swal.fire("失敗", error.response?.data?.error || "系統連線錯誤", "error");
+  }
+};
+
+// 按鈕呼叫的函式
+const postNews = () => submitForm('published');
+const saveDraft = () => submitForm('draft');
+
+const statusChinese = computed(() => {
+  const statusMap = {
+    'published': '已發布',
+    'draft': '草稿'
+  };
+  // 如果找不到對應值則顯示原始值
+  return statusMap[formData.status] || formData.status;
+});
 </script>
 
 <template>
@@ -148,15 +263,17 @@ const postNews = () => {
 
         <el-row :gutter="40">
           <el-col :span="10">
-            <el-form-item label="文章編號">
-              <el-input v-model="formData.id" disabled class="readOnlyInput" />
+            <el-form-item label="文章狀態">
+              <el-input v-model="formData.status" :value="statusChinese" disabled class="readOnlyInput" />
             </el-form-item>
           </el-col>
-          <el-col :span="10" :offset="4">
-            <el-form-item label="發布管理者帳號" label-width="120px">
-              <el-input v-model="formData.admin" disabled class="readOnlyInput" />
+          <el-col :span="10">
+            <el-form-item label="日期" label-width="120px">
+              <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
+
           </el-col>
+
         </el-row>
 
         <el-form-item label="標題">
@@ -168,14 +285,14 @@ const postNews = () => {
           <el-col :span="10">
             <el-form-item label="分類">
               <el-select v-model="formData.category" placeholder="請選擇分類" style="width: 100%">
-                <el-option label="重要公告" value="important" />
-                <el-option label="異動通知" value="change" />
+                <el-option label="重要公告" value="重要公告" />
+                <el-option label="異動通知" value="異動通知" />
               </el-select>
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="4">
-            <el-form-item label="日期" label-width="120px">
-              <el-input v-model="formData.date" disabled class="readOnlyInput" />
+            <el-form-item label="發布管理者帳號" label-width="120px">
+              <el-input v-model="formData.admin" disabled class="readOnlyInput" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -183,7 +300,7 @@ const postNews = () => {
         <el-form-item label="封面圖片">
           <div class="uploadSection">
             <el-upload class="uploadBtn" action="#" :auto-upload="false" :show-file-list="false"
-              :on-change="handleImageChange">
+              :on-change="handleImageChange" accept="image/jpeg,image/png">
               <el-button>上傳檔案 +</el-button>
             </el-upload>
 
@@ -201,8 +318,14 @@ const postNews = () => {
         </el-form-item>
 
         <div class="formFooter">
-          <el-button class="actionBtn" plain @click="postNews">發布</el-button>
-          <el-button class="disableBtn" disabled plain>儲存草稿</el-button>
+          <el-button class="actionBtn" plain @click="postNews">
+            {{ formData.status === 'published' ? '更新發布' : '發布文章' }}
+          </el-button>
+
+          <el-button class="actionBtn" @click="saveDraft" :disabled="formData.status === 'published'">
+            儲存草稿
+          </el-button>
+
           <el-button class="actionBtn" plain @click="goBack">取消</el-button>
         </div>
 
@@ -265,12 +388,6 @@ const postNews = () => {
     }
   }
 
-  .disableBtn {
-    background-color: #dcdcdc;
-    border: 1px solid #999;
-    color: #999;
-    font-weight: bold;
-  }
 
   :deep(.el-input__wrapper),
   :deep(.el-textarea__inner) {
