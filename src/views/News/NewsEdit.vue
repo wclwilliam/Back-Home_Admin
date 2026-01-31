@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted , computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import { backHomeApi } from '@/utils/publicApi'
@@ -199,6 +199,7 @@ const goBack = () => {
 
 // 統一提交處理函式
 const submitForm = async (targetStatus) => {
+  console.log('準備提交 ID:', formData.id);
   if (!formData.title || !formData.content) {
     Swal.fire("錯誤", "標題與內容皆為必填", "error");
     return;
@@ -242,6 +243,15 @@ const submitForm = async (targetStatus) => {
 // 按鈕呼叫的函式
 const postNews = () => submitForm('published');
 const saveDraft = () => submitForm('draft');
+
+const statusChinese = computed(() => {
+  const statusMap = {
+    'published': '已發布',
+    'draft': '草稿'
+  };
+  // 如果找不到對應值則顯示原始值
+  return statusMap[formData.status] || formData.status;
+});
 </script>
 
 <template>
@@ -252,13 +262,13 @@ const saveDraft = () => submitForm('draft');
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
 
         <el-row :gutter="40">
-          <!-- <el-col :span="10">
-            <el-form-item label="文章編號">
-              <el-input v-model="formData.id" disabled class="readOnlyInput" />
-            </el-form-item>
-          </el-col> -->
           <el-col :span="10">
-            <el-form-item label="日期" label-width="100px">
+            <el-form-item label="文章狀態">
+              <el-input v-model="formData.status" :value="statusChinese" disabled class="readOnlyInput" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="10">
+            <el-form-item label="日期" label-width="120px">
               <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
 
