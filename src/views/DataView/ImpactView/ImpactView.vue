@@ -96,14 +96,17 @@ const deleteData = async (d)=>{
   }
   
 }
+const handleEdit = (row) => {
+  router.push({ name: 'impactEdit', params: { id: row.id } })
+}
 </script>
 
 <template>
   <div class="toolbarSection">
     <div class="filters">
-      <el-select v-model="sortBy" placeholder="排序" style="width: 120px; margin-right: 12px;">
-        <el-option label="最新" value="newest" />
-        <el-option label="最早" value="oldest" />
+      <el-select v-model="sortBy" placeholder="排序" style="width: 180px; margin-right: 12px;">
+        <el-option label="資料年份（新 → 舊）" value="newest" />
+        <el-option label="資料年份（舊 → 新）" value="oldest" />
       </el-select>
     </div>
     <el-button plain class="addBtn" @click="handleAdd">新增資料</el-button>
@@ -117,7 +120,7 @@ const deleteData = async (d)=>{
     <el-table-column label="操作" width="150" align="center">
       <template #default="scope">
         <div class="operation-cell">
-          <el-button link type="primary" size="small">編輯</el-button>
+          <el-button link type="primary" size="small" @click="handleEdit(scope.row)">編輯</el-button>
           <span style="color: #dcdfe6; margin: 0 8px">|</span>
           <el-button link type="danger" size="small" @click="deleteData(scope.row)">刪除</el-button>
         </div>

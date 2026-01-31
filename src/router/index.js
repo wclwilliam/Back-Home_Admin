@@ -100,7 +100,6 @@ const router = createRouter({
         {
           path: 'data/impact/edit/:id',
           name: 'impactEdit',
-          props: true,
           component: () => import('@/views/DataView/ImpactView/ImpactEdit.vue'),
         },
         {
@@ -121,7 +120,6 @@ const router = createRouter({
         {
           path: 'data/report/edit/:id',
           name: 'reportEdit',
-          props: true,
           component: () => import('@/views/DataView/ReportView/ReportEdit.vue'),
         },
         {

@@ -209,7 +209,7 @@ const displayData = computed(() => {
 
         <div class="toolbarSection">
             <div class="filters">
-                <el-select v-model="sortBy" placeholder="排序" style="width: 120px; margin-right: 12px;">
+                <el-select v-model="sortBy" placeholder="排序" style="width: 180px; margin-right: 12px;">
                     <el-option label="捐款時間（新 → 舊）" value="newest" />
                     <el-option label="捐款時間（舊 → 新）" value="oldest" />
                     <el-option label="捐款金額（高 → 低）" value="lgMoney" />
