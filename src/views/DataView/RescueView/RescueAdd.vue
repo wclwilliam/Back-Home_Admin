@@ -3,6 +3,7 @@ import { reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import Swal from 'sweetalert2'
+import { backHomeApi } from '@/utils/publicApi'
 
 const getTodayDate = () => {
   const date = new Date()

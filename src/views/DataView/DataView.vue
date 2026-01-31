@@ -18,13 +18,6 @@ const handleTabClick = (tab) => {
 }
 
 
-// 測試api是否成功 可刪
-onMounted(async () => {
-        await backHomeApi.get('donation/report_get.php').then((response) => {
-            console.log(response.data);
-        })
-    })
-
 </script>
 
 <template>

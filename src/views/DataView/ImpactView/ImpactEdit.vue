@@ -1,12 +1,24 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref , onMounted } from 'vue'
 import AdminHeader from '@/components/AdminHeader.vue';
-import { useRouter } from 'vue-router'
+import { useRouter ,useRoute } from 'vue-router'
+import { backHomeApi } from '@/utils/publicApi';
+
+const props = defineProps({
+  id: String,
+})
 
 const router = useRouter()
+const route = useRoute();
 const handleCancel = () => {
   router.push({ name: 'impact' })
 }
+
+onMounted( async ()=>{
+  console.log(route.query.id);
+  
+  await backHomeApi.get()
+})
 
 
 const form = reactive({

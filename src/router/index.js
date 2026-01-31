@@ -98,8 +98,9 @@ const router = createRouter({
           component: () => import('@/views/DataView/ImpactView/ImpactAdd.vue'),
         },
         {
-          path: 'data/impact/edit',
+          path: 'data/impact/edit/:id',
           name: 'impactEdit',
+          props: true,
           component: () => import('@/views/DataView/ImpactView/ImpactEdit.vue'),
         },
         {
@@ -118,8 +119,9 @@ const router = createRouter({
           component: () => import('@/views/DataView/ReportView/ReportAdd.vue'),
         },
         {
-          path: 'data/report/edit',
+          path: 'data/report/edit/:id',
           name: 'reportEdit',
+          props: true,
           component: () => import('@/views/DataView/ReportView/ReportEdit.vue'),
         },
         {

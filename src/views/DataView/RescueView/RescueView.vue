@@ -2,7 +2,7 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { Picture } from '@element-plus/icons-vue'
+import { Picture, Search } from '@element-plus/icons-vue'
 import { backHomeApi } from '@/utils/publicApi'
 import AdminHeader from '@/components/AdminHeader.vue'
 import Swal from 'sweetalert2'
@@ -31,6 +31,12 @@ const loading = ref(false)
 const currentPage = ref(1) // 當前頁碼
 const pageSize = 5 // 每頁顯示 5 筆
 
+// 篩選和排序
+const sortBy = ref('newest') // 排序方式
+const filterSpecies = ref('') // 品種篩選
+const filterStatus = ref('') // 救治階段篩選
+const searchQuery = ref('') // 搜尋關鍵字
+
 // 獲取救援案例資料
 const fetchRescueData = async () => {
   loading.value = true
@@ -48,9 +54,51 @@ const fetchRescueData = async () => {
 
 // 計算過濾後的資料（加上序號）
 const filteredData = computed(() => {
-  return tableData.value.map((item, index) => ({
+  let result = [...tableData.value]
+
+  // A. 搜尋過濾（姓名或地點）
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    result = result.filter(
+      (item) =>
+        item.name.toLowerCase().includes(query) || item.location.toLowerCase().includes(query),
+    )
+  }
+
+  // B. 品種篩選
+  if (filterSpecies.value) {
+    result = result.filter((item) => item.species === filterSpecies.value)
+  }
+
+  // C. 救治階段篩選
+  if (filterStatus.value) {
+    result = result.filter((item) => item.status === filterStatus.value)
+  }
+
+  // D. 排序
+  result.sort((a, b) => {
+    switch (sortBy.value) {
+      case 'newest': // 時間：新 → 舊
+        return new Date(b.uploadDate) - new Date(a.uploadDate)
+      case 'oldest': // 時間：舊 → 新
+        return new Date(a.uploadDate) - new Date(b.uploadDate)
+      case 'lgNumber': // 編號：大 → 小
+        return parseInt(b.id) - parseInt(a.id)
+      case 'smNumber': // 編號：小 → 大
+        return parseInt(a.id) - parseInt(b.id)
+      default:
+        return 0
+    }
+  })
+
+  // 當篩選條件改變時，強制回到第一頁
+  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+  currentPage.value = 1
+
+  // E. 加上全域序號
+  return result.map((item, index) => ({
     ...item,
-    displayIndex: index + 1, // 全域序號
+    displayIndex: index + 1,
   }))
 })
 
@@ -118,7 +166,50 @@ onMounted(() => {
 <template>
   <div class="toolbarSection">
     <div class="filters">
-      <!-- 佔位，保持排版一致 -->
+      <!-- 排序 -->
+      <el-select v-model="sortBy" placeholder="排序" style="width: 180px; margin-right: 12px">
+        <el-option label="上傳時間（新 → 舊）" value="newest" />
+        <el-option label="上傳時間（舊 → 新）" value="oldest" />
+        <el-option label="海龜編號（大 → 小）" value="lgNumber" />
+        <el-option label="海龜編號（小 → 大）" value="smNumber" />
+      </el-select>
+
+      <!-- 品種篩選 -->
+      <el-select
+        v-model="filterSpecies"
+        placeholder="品種篩選"
+        style="width: 120px; margin-right: 12px"
+      >
+        <el-option label="全部" value="" />
+        <el-option label="綠蠵龜" value="綠蠵龜" />
+        <el-option label="玳瑁" value="玳瑁" />
+        <el-option label="赤蠵龜" value="赤蠵龜" />
+        <el-option label="革龜" value="革龜" />
+        <el-option label="欖蠵龜" value="欖蠵龜" />
+        <el-option label="肯氏龜" value="肯氏龜" />
+        <el-option label="平背龜" value="平背龜" />
+      </el-select>
+
+      <!-- 救治階段篩選 -->
+      <el-select
+        v-model="filterStatus"
+        placeholder="階段篩選"
+        style="width: 120px; margin-right: 12px"
+      >
+        <el-option label="全部" value="" />
+        <el-option label="入院檢查" value="入院檢查" />
+        <el-option label="醫療照護" value="醫療照護" />
+        <el-option label="休養觀察" value="休養觀察" />
+        <el-option label="準備野放" value="準備野放" />
+        <el-option label="重返大海" value="重返大海" />
+      </el-select>
+
+      <!-- 搜尋 -->
+      <el-input v-model="searchQuery" placeholder="搜尋姓名或地點" style="width: 200px">
+        <template #suffix>
+          <el-icon><Search /></el-icon>
+        </template>
+      </el-input>
     </div>
 
     <el-button plain class="addBtn" @click="handleAdd">新增資料</el-button>
@@ -215,6 +306,19 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 20px;
   padding: 12px 16px;
+
+  :deep(.el-input) {
+    --el-input-border-color: #0e6273;
+    --el-input-focus-border-color: #0e6273;
+    --el-input-hover-border-color: #0e6273;
+  }
+
+  :deep(.el-select) {
+    --el-border-color: #0e6273;
+    --el-border-color-hover: #0e6273;
+    --el-color-primary: #0e6273;
+    --el-select-input-focus-border-color: #0e6273;
+  }
 }
 
 .customTable {
