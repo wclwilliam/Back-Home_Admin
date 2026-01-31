@@ -126,8 +126,8 @@ const roleMap = {
 
       <el-table-column label="狀態" width="100" align="center">
         <template #default="{ row }">
-          <span :class="{ disabled: row.ADMIN_ACTIVE === 0 }">
-            {{ row.ADMIN_ACTIVE === 1 ? '啟用' : '停用' }}
+          <span :class="{ disabled: row.ADMIN_ACTIVE == 0 }">
+            {{ row.ADMIN_ACTIVE == 1 ? '啟用' : '停用' }}
           </span>
         </template>
       </el-table-column>
