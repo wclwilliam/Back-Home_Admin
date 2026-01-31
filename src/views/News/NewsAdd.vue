@@ -11,6 +11,25 @@ import {
 import 'ckeditor5/ckeditor5.css'
 import Swal from 'sweetalert2'
 
+
+// 取得管理員資訊
+const fetchAdminInfo = async () => {
+  try {
+    const response = await backHomeApi.get('./news/get_admin_account.php')
+    if (response.data.success) {
+      formData.admin = response.data.admin_account
+    }
+  } catch (error) {
+    console.error('取得管理員資訊失敗:', error)
+    formData.admin = 'unknown'
+  }
+}
+
+// 頁面載入時自動取得管理員資訊
+onMounted(() => {
+  fetchAdminInfo()
+})
+
 const getTodayDate = () => {
   const date = new Date()
   const year = date.getFullYear()
@@ -91,8 +110,8 @@ const editorConfig = {
 
 // 表單資料
 const formData = reactive({
-  id: '系統自動編號',
-  admin: 'cathy',
+  // id: '系統自動編號',
+  admin: '載入中',
   title: '',
   category: '',
   date: getTodayDate(),
@@ -121,6 +140,11 @@ const formData = reactive({
 // })
 
 const handleImageChange = (uploadFile) => {
+  const isImage = uploadFile.raw.type.startsWith('image/');
+  if (!isImage) {
+    Swal.fire("錯誤", "只允許上傳圖片格式 (JPG/PNG)", "error");
+    return;
+  }
   formData.imageName = uploadFile.name
   formData.imageFile = uploadFile.raw
   formData.imageUrl = URL.createObjectURL(uploadFile.raw)
@@ -147,8 +171,8 @@ const goBack = () => {
 
 // 統一提交處理函式
 const submitForm = async (targetStatus) => {
-  if (!formData.title || !formData.content) {
-    Swal.fire("錯誤", "請輸入完整的標題與內容", "error");
+  if (!formData.title || !formData.content || !formData.imageFile) {
+    Swal.fire("錯誤", "標題、內容與封面圖片皆為必填", "error");
     return;
   }
 
@@ -208,15 +232,16 @@ const saveDraft = () => submitForm('draft');
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
 
         <el-row :gutter="40">
-          <el-col :span="10">
+          <!-- <el-col :span="10">
             <el-form-item label="文章編號">
               <el-input v-model="formData.id" disabled class="readOnlyInput" placeholder="系統自動生成" />
             </el-form-item>
-          </el-col>
-          <el-col :span="10" :offset="4">
-            <el-form-item label="發布管理者帳號" label-width="120px">
-              <el-input v-model="formData.admin" disabled class="readOnlyInput" />
+          </el-col> -->
+          <el-col :span="10" >
+            <el-form-item label="日期" label-width="100px">
+              <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
+            
           </el-col>
         </el-row>
 
@@ -235,8 +260,8 @@ const saveDraft = () => submitForm('draft');
             </el-form-item>
           </el-col>
           <el-col :span="10" :offset="4">
-            <el-form-item label="日期" label-width="120px">
-              <el-input v-model="formData.date" disabled class="readOnlyInput" />
+            <el-form-item label="發布管理者帳號" label-width="120px">
+              <el-input v-model="formData.admin" disabled class="readOnlyInput" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -244,7 +269,8 @@ const saveDraft = () => submitForm('draft');
         <el-form-item label="封面圖片">
           <div class="uploadSection">
             <el-upload class="uploadBtn" action="#" :auto-upload="false" :show-file-list="false"
-              :on-change="handleImageChange">
+              :on-change="handleImageChange"
+              accept="image/jpeg,image/png">
               <el-button>上傳檔案 +</el-button>
             </el-upload>
 
