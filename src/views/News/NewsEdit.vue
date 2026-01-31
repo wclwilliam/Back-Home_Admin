@@ -11,6 +11,42 @@ import {
 import 'ckeditor5/ckeditor5.css'
 import Swal from 'sweetalert2'
 
+// const handleSave = async (targetStatus) => {
+//   // 基本驗證
+//   if (!form.title || !form.content) {
+//     Swal.fire('錯誤', '標題與內容為必填', 'error');
+//     return;
+//   }
+
+//   const formData = new FormData();
+//   formData.append('id', route.params.id);
+//   formData.append('title', form.title);
+//   formData.append('category', form.category);
+//   formData.append('content', form.content);
+//   formData.append('status', targetStatus); // 使用傳入的目標狀態
+
+//   if (selectedFile.value) {
+//     formData.append('image', selectedFile.value);
+//   }
+
+//   try {
+//     const response = await backHomeApi.post('./news/news_edit.php', formData);
+//     if (response.data.success) {
+//       // 更新本地狀態，這樣按鈕會即時切換狀態
+//       form.status = targetStatus;
+
+//       Swal.fire({
+//         icon: 'success',
+//         title: targetStatus === 'published' ? '已發布並更新' : '草稿已儲存',
+//         showConfirmButton: false,
+//         timer: 1500
+//       });
+//     }
+//   } catch (error) {
+//     console.error('儲存失敗:', error);
+//     Swal.fire('錯誤', '儲存失敗，請檢查網路連線', 'error');
+//   }
+// };
 
 //CKEditor上傳
 // 1. 定義真正的上傳轉接器
@@ -86,7 +122,6 @@ const router = useRouter()
 const route = useRoute()
 const fileUrl = import.meta.env.VITE_FILE_URL
 
-// 表單資料
 const formData = reactive({
   id: '',
   admin: '',
@@ -94,18 +129,19 @@ const formData = reactive({
   category: '',
   date: '',
   content: '',
-  imageFile: null, // 儲存原始檔案物件
+  status: 'draft', // <--- 給它一個預設值 'draft'，避免變成 undefined
+  imageFile: null,
   imageUrl: '',
   imageName: ''
 })
-
 // 載入單篇文章編輯
 const loadArticleData = async () => {
+  //console.log(data)
   const id = route.params.id
   if (!id) return // 沒有id就是新增模式
 
   try {
-    const response = await backHomeApi.get(`./news/news_get.php?id=${id}`)
+    const response = await backHomeApi.get(`./news/news_get.php?id=${id}&mode=admin`)
     const data = response.data
 
     //後端回傳的資料 map 到 formData
@@ -115,6 +151,7 @@ const loadArticleData = async () => {
     formData.category = data.category
     formData.date = data.published_at
     formData.content = data.content
+    formData.status = data.status || 'draft'
     // 圖片預覽
     if (data.image_path) {
       formData.imageUrl = fileUrl + data.image_path
@@ -126,7 +163,7 @@ const loadArticleData = async () => {
   }
 }
 
- // 組件掛載後執行
+// 組件掛載後執行
 onMounted(() => {
   loadArticleData()
 })
@@ -186,6 +223,8 @@ const submitForm = async (targetStatus) => {
     });
 
     if (response.data.success) {
+      formData.status = targetStatus;
+      console.log('當前狀態已更新為:', formData.status);
       Swal.fire({
         title: targetStatus === 'published' ? "文章已更新!" : "草稿已儲存!",
         icon: 'success',
@@ -218,13 +257,13 @@ const saveDraft = () => submitForm('draft');
               <el-input v-model="formData.id" disabled class="readOnlyInput" />
             </el-form-item>
           </el-col> -->
-           <el-col :span="10" >
+          <el-col :span="10">
             <el-form-item label="日期" label-width="100px">
               <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
-            
+
           </el-col>
-          
+
         </el-row>
 
         <el-form-item label="標題">
@@ -251,8 +290,7 @@ const saveDraft = () => submitForm('draft');
         <el-form-item label="封面圖片">
           <div class="uploadSection">
             <el-upload class="uploadBtn" action="#" :auto-upload="false" :show-file-list="false"
-              :on-change="handleImageChange"
-              accept="image/jpeg,image/png">
+              :on-change="handleImageChange" accept="image/jpeg,image/png">
               <el-button>上傳檔案 +</el-button>
             </el-upload>
 
@@ -270,8 +308,14 @@ const saveDraft = () => submitForm('draft');
         </el-form-item>
 
         <div class="formFooter">
-          <el-button class="actionBtn" plain @click="postNews">發布</el-button>
-          <el-button class="actionBtn" plain @click="saveDraft">儲存草稿</el-button>
+          <el-button class="actionBtn" plain @click="postNews">
+            {{ formData.status === 'published' ? '更新發布' : '發布文章' }}
+          </el-button>
+
+          <el-button class="actionBtn" @click="saveDraft" :disabled="formData.status === 'published'">
+            儲存草稿
+          </el-button>
+
           <el-button class="actionBtn" plain @click="goBack">取消</el-button>
         </div>
 
