@@ -220,3 +220,73 @@ export const adminAccountAPI = {
     return handleResponse(response)
   },
 }
+
+// 會員管理 API
+export const memberAPI = {
+  /**
+   * 獲取會員列表
+   * @param {Object} params
+   * @param {number} params.page - 頁碼（預設 1）
+   * @param {number} params.pageSize - 每頁筆數（預設 10）
+   * @param {string} params.keyword - 搜尋關鍵字
+   * @param {string} params.sortBy - 排序方式
+   * @returns {Promise}
+   */
+  getList: async (params = {}) => {
+    const { page = 1, pageSize = 10, keyword = '', sortBy = '' } = params
+
+    const queryParams = new URLSearchParams({
+      page: String(page),
+      pageSize: String(pageSize),
+    })
+
+    if (keyword) queryParams.append('q', keyword)
+    if (sortBy) queryParams.append('sortBy', sortBy)
+
+    const response = await fetch(
+      `${normalizeApiBase(API_BASE)}/admin/members_list.php?${queryParams}`,
+      {
+        method: 'GET',
+        headers: createHeaders(true),
+      },
+    )
+
+    return handleResponse(response)
+  },
+
+  /**
+   * 獲取會員詳情
+   * @param {number} memberId - 會員ID
+   * @returns {Promise}
+   */
+  getDetail: async (memberId) => {
+    const response = await fetch(
+      `${normalizeApiBase(API_BASE)}/admin/members_get.php?member_id=${memberId}`,
+      {
+        method: 'GET',
+        headers: createHeaders(true),
+      },
+    )
+
+    return handleResponse(response)
+  },
+
+  /**
+   * 更新會員狀態
+   * @param {number} memberId - 會員ID
+   * @param {number} status - 狀態（1=啟用, 0=停用）
+   * @returns {Promise}
+   */
+  updateStatus: async (memberId, status) => {
+    const response = await fetch(`${normalizeApiBase(API_BASE)}/admin/members_update_active.php`, {
+      method: 'PATCH',
+      headers: createHeaders(true),
+      body: JSON.stringify({
+        member_id: memberId,
+        member_active: status,
+      }),
+    })
+
+    return handleResponse(response)
+  },
+}
