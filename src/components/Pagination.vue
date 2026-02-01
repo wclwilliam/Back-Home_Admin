@@ -8,7 +8,7 @@ const props = defineProps({
 })
 
 // 定義 Emits：通知父組件數據更新
-const emit = defineEmits(['update:currentPage' , 'change'])
+const emit = defineEmits(['update:currentPage', 'change'])
 
 // 使用 computed 的 get/set 實現雙向綁定同步
 const internalCurrentPage = computed({
@@ -19,28 +19,22 @@ const internalCurrentPage = computed({
 
 // 當頁碼或筆數改變時，統一觸發一個 change 事件供父組件抓取 API (如果有需要的話)
 const handleSizeChange = (val) => {
-  emit('change')
+  emit('change', internalCurrentPage.value)
 }
 const handleCurrentChange = (val) => {
-  emit('change')
+  emit('change', val)
 }
 </script>
 <template>
   <div class="paginationSection">
-    <el-pagination
-      v-model:current-page="internalCurrentPage"
-      :total="total"
-      background
-      layout="prev, pager, next"
-      @size-change="handleSizeChange"
-      @current-change="handleCurrentChange"
-    />
+    <el-pagination v-model:current-page="internalCurrentPage" :total="total" background layout="prev, pager, next"
+      @size-change="handleSizeChange" @current-change="handleCurrentChange" />
   </div>
 </template>
 <style lang="scss" scoped>
 .paginationSection {
-    margin-top: 24px;
-    display: flex;
-    justify-content: center;
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
 }
 </style>
