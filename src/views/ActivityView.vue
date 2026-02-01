@@ -1,15 +1,33 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import AdminHeader from '@/components/AdminHeader.vue'
 import ActivityListPanel from '@/components/activity/ActivityListPanel.vue'
+import { backHomeApi } from '@/utils/publicApi'
 
-import jsonData from '@/assets/data/activityData.json'
+const url = '/activity/admin_activity_list.php'
+const activityData = ref([])
 
-const activityData = ref(jsonData)
+const fetchActivityData = async () => {
+  try {
+    const response = await backHomeApi.get(url)
+    if (response.data.status === 'success') {
+      activityData.value = response.data.data
+    } else {
+      console.error('後端回傳錯誤:', response.data.message)
+    }
+  } catch (error) {
+    console.error('獲取活動資料失敗:', error)
+    return []
+  }
+}
 
 const handleCreate = () => {
   console.log('跳轉到建立活動頁面')
 }
+//呼叫API
+onMounted(() => {
+  fetchActivityData()
+})
 </script>
 
 <template>

@@ -10,6 +10,7 @@ import Pagination from '@/components/Pagination.vue'
 const router = useRouter()
 const fileUrl = import.meta.env.VITE_FILE_URL
 
+
 const handleAdd = () => {
   router.push({ name: 'news-add' })
 }
@@ -29,7 +30,8 @@ const tableDataOriginal = ref([]) // 從 API 獲取的原始資料
 const fetchNewsData = async () => {
   loading.value = true
   try {
-    const response = await backHomeApi.get('./news/news_get.php')
+    const response = await backHomeApi.get('./news/news_get.php?mode=admin')
+    //const response = await backHomeApi.get(`./news/news_get.php?mode=admin&t=${Date.now()}`)
 
     // 轉換資料格式以符合前端顯示需求
     tableDataOriginal.value = response.data.map(item => ({
@@ -210,7 +212,11 @@ onMounted(() => {
     <el-table :data="pageNumber" style="width: 100%" class="customTable" header-row-class-name="tableHeader"
       v-loading="loading" element-loading-text="載入中...">
 
-      <el-table-column prop="id" label="文章編號" width="100" align="center" />
+      <el-table-column label="序號" width="100" align="center">
+        <template #default="scope">
+          {{ String(scope.$index + 1 + (currentPage - 1) * 10).padStart(2, '0') }}
+        </template>
+      </el-table-column>
 
       <el-table-column prop="category" label="分類" width="120" align="center" />
 

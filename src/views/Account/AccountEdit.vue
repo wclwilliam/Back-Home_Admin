@@ -14,18 +14,18 @@ const loading = ref(false)
 const pageLoading = ref(false)
 
 const formData = ref({
-  admin_id: '',
-  admin_name: '',
-  admin_pwd: '',
-  admin_role: 'general',
-  admin_active: 1,
+  ADMIN_ID: '',
+  ADMIN_NAME: '',
+  ADMIN_PWD: '',
+  ADMIN_ROLE: 'general',
+  ADMIN_ACTIVE: 1,
 })
 
 // 如果編輯的是超級管理員，則禁用狀態欄位
-const isSuper = computed(() => formData.value.admin_role === 'super')
+const isSuper = computed(() => formData.value.ADMIN_ROLE === 'super')
 
 // 判斷當前登入用戶是否為一般管理員
-const isCurrentUserGeneral = computed(() => userStore.user?.admin_role === 'general')
+const isCurrentUserGeneral = computed(() => userStore.user?.ADMIN_ROLE === 'general')
 
 // 一般管理員編輯時，角色和狀態都要 disable
 const shouldDisableRole = computed(() => isCurrentUserGeneral.value)
@@ -39,11 +39,11 @@ onMounted(async () => {
 
     // 填充表單資料，密碼不回填
     formData.value = {
-      admin_id: data.admin_id || '',
-      admin_name: data.admin_name || '',
-      admin_pwd: '', // 密碼不要回填
-      admin_role: data.admin_role || 'general',
-      admin_active: data.admin_active ?? 1,
+      ADMIN_ID: data.ADMIN_ID || '',
+      ADMIN_NAME: data.ADMIN_NAME || '',
+      ADMIN_PWD: '', // 密碼不要回填
+      ADMIN_ROLE: data.ADMIN_ROLE || 'general',
+      ADMIN_ACTIVE: data.ADMIN_ACTIVE ?? 1,
     }
   } catch (error) {
     console.error('獲取帳號資料失敗:', error)

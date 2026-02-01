@@ -44,8 +44,8 @@ const router = createRouter({
           name: 'news-add',
           component: () => import('@/views/News/NewsAdd.vue'),
         },
-         {
-          path: 'news/edit',
+        {
+          path: 'news/edit/:id',
           name: 'news-edit',
           component: () => import('@/views/News/NewsEdit.vue'),
         },
@@ -98,19 +98,19 @@ const router = createRouter({
           component: () => import('@/views/DataView/ImpactView/ImpactAdd.vue'),
         },
         {
-          path: 'data/impact/edit',
+          path: 'data/impact/edit/:id',
           name: 'impactEdit',
           component: () => import('@/views/DataView/ImpactView/ImpactEdit.vue'),
         },
         {
           path: 'data/rescue/add',
           name: 'rescueAdd',
-          component: () => import('@/views/DataView/RescueView/RescueForm.vue'),
+          component: () => import('@/views/DataView/RescueView/RescueAdd.vue'),
         },
         {
           path: 'data/rescue/edit/:id',
           name: 'rescueEdit',
-          component: () => import('@/views/DataView/RescueView/RescueForm.vue'),
+          component: () => import('@/views/DataView/RescueView/RescueEdit.vue'),
         },
         {
           path: 'data/report/add',
@@ -118,7 +118,7 @@ const router = createRouter({
           component: () => import('@/views/DataView/ReportView/ReportAdd.vue'),
         },
         {
-          path: 'data/report/edit',
+          path: 'data/report/edit/:id',
           name: 'reportEdit',
           component: () => import('@/views/DataView/ReportView/ReportEdit.vue'),
         },

@@ -13,7 +13,7 @@ const router = useRouter()
 const userStore = useUserStore()
 
 // 判斷當前用戶是否為一般管理員
-const isGeneralAdmin = computed(() => userStore.user?.admin_role === 'general')
+const isGeneralAdmin = computed(() => userStore.user?.ADMIN_ROLE === 'general')
 
 // 一般管理員只能看到自己的帳號，不能新增
 const canAddAccount = computed(() => !isGeneralAdmin.value)
@@ -23,7 +23,7 @@ const handleAdd = () => {
 }
 
 const handleEdit = (row) => {
-  router.push({ name: 'admin-account-edit', params: { id: row.admin_id } })
+  router.push({ name: 'admin-account-edit', params: { id: row.ADMIN_ID } })
 }
 
 const sortOptions = [
@@ -70,7 +70,7 @@ const fetchAccountList = async () => {
   loading.value = true
   try {
     // 一般管理員只搜尋自己的帳號
-    const searchKeyword = isGeneralAdmin.value ? userStore.user.admin_id : keyword.value
+    const searchKeyword = isGeneralAdmin.value ? userStore.user.ADMIN_ID : keyword.value
 
     const response = await adminAccountAPI.getList({
       page: currentPage.value,
@@ -115,32 +115,32 @@ const roleMap = {
       @change="handleSearch" @add="handleAdd" />
 
     <el-table :data="tableData" style="width: 100%" class="customTable" v-loading="loading">
-      <el-table-column prop="admin_id" label="管理員帳號" align="center" />
+      <el-table-column prop="ADMIN_ID" label="管理員帳號" align="center" />
 
-      <el-table-column prop="admin_name" label="管理員姓名" align="center" />
+      <el-table-column prop="ADMIN_NAME" label="管理員姓名" align="center" />
       <el-table-column label="管理員角色" align="center">
         <template #default="{ row }">
-          {{ roleMap[row.admin_role] || row.admin_role }}
+          {{ roleMap[row.ADMIN_ROLE] || row.ADMIN_ROLE }}
         </template>
       </el-table-column>
 
       <el-table-column label="狀態" width="100" align="center">
         <template #default="{ row }">
-          <span :class="{ disabled: row.admin_active === 0 }">
-            {{ row.admin_active === 1 ? '啟用' : '停用' }}
+          <span :class="{ disabled: row.ADMIN_ACTIVE == 0 }">
+            {{ row.ADMIN_ACTIVE == 1 ? '啟用' : '停用' }}
           </span>
         </template>
       </el-table-column>
 
-      <el-table-column prop="admin_created_at" label="帳號建立時間" align="center">
+      <el-table-column prop="ADMIN_CREATED_AT" label="帳號建立時間" align="center">
         <template #default="{ row }">
-          <div class="dateCell">{{ row.admin_created_at }}</div>
+          <div class="dateCell">{{ row.ADMIN_CREATED_AT }}</div>
         </template>
       </el-table-column>
 
-      <el-table-column prop="admin_last_login_time" label="最後登入時間" align="center">
+      <el-table-column prop="ADMIN_LAST_LOGIN_TIME" label="最後登入時間" align="center">
         <template #default="{ row }">
-          <span>{{ formatLastLogin(row.admin_last_login_time) }}</span>
+          <span>{{ formatLastLogin(row.ADMIN_LAST_LOGIN_TIME) }}</span>
         </template>
       </el-table-column>
 

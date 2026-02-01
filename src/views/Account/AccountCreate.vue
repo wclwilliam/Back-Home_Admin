@@ -10,11 +10,11 @@ const router = useRouter()
 const loading = ref(false)
 
 const formData = ref({
-  admin_id: '',
-  admin_name: '',
-  admin_pwd: '',
-  admin_role: 'general',
-  admin_active: 1,
+  ADMIN_ID: '',
+  ADMIN_NAME: '',
+  ADMIN_PWD: '',
+  ADMIN_ROLE: 'general',
+  ADMIN_ACTIVE: 1,
 })
 
 const handleSubmit = async (payload) => {
