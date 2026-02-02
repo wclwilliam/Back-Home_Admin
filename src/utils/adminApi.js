@@ -260,6 +260,10 @@ export const memberAPI = {
    * @returns {Promise}
    */
   getDetail: async (memberId) => {
+    if (!memberId) {
+      throw new Error('會員ID不能為空')
+    }
+    
     const response = await fetch(
       `${normalizeApiBase(API_BASE)}/admin/members_get.php?member_id=${memberId}`,
       {
@@ -289,4 +293,38 @@ export const memberAPI = {
 
     return handleResponse(response)
   },
+
+  /**
+   * 獲取會員捐款紀錄
+   * @param {number} memberId - 會員ID
+   * @returns {Promise}
+   */
+  getDonations: async (memberId) => {
+    const response = await fetch(
+      `${normalizeApiBase(API_BASE)}/admin/member_donations_get.php?member_id=${memberId}`,
+      {
+        method: 'GET',
+        headers: createHeaders(true),
+      },
+    )
+
+    return handleResponse(response)
+  },
+
+  /**
+   * 獲取會員志工紀錄與累積時數
+   * @param {number} memberId - 會員ID
+   * @returns {Promise}
+   */
+  getVolunteers: async (memberId) => {
+    const response = await fetch(
+      `${normalizeApiBase(API_BASE)}/admin/member_volunteer_get.php?member_id=${memberId}`,
+      {
+        method: 'GET',
+        headers: createHeaders(true),
+      },
+    )
+
+    return handleResponse(response)
+  }
 }
