@@ -1,5 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
+import { CaretTop, CaretBottom } from '@element-plus/icons-vue'
 import Swal from 'sweetalert2'
 
 const props = defineProps({
@@ -135,13 +136,17 @@ const unhideCommentApi = (commentId) => {
 
       <el-table-column label="檢舉紀錄" width="120" align="center">
         <template #default="scope">
-          <span
+          <el-button
+            type="danger"
+            link
             v-if="scope.row.reportCount > 0"
             style="color: #e65d4f; font-weight: bold"
             @click="toggleExpand(scope.row)"
           >
             {{ scope.row.reportCount }} 則檢舉
-          </span>
+            <el-icon v-if="scope.row.reportCount > 0"><CaretTop /></el-icon>
+            <el-icon v-else><CaretBottom /></el-icon>
+          </el-button>
           <span v-else>無</span>
         </template>
       </el-table-column>

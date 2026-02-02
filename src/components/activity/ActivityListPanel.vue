@@ -299,11 +299,6 @@ const paginatedData = computed(() => {
     font-weight: bold;
     border-bottom: none;
   }
-
-  // 讓表格內容垂直置中
-  :deep(.el-table__cell) {
-    padding: 12px 0;
-  }
 }
 
 .pagination-container {

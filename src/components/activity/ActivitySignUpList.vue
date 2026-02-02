@@ -4,12 +4,13 @@ import { Check, CaretBottom, CaretTop, View, Hide } from '@element-plus/icons-vu
 import { ElMessage } from 'element-plus'
 import Swal from 'sweetalert2'
 import { backHomeApi } from '@/utils/publicApi'
-import ActivityData from '@/assets/data/activityData.json'
 
 // 接收父層傳來的基本資訊
 const props = defineProps({
   activityId: { type: [String, Number], default: '' },
   activityTitle: { type: String, default: '' },
+  activityStatus: { type: String, default: '' },
+  maxPeople: { type: [Number, String], default: 0 },
 })
 
 const tableRef = ref(null)
@@ -26,13 +27,6 @@ const maskIdNumber = (val) => {
   if (!val || val.length < 5) return '*****'
   return val.substring(0, 3) + '*****' + val.substring(val.length - 2)
 }
-//取得活動最大報名人數
-const maxPeople = computed(() => {
-  const targetId = parseInt(props.activityId)
-  if (!targetId) return 0
-  const activity = ActivityData.find((item) => item.ACTIVITY_ID === targetId)
-  return activity ? activity.ACTIVITY_MAX_PEOPLE : 0
-})
 
 const initData = async () => {
   const targetId = parseInt(props.activityId)
@@ -82,6 +76,7 @@ const cancelledNum = computed(
   () => memberList.value.filter((item) => item.isCancelled === '是').length,
 )
 watch(() => props.activityId, initData, { immediate: true })
+
 const handleEditAttendance = () => {
   if (isEditingAttendance.value) {
     // 目前是編輯模式 -> 執行儲存
@@ -103,24 +98,14 @@ const handleEditAttendance = () => {
   } else {
     // 目前是檢視模式 -> 欲切換為編輯模式
     // 檢查活動是否已結束
-    const targetId = parseInt(props.activityId)
-    const activity = ActivityData.find((item) => item.ACTIVITY_ID === targetId)
-
-    if (activity) {
-      const now = new Date()
-      // 確保日期格式相容性
-      const endStr = activity.ACTIVITY_END_DATETIME.replace(' ', 'T')
-      const endDate = new Date(endStr)
-
-      if (now < endDate) {
-        ElMessage.warning('活動尚未結束，無法修改出席狀態')
-        return
-      }
-
-      // 通過檢查，開啟編輯模式
-      isEditingAttendance.value = true
-      ElMessage.info('已開啟編輯模式，請直接點擊列表中的方框')
+    if (props.activityStatus !== '已結束') {
+      ElMessage.warning('活動尚未結束，無法修改出席狀態')
+      return
     }
+
+    // 通過檢查，開啟編輯模式
+    isEditingAttendance.value = true
+    ElMessage.info('已開啟編輯模式，請直接點擊列表中的方框')
   }
 }
 
@@ -257,11 +242,11 @@ const toggleExpand = (row) => {
       </el-table-column>
       <el-table-column label="操作" width="100" align="center">
         <template #default="scope">
-          <span class="action-text" @click.stop="toggleExpand(scope.row)">
+          <el-button type="primary" link class="action-text" @click.stop="toggleExpand(scope.row)">
             {{ expandedRows.includes(scope.row.id) ? '收合' : '展開' }}
             <el-icon v-if="expandedRows.includes(scope.row.id)"><CaretTop /></el-icon>
             <el-icon v-else><CaretBottom /></el-icon>
-          </span>
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
