@@ -15,12 +15,32 @@ import Swal from 'sweetalert2'
 // 取得管理員資訊
 const fetchAdminInfo = async () => {
   try {
-    const response = await backHomeApi.get('./news/get_admin_account.php')
-    if (response.data.success) {
+    // 使用正確的 token 鍵名：ADMIN_TOKEN
+    const token = localStorage.getItem('ADMIN_TOKEN')
+    
+    console.log('Token:', token ? '已找到' : '未找到') // 調試用
+    
+    // 構建請求配置
+    const config = {}
+    if (token) {
+      config.headers = {
+        'Authorization': `Bearer ${token}`
+      }
+    }
+    
+    const response = await backHomeApi.get('./news/get_admin_account.php', config)
+    console.log('API 回應:', response.data) // 調試用
+    
+    if (response.data && response.data.success && response.data.admin_account) {
       formData.admin = response.data.admin_account
+      console.log('成功設置管理員:', formData.admin) // 調試用
+    } else {
+      console.error('回應格式錯誤:', response.data)
+      formData.admin = 'unknown'
     }
   } catch (error) {
     console.error('取得管理員資訊失敗:', error)
+    console.error('錯誤詳情:', error.response?.data) // 調試用
     formData.admin = 'unknown'
   }
 }
@@ -110,34 +130,15 @@ const editorConfig = {
 
 // 表單資料
 const formData = reactive({
-  // id: '系統自動編號',
   admin: '載入中',
   title: '',
   category: '',
   date: getTodayDate(),
   content: '',
-  imageFile: null, // 儲存原始檔案物件
+  imageFile: null,
   imageUrl: '',
   imageName: '測試.png'
 })
-
-// 取得下一個新聞編號
-// const fetchNextNewsId = async () => {
-//   try {
-//     const response = await backHomeApi.get('./news/news_get_next_id.php')
-//     if (response.data.success) {
-//       formData.id = response.data.next_id
-//     }
-//   } catch (error) {
-//     console.error('取得編號失敗:', error)
-//     formData.id = '??'
-//   }
-// }
-
-// 頁面載入時自動取得編號
-// onMounted(() => {
-//   fetchNextNewsId()
-// })
 
 const handleImageChange = (uploadFile) => {
   const isImage = uploadFile.raw.type.startsWith('image/');
@@ -169,13 +170,15 @@ const goBack = () => {
   })
 }
 
-// 統一提交處理函式
 const submitForm = async (targetStatus) => {
   if (!formData.title || !formData.content || !formData.imageFile) {
     Swal.fire("錯誤", "標題、內容與封面圖片皆為必填", "error");
     return;
   }
-
+  if (formData.admin === '載入中' || formData.admin === 'unknown') {
+    Swal.fire("錯誤", "管理員資訊尚未載入，請稍後再試", "error");
+    return;
+  }
   const postData = new FormData();
   postData.append('title', formData.title);
   postData.append('category', formData.category);
@@ -207,21 +210,9 @@ const submitForm = async (targetStatus) => {
   }
 };
 
-// 按鈕呼叫的函式
 const postNews = () => submitForm('published');
 const saveDraft = () => submitForm('draft');
 
-// const saveDraft = () => {
-//   Swal.fire({
-//     title: "文章已儲存草稿!",
-//     icon: 'success',
-//     draggable: true
-//   }).then((result) => {
-//     if (result.isConfirmed) {
-//       router.back()
-//     }
-//   })
-// }
 </script>
 
 <template>
@@ -232,16 +223,10 @@ const saveDraft = () => submitForm('draft');
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
 
         <el-row :gutter="40">
-          <!-- <el-col :span="10">
-            <el-form-item label="文章編號">
-              <el-input v-model="formData.id" disabled class="readOnlyInput" placeholder="系統自動生成" />
-            </el-form-item>
-          </el-col> -->
           <el-col :span="10" >
             <el-form-item label="日期" label-width="100px">
               <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
-            
           </el-col>
         </el-row>
 
@@ -298,36 +283,11 @@ const saveDraft = () => submitForm('draft');
   </div>
 </template>
 
-
 <style lang="scss" scoped>
 .pageContainer {
   padding: 30px;
   min-height: 100vh;
   box-sizing: border-box;
-}
-
-.headerSection {
-  border-bottom: 2px solid $primary-color;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-
-  .pageTitle {
-    font-size: 36px;
-    color: $primary-color;
-    font-weight: bold;
-    margin: 0;
-  }
-
-  .userInfo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 14px;
-    color: $text-color;
-  }
 }
 
 .customForm {
@@ -337,7 +297,6 @@ const saveDraft = () => submitForm('draft');
     letter-spacing: 1px;
   }
 
-  //Disabled Input 
   .readOnlyInput {
     :deep(.el-input__wrapper) {
       background-color: #dcdcdc;
@@ -352,18 +311,11 @@ const saveDraft = () => submitForm('draft');
     }
   }
 
-
   :deep(.el-input__wrapper),
   :deep(.el-textarea__inner) {
     border-color: $secondary-color;
     resize: none;
-
   }
-}
-
-.logoutBtn {
-  border: 1px solid $secondary-color;
-  color: $secondary-color;
 }
 
 .uploadSection {
@@ -407,7 +359,6 @@ const saveDraft = () => submitForm('draft');
     min-height: 300px;
   }
 
-
   :deep(.ck-content) {
     p {
       margin-bottom: 1em;
@@ -441,9 +392,7 @@ const saveDraft = () => submitForm('draft');
       line-height: 1.4;
     }
 
-
-    strong,
-    b {
+    strong, b {
       font-weight: bold !important;
     }
 
@@ -459,8 +408,7 @@ const saveDraft = () => submitForm('draft');
       margin-bottom: 1em;
     }
 
-    i,
-    em {
+    i, em {
       font-style: italic;
     }
 

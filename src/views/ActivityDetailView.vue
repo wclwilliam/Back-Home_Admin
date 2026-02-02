@@ -225,6 +225,7 @@ onMounted(() => {
             :activity-id="currentActivityForm.id"
             :activity-title="currentActivityForm.title"
             :activity-status="currentActivityForm.detailStatus"
+            :max-people="currentActivityForm.maxVolunteers"
           />
           <div v-else class="empty-msg">活動未發布，尚未有名單</div>
         </div>

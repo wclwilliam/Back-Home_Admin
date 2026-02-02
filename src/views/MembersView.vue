@@ -1,166 +1,151 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import AdminHeader from '@/components/AdminHeader.vue'
 import TableToolbar from '@/components/TableToolbar.vue'
 import Pagination from '@/components/Pagination.vue'
+import { memberAPI } from '@/utils/adminApi'
+import { formatDate } from '@/utils/formatTime'
 
 const router = useRouter()
 
-// 1. 搜尋與排序狀態 (對應 TableToolbar 的 v-model)
-const sortBy = ref('created_desc')
+// 搜尋與排序狀態
+const sortBy = ref('')
 const keyword = ref('')
 
 // 排序選項
 const sortOptions = [
+    { label: '排序', value: '' },
+
+    // 註冊日期
     { label: '最新註冊', value: 'created_desc' },
     { label: '最早註冊', value: 'created_asc' },
-    { label: '姓名 (A-Z)', value: 'name_asc' },
+
+    // 會員編號
+    { label: '會員編號 (小 → 大)', value: 'id_asc' },
+    { label: '會員編號 (大 → 小)', value: 'id_desc' },
+
+    // 姓名
+    { label: '姓名筆畫 (少 → 多)', value: 'name_asc' },
+    { label: '姓名筆畫 (多 → 少)', value: 'name_desc' },
+
+    // 帳號狀態
+    { label: '啟用優先', value: 'active_first' },
+    { label: '停用優先', value: 'inactive_first' },
 ]
 
-// 2. 模擬會員列表資料
-const tableData = ref([
-    {
-    id: 'M00001',
-    name: '王曉明',
-    email: '123go!@gmail.com',
-    phone: '0957634987',
-    status: true, // true = 可用, false = 停用
-    createdAt: '2025-12-29',
-    },
-    {
-    id: 'M00002',
-    name: '李小華',
-    email: 'hua_hua@gmail.com',
-    phone: '0912345678',
-    status: true,
-    createdAt: '2025-12-30',
-    },
-    {
-    id: 'M00003',
-    name: '陳阿蝦',
-    email: 'shrimp@gmail.com',
-    phone: '0988777666',
-    status: true,
-    createdAt: '2026-01-05',
-    },
-    {
-    id: 'M00004',
-    name: '陳蝦',
-    email: 'sh88mp@gmail.com',
-    phone: '0988766866',
-    status: true,
-    createdAt: '2026-01-15',
-    },
-    {
-    id: 'M00005',
-    name: '王豪傑',
-    email: 'we88mp@gmail.com',
-    phone: '0988334666',
-    status: true,
-    createdAt: '2026-01-20',
-    },
-    {
-    id: 'M00006',
-    name: '林小美',
-    email: 'ge93mp@gmail.com',
-    phone: '0980544666',
-    status: false,
-    createdAt: '2026-01-18',
+// 分頁狀態
+const currentPage = ref(1)
+const pageSize = ref(10)
+const total = ref(0)
+
+// 表格資料與載入狀態
+const tableData = ref([])
+const loading = ref(false)
+
+// 獲取會員列表
+const fetchMemberList = async () => {
+    loading.value = true
+    try {
+        const response = await memberAPI.getList({
+            page: currentPage.value,
+            pageSize: pageSize.value,
+            keyword: keyword.value,
+            sortBy: sortBy.value,
+        })
+
+        tableData.value = response.items || []
+        total.value = response.pagination?.total || 0
+    } catch (error) {
+        ElMessage.error(error.message || '獲取會員列表失敗，請稍後重試')
+    } finally {
+        loading.value = false
     }
-])
+}
 
-// 3. 關鍵功能：跳轉至詳情頁
+// 跳轉至詳情頁
 const handleViewDetail = (row) => {
-  // 跳轉至 MembersDetailView.vue，並帶入該會員的 ID
-    router.push({ name: 'admin-members-detail', params: { id: row.id } })
+    router.push({ name: 'admin-members-detail', params: { id: row.MEMBER_ID } })
 }
 
-// 4. 關鍵功能：Switch 切換會員狀態
-const handleStatusChange = (row, val) => {
-  // val 是切換後的布林值 (true/false)
-    console.log(`[API 預備] 會員編號: ${row.id}, 新狀態: ${val ? '可用' : '停用'}`)
-  // TODO: 此處之後串接 axios.patch 更新狀態
+// 切換會員狀態
+const handleStatusChange = async (row, val) => {
+    try {
+        const status = val ? 1 : 0
+        await memberAPI.updateStatus(row.MEMBER_ID, status)
+        ElMessage.success('狀態更新成功')
+        row.MEMBER_ACTIVE = status
+    } catch (error) {
+        ElMessage.error(error.message || '狀態更新失敗')
+        // 還原狀態
+        row.MEMBER_ACTIVE = row.MEMBER_ACTIVE === 1 ? 0 : 1
+    }
 }
-
-// 5. 搜尋過濾邏輯 (前端模擬)
-const filteredTableData = computed(() => {
-    if (!keyword.value) return tableData.value
-    const q = keyword.value.trim().toLowerCase()
-    return tableData.value.filter((row) => {
-        return row.name.toLowerCase().includes(q) || row.email.toLowerCase().includes(q)
-    })
-})
 
 // 處理搜尋行為
-const handleSearch = ({ sortBy: sb, searchQuery }) => {
+const handleSearch = async ({ sortBy: sb, searchQuery }) => {
     sortBy.value = sb ?? sortBy.value
     keyword.value = searchQuery ?? keyword.value
-    console.log('搜尋觸發:', { sortBy: sortBy.value, keyword: keyword.value })
+    currentPage.value = 1 // 搜尋時重置到第一頁
+    await fetchMemberList()
 }
+
+// 分頁變化
+const handlePageChange = async (page) => {
+    currentPage.value = page
+    await fetchMemberList()
+}
+
+// 頁面載入時獲取資料
+onMounted(() => {
+    fetchMemberList()
+})
 </script>
 
 <template>
     <div class="pageContainer">
-    <AdminHeader title="會員中心管理" />
+        <AdminHeader title="會員中心管理" />
 
-    <TableToolbar
-        v-model:modelValueSort="sortBy"
-        v-model:modelValueSearch="keyword"
-        :sort-options="sortOptions"
-        search-placeholder="搜尋姓名 / E-MAIL"
-        :show-add="false" 
-        @search="handleSearch"
-    />
+        <TableToolbar v-model:modelValueSort="sortBy" v-model:modelValueSearch="keyword" :sort-options="sortOptions"
+            search-placeholder="搜尋姓名 / E-MAIL / 手機號碼" :show-add="false" @search="handleSearch" @change="handleSearch" />
 
-    <el-table 
-        :data="filteredTableData" 
-        style="width: 100%" 
-        class="customTable"
-        :header-cell-style="{ backgroundColor: '#f5f7fa', color: '#333', fontWeight: 'bold' }"
-    >
-        <el-table-column prop="id" label="會員編號" align="center" width="120" />
-        
-        <el-table-column prop="name" label="姓名" align="center" />
-        
-        <el-table-column prop="email" label="E-MAIL" align="center" min-width="200" />
-        
-        <el-table-column prop="phone" label="手機號碼" align="center" width="150" />
-        
-        <el-table-column label="帳號狀態" align="center" width="150">
-        <template #default="{ row }">
-            <el-switch
-            v-model="row.status"
-            inline-prompt
-            active-text="可用"
-            inactive-text="停用"
-            active-color="#2d8c8c" 
-            inactive-color="#ff4949"
-            @change="(val) => handleStatusChange(row, val)"
-            />
-        </template>
-        </el-table-column>
+        <el-table :data="tableData" style="width: 100%" class="customTable" v-loading="loading">
+            <el-table-column prop="MEMBER_ID" label="會員編號" align="center" />
 
-        <el-table-column prop="createdAt" label="註冊日期" align="center" width="150" />
+            <el-table-column prop="MEMBER_REALNAME" label="姓名" align="center" />
 
-        <el-table-column label="操作" width="120" align="center" fixed="right">
-        <template #default="{ row }">
-            <el-button 
-            link 
-            type="primary" 
-            size="small" 
-            @click="handleViewDetail(row)"
-            style="font-weight: bold;"
-            >
-            檢視詳情
-            </el-button>
-        </template>
-        </el-table-column>
-    </el-table>
+            <el-table-column prop="MEMBER_EMAIL" label="E-MAIL" align="center" min-width="200" />
 
-    <div class="pagination-wrapper">
-        <Pagination />
-    </div>
+            <el-table-column prop="MEMBER_PHONE" label="手機號碼" align="center" width="150" />
+
+            <el-table-column label="帳號狀態" align="center" width="110">
+                <template #default="{ row }">
+                    <el-select :model-value="row.MEMBER_ACTIVE" size="small" class="status-select"
+                        @change="(val) => handleStatusChange(row, val)">
+                        <el-option label="啟用" :value="1" />
+                        <el-option label="停用" :value="0" />
+                    </el-select>
+                </template>
+            </el-table-column>
+
+            <el-table-column label="註冊日期" align="center" width="150">
+                <template #default="{ row }">
+                    {{ formatDate(row.MEMBER_CREATED_AT) }}
+                </template>
+            </el-table-column>
+
+            <el-table-column label="操作" width="120" align="center" fixed="right">
+                <template #default="{ row }">
+                    <el-button link type="primary" size="small" @click="handleViewDetail(row)"
+                        style="font-weight: bold;">
+                        檢視詳情
+                    </el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+
+        <Pagination :total="total" :page-size="pageSize" :current-page="currentPage" @change="handlePageChange" />
     </div>
 </template>
 
@@ -175,13 +160,12 @@ const handleSearch = ({ sortBy: sb, searchQuery }) => {
 }
 
 .customTable {
-    margin-top: 20px;
-    border: 1px solid #ebeef5;
-    border-radius: 4px;
-
-  /* 調整滑過行時的背景色 */
-    :deep(.el-table__row:hover > td) {
-        background-color: #f9fbfb !important;
+    :deep(th.el-table__cell) {
+        background-color: $backstage-bar-color;
+        font-size: 14px;
+        color: $text-color;
+        font-weight: bold;
+        border-bottom: none;
     }
 }
 
@@ -189,6 +173,16 @@ const handleSearch = ({ sortBy: sb, searchQuery }) => {
     margin-top: 30px;
     display: flex;
     justify-content: center;
+}
+
+/* 停用狀態文字顏色 */
+.disabled {
+    color: #f56c6c;
+}
+
+/* 狀態下拉選單寬度 */
+.status-select {
+    width: 75px;
 }
 
 /* 讓 Switch 內的文字稍微小一點比較美觀 */
@@ -199,6 +193,7 @@ const handleSearch = ({ sortBy: sb, searchQuery }) => {
 /* 調整按鈕顏色與品牌色對齊 */
 :deep(.el-button--primary.is-link) {
     color: $primary-color;
+
     &:hover {
         color: lighten($primary-color, 10%);
     }

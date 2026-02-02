@@ -89,7 +89,7 @@ const listDelete = async (row) => {
 
   if (result.isConfirmed) {
     try {
-      // 執行刪除 API - 你需要另外建立 news_delete.php
+      // 執行刪除 API 
       await backHomeApi.delete(`./news/news_delete.php?id=${row.id}`)
 
       Swal.fire({
