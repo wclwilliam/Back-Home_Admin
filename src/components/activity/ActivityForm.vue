@@ -22,7 +22,16 @@ const localForm = ref({})
 watch(
   () => props.formData,
   (newVal) => {
-    localForm.value = JSON.parse(JSON.stringify(newVal))
+    const copy = JSON.parse(JSON.stringify(newVal))
+    if (copy.activityTime && Array.isArray(copy.activityTime)) {
+      copy.activityTime = copy.activityTime.map((t) => (t ? new Date(t) : ''))
+    }
+
+    if (copy.registrationTime && Array.isArray(copy.registrationTime)) {
+      copy.registrationTime = copy.registrationTime.map((t) => (t ? new Date(t) : ''))
+    }
+
+    localForm.value = copy
   },
   { immediate: true, deep: true },
 )
@@ -152,9 +161,22 @@ const saveEdit = () => {
               <el-option label="照護" value="照護" />
             </el-select>
           </el-form-item>
+
           <el-form-item label="活動區域">
-            <el-input v-model="localForm.region" disabled class="readOnlyInput" />
+            <el-select
+              v-model="localForm.region"
+              placeholder="請選擇地區"
+              :disabled="!isEditing"
+              style="width: 100%"
+            >
+              <el-option label="北部" value="北部" />
+              <el-option label="中部" value="中部" />
+              <el-option label="東部" value="東部" />
+              <el-option label="南部" value="南部" />
+              <el-option label="離島" value="離島" />
+            </el-select>
           </el-form-item>
+
           <el-form-item label="最大志工數">
             <el-input v-model="localForm.maxVolunteers" :disabled="!isEditing" />
           </el-form-item>
