@@ -238,20 +238,28 @@ onMounted(initData)
         <div class="col-action">
           <template v-if="!item.isEditing">
             <template v-if="canEditResults">
-              <el-link class="link-btn" @click="item.isEditing = true">編輯</el-link>
+              <el-button link class="link-btn" type="primary" @click="item.isEditing = true"
+                >編輯</el-button
+              >
               <span style="color: #ccc; margin: 0 5px">|</span>
-              <el-link class="link-btn" type="danger" @click="removeItem(index)">刪除</el-link>
+              <el-button link class="link-btn" type="danger" @click="removeItem(index)"
+                >刪除</el-button
+              >
             </template>
             <span v-else>(唯讀)</span>
           </template>
           <template v-else>
-            <el-link class="link-btn" @click="removeItem(index)">取消</el-link>
-            <span style="color: #ccc; margin: 0 5px">|</span>
-            <el-link
+            <el-button
               class="link-btn"
+              type="primary"
+              link
               :disabled="item.metricId === null || !item.value"
               @click="item.metricId !== null && item.value ? (item.isEditing = false) : null"
-              >完成</el-link
+              >完成</el-button
+            >
+            <span style="color: #ccc; margin: 0 5px">|</span>
+            <el-button link class="link-btn" type="danger" @click="removeItem(index)"
+              >取消</el-button
             >
           </template>
         </div>
@@ -346,7 +354,8 @@ $title-col: #153450;
   padding: 15px;
   border-bottom: 1px solid $disable-col;
   background: $text-white;
-  align-items: flex-start;
+  align-items: center;
+  min-height: 60px;
 }
 .col-type {
   flex: 2;
@@ -368,7 +377,6 @@ $title-col: #153450;
 .link-btn {
   font-size: 14px;
   text-decoration: underline;
-  color: $text-color;
   cursor: pointer;
 }
 .link-btn:hover {
