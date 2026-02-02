@@ -11,43 +11,6 @@ import {
 import 'ckeditor5/ckeditor5.css'
 import Swal from 'sweetalert2'
 
-// const handleSave = async (targetStatus) => {
-//   // 基本驗證
-//   if (!form.title || !form.content) {
-//     Swal.fire('錯誤', '標題與內容為必填', 'error');
-//     return;
-//   }
-
-//   const formData = new FormData();
-//   formData.append('id', route.params.id);
-//   formData.append('title', form.title);
-//   formData.append('category', form.category);
-//   formData.append('content', form.content);
-//   formData.append('status', targetStatus); // 使用傳入的目標狀態
-
-//   if (selectedFile.value) {
-//     formData.append('image', selectedFile.value);
-//   }
-
-//   try {
-//     const response = await backHomeApi.post('./news/news_edit.php', formData);
-//     if (response.data.success) {
-//       // 更新本地狀態，這樣按鈕會即時切換狀態
-//       form.status = targetStatus;
-
-//       Swal.fire({
-//         icon: 'success',
-//         title: targetStatus === 'published' ? '已發布並更新' : '草稿已儲存',
-//         showConfirmButton: false,
-//         timer: 1500
-//       });
-//     }
-//   } catch (error) {
-//     console.error('儲存失敗:', error);
-//     Swal.fire('錯誤', '儲存失敗，請檢查網路連線', 'error');
-//   }
-// };
-
 //CKEditor上傳
 // 1. 定義真正的上傳轉接器
 class MyUploadAdapter {

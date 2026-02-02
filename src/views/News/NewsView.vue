@@ -31,19 +31,18 @@ const fetchNewsData = async () => {
   loading.value = true
   try {
     const response = await backHomeApi.get('./news/news_get.php?mode=admin')
-    //const response = await backHomeApi.get(`./news/news_get.php?mode=admin&t=${Date.now()}`)
 
     // 轉換資料格式以符合前端顯示需求
     tableDataOriginal.value = response.data.map(item => ({
-      id: String(item.id).padStart(2, '0'), // 格式化為兩位數字串
+      id: String(item.id),
       category: item.category,
       imageUrl: item.image_path ? (fileUrl + item.image_path) : 'https://placehold.co/300x200?text=No+Image',
       title: item.title,
       date: formatDateTime(item.published_at), // 格式化日期時間
       status: item.status === 'published' ? '已發布' : '草稿',
-      rawStatus: item.status, // 保留原始狀態用於後續操作
-      author_id: item.author_id,
-      content: item.content
+      // rawStatus: item.status, // 保留原始狀態用於後續操作
+      //author_id: item.author_id,
+      // content: item.content
     }))
 
   } catch (error) {
@@ -268,34 +267,6 @@ onMounted(() => {
   box-sizing: border-box;
 }
 
-.headerSection {
-  border-bottom: 2px solid $primary-color;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-  padding-bottom: 24px;
-
-  .pageTitle {
-    font-size: 36px;
-    color: $primary-color;
-    font-weight: bold;
-    margin: 0;
-  }
-
-  .userInfo {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 14px;
-    color: $text-color;
-  }
-}
-
-.logoutBtn {
-  border: 1px solid $secondary-color;
-  color: $secondary-color;
-}
 
 //工具列 
 .toolbarSection {
