@@ -16,18 +16,55 @@ const props = defineProps({
 })
 const availableMetrics = ref([])
 const resultItems = ref([])
+
 const photoList = ref([])
+const deletedPhotoIds = ref([])
 
 //判斷活動是否結束，結束才可以編輯
 const canEditResults = computed(() => {
   return props.activityStatus === '已結束'
 })
 
+const isGlobalEditing = ref(false)
+// 新增：備份資料用 (取消時還原)
+let metricsBackup = []
+let photosBackup = []
+let deletedPhotosBackup = []
+
+//進入編輯模式
+const enterEditMode = () => {
+  if (!canEditResults.value) {
+    ElMessage.warning('活動尚未結束，不能編輯成果')
+    return
+  }
+  //深拷貝原本的資料
+  metricsBackup = JSON.parse(JSON.stringify(resultItems.value))
+  // 照片因為可能包含 File 物件(新上傳的)，不能直接 JSON stringify
+  // 我們只備份陣列結構，新上傳的檔案若取消就丟棄
+  photosBackup = photoList.value.map((p) => ({ ...p }))
+  deletedPhotosBackup = [...deletedPhotoIds.value]
+
+  isGlobalEditing.value = true
+}
+//取消編輯
+const cancelEditMode = () => {
+  resultItems.value = JSON.parse(JSON.stringify(metricsBackup))
+  photoList.value = photosBackup.map((p) => ({ ...p }))
+  deletedPhotoIds.value = [...deletedPhotosBackup]
+  isGlobalEditing.value = false
+  ElMessage.success('已取消編輯')
+}
+//存放舊照片
+const oldPhotoList = ref([])
+
 //初始化資料
 const initData = async () => {
   resultItems.value = []
   photoList.value = []
   availableMetrics.value = [] // 重置選項
+  oldPhotoList.value = []
+
+  deletedPhotoIds.value = []
 
   const targetId = props.activityId
   if (!targetId) return
@@ -69,21 +106,26 @@ const initData = async () => {
               unit: volunteerMetric.METRIC_UNIT,
               isEditing: false, // 或設為 true 讓他們確認
             })
-          } else if (existingIndex > 0) {
-            const item = resultItems.value.splice(existingIndex, 1)[0]
-            resultItems.value.unshift(item)
           }
         }
       }
       if (photos && photos.length > 0) {
         photoList.value = photos.map((photo) => ({
-          src: `${APIBase}uploads/actResult/${photo.PHOTO_URL}`,
+          id: photo.PHOTO_ID || photo.photo_id,
+          src: `${APIBase}uploads/actResult/${photo.PHOTO_URL || photo.photo_url}`,
           selected: false,
-          name: photo.PHOTO_URL,
+          name: photo.PHOTO_URL || photo.photo_url,
+          isOld: true,
         }))
       } else if (props.coverImage) {
         // 如果沒有成果照片，預設顯示封面圖 (若有需要)
-        photoList.value = [{ src: props.coverImage, selected: true }]
+        photoList.value = [
+          {
+            src: props.coverImage,
+            selected: false,
+            isOld: false,
+          },
+        ]
       }
     }
   } catch (error) {
@@ -150,12 +192,6 @@ const handleMetricChange = (row) => {
   }
 }
 
-//確認input框都有內容
-const confirmInput = () => {
-  resultItems.value.forEach((item) => {
-    item.isEditing = false
-  })
-}
 const removeItem = (index) => {
   Swal.fire({
     title: '確定要刪除嗎？',
@@ -169,14 +205,89 @@ const removeItem = (index) => {
     }
   })
 }
+
+const handleSave = async () => {
+  // 檢查是否有正在編輯的項目
+  if (resultItems.value.some((item) => item.isEditing)) {
+    ElMessage.warning('請先完成所有成果項目的編輯 (按完成)')
+    return
+  }
+  //如果都完成挑出確認儲存的燈箱
+  Swal.fire({
+    title: '確定要儲存嗎？',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: '確定',
+    cancelButtonText: '取消',
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const fd = new FormData()
+        fd.append('activity_id', props.activityId)
+
+        // 打包成果數值
+        const metricsData = resultItems.value
+          .filter((item) => item.metricId !== null && item.value !== '')
+          .map((item) => ({
+            metric_id: item.metricId,
+            value: item.value,
+          }))
+        fd.append('results', JSON.stringify(metricsData))
+        console.log('準備刪除的照片 IDs:', deletedPhotoIds.value)
+        // B. 打包要刪除的照片 ID
+        fd.append('deleted_photos', JSON.stringify(deletedPhotoIds.value))
+
+        // C. 打包新上傳的照片 (有 file 屬性的才是新照片)
+        photoList.value.forEach((p) => {
+          if (p.file) {
+            fd.append('new_photos[]', p.file)
+          }
+        })
+
+        // 呼叫 API
+        const resultUpdateUrl = '/activity/admin_activity_result_save.php'
+        const response = await backHomeApi.post(resultUpdateUrl, fd, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+
+        if (response.data.status === 'success') {
+          Swal.fire({
+            icon: 'success',
+            title: '儲存成功',
+            showConfirmButton: false,
+            timer: 1500,
+          })
+          // 重新載入資料以同步最新狀態
+          isGlobalEditing.value = false
+          initData()
+        } else {
+          throw new Error(response.data.message)
+        }
+      } catch (error) {
+        console.error('儲存成果失敗:', error)
+        Swal.fire({
+          icon: 'error',
+          title: '儲存失敗',
+          text: error.message,
+        })
+      }
+    }
+  })
+}
+
 const handlePhotoUpload = (uploadFile) => {
+  // 產生預覽圖並加入列表
   photoList.value.push({
-    src: URL.createObjectURL(uploadFile.raw),
-    file: uploadFile.raw,
+    src: URL.createObjectURL(uploadFile.raw), // 預覽網址
+    file: uploadFile.raw, // 原始檔案 (傳給後端用)
     selected: false,
+    isOld: false, // 標記為新照片
     name: uploadFile.name,
   })
 }
+
 //全選照片
 const selectAllPhotos = () => {
   photoList.value.forEach((photo) => {
@@ -185,7 +296,23 @@ const selectAllPhotos = () => {
 }
 //刪除照片
 const handlePhotoRemove = () => {
-  //刪除選取的項目
+  // 找出被選取的照片
+  const selectedPhotos = photoList.value.filter((p) => p.selected)
+
+  if (selectedPhotos.length === 0) {
+    ElMessage.warning('請先選擇要刪除的照片')
+    return
+  }
+
+  // 遍歷選取的照片
+  selectedPhotos.forEach((p) => {
+    // 如果是資料庫已存在的舊照片，要記錄 ID
+    if (p.isOld && p.id) {
+      deletedPhotoIds.value.push(p.id)
+    }
+  })
+
+  // 從畫面列表中移除這些照片
   photoList.value = photoList.value.filter((photo) => !photo.selected)
 }
 watch(() => props.activityId, initData)
@@ -193,13 +320,28 @@ onMounted(initData)
 </script>
 
 <template>
+  <div class="update_btn" style="margin-top: 20px; text-align: right">
+    <template v-if="!isGlobalEditing">
+      <el-button class="add-btn" @click="enterEditMode" :disabled="!canEditResults">
+        修改項目
+      </el-button>
+    </template>
+    <template v-else>
+      <el-button class="add-btn" @click="cancelEditMode">取消</el-button>
+      <el-button type="primary" @click="handleSave" style="background-color: #0e6273"
+        >完成修改</el-button
+      >
+    </template>
+  </div>
+
   <div class="tab-container">
     <div class="custom-table">
       <div class="table-header">
         <div class="col-type">成果種類 (選單)</div>
         <div class="col-value">數值/內容</div>
         <div class="col-unit">單位</div>
-        <div class="col-action">操作</div>
+        <div class="col-action" v-if="isGlobalEditing">操作</div>
+        <div class="col-action" v-else></div>
       </div>
 
       <div v-for="(item, index) in resultItems" :key="index" class="table-row">
@@ -213,6 +355,7 @@ onMounted(initData)
             placeholder="請選擇成果種類"
             style="width: 100%"
             @change="handleMetricChange(item)"
+            :disabled="!isGlobalEditing"
           >
             <el-option
               v-for="opt in getOpts(item)"
@@ -236,37 +379,39 @@ onMounted(initData)
         </div>
 
         <div class="col-action">
-          <template v-if="!item.isEditing">
-            <template v-if="canEditResults">
-              <el-button link class="link-btn" type="primary" @click="item.isEditing = true"
+          <template v-if="isGlobalEditing">
+            <template v-if="!item.isEditing">
+              <el-button class="link-btn" type="primary" link @click="item.isEditing = true"
                 >編輯</el-button
               >
               <span style="color: #ccc; margin: 0 5px">|</span>
-              <el-button link class="link-btn" type="danger" @click="removeItem(index)"
+              <el-button class="link-btn" type="danger" link @click="removeItem(index)"
                 >刪除</el-button
               >
             </template>
-            <span v-else>(唯讀)</span>
+            <template v-else>
+              <el-button
+                class="link-btn"
+                type="primary"
+                link
+                :disabled="item.metricId === null || !item.value"
+                @click="item.metricId !== null && item.value ? (item.isEditing = false) : null"
+                >完成</el-button
+              >
+              <span style="color: #ccc; margin: 0 5px">|</span>
+              <el-button link class="link-btn" type="danger" @click="item.isEditing = false"
+                >取消</el-button
+              >
+            </template>
           </template>
           <template v-else>
-            <el-button
-              class="link-btn"
-              type="primary"
-              link
-              :disabled="item.metricId === null || !item.value"
-              @click="item.metricId !== null && item.value ? (item.isEditing = false) : null"
-              >完成</el-button
-            >
-            <span style="color: #ccc; margin: 0 5px">|</span>
-            <el-button link class="link-btn" type="danger" @click="removeItem(index)"
-              >取消</el-button
-            >
+            <span>(唯讀)</span>
           </template>
         </div>
       </div>
     </div>
 
-    <div style="display: flex; justify-content: flex-end; margin-top: 15px">
+    <div style="display: flex; justify-content: flex-end; margin-top: 15px" v-if="isGlobalEditing">
       <el-button class="add-btn" @click="addItem">新增項目</el-button>
     </div>
 
@@ -274,8 +419,12 @@ onMounted(initData)
       <div class="section-header">
         <h3>成果照片</h3>
         <div class="photo-actions">
-          <el-button class="action-btn outline" @click="selectAllPhotos">全選圖片</el-button>
-          <el-button class="action-btn outline" @click="handlePhotoRemove">刪除</el-button>
+          <el-button class="action-btn outline" @click="selectAllPhotos" v-if="isGlobalEditing"
+            >全選圖片</el-button
+          >
+          <el-button class="action-btn outline" @click="handlePhotoRemove" v-if="isGlobalEditing"
+            >刪除</el-button
+          >
         </div>
       </div>
 
@@ -285,14 +434,14 @@ onMounted(initData)
           :key="idx"
           class="photo-item"
           :class="{ selected: img.selected }"
-          @click="img.selected = !img.selected"
+          @click="isGlobalEditing ? (img.selected = !img.selected) : null"
         >
           <img :src="img.src" class="photo-img" />
           <div class="check-icon" v-if="img.selected">
             <el-icon><SuccessFilled /></el-icon>
           </div>
         </div>
-        <div class="photo-item upload-block">
+        <div class="photo-item upload-block" v-if="isGlobalEditing">
           <el-upload
             action="#"
             :auto-upload="false"
@@ -334,6 +483,15 @@ $title-col: #153450;
 }
 .val {
   color: $text-color;
+}
+.update_btn .add-btn {
+  border: 1px solid $secondary-color;
+  color: $secondary-color;
+  background: transparent;
+  &:hover {
+    background-color: $secondary-color;
+    color: $text-white;
+  }
 }
 
 /* 自定義表格 CSS Grid */

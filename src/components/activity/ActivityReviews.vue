@@ -2,6 +2,8 @@
 import { computed, ref } from 'vue'
 import { CaretTop, CaretBottom } from '@element-plus/icons-vue'
 import Swal from 'sweetalert2'
+import { backHomeApi } from '@/utils/publicApi'
+import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   activityId: { type: [String, Number], default: '' },
@@ -9,6 +11,7 @@ const props = defineProps({
   // 接收父層整理好的 messages 陣列
   rawMessages: { type: Array, default: () => [] },
 })
+const emit = defineEmits(['refresh'])
 
 // 直接使用父層傳來的資料
 const messages = computed(() => props.rawMessages)
@@ -22,6 +25,7 @@ const averageRating = computed(() => {
 })
 
 // 控制展開邏輯
+const expandedRows = ref([])
 const toggleExpand = (row) => {
   tableRef.value.toggleRowExpansion(row)
   const index = expandedRows.value.indexOf(row.id)
@@ -32,46 +36,66 @@ const toggleExpand = (row) => {
   }
 }
 
-//隱藏留言
-const hideComment = (commentId) => {
-  Swal.fire({
-    icon: 'warning',
-    title: '確定隱藏此留言嗎？',
-    showCancelButton: true,
-    confirmButtonText: '確定',
-    cancelButtonText: '取消',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // 調用後端 API 隱藏留言
-      hideCommentApi(commentId)
+const toggleReviewVisibility = async (review) => {
+  const newStatus = review.isVisible ? 0 : 1 // 切換狀態
+  if (newStatus === 0) {
+    // 隱藏留言
+    const confirm = await Swal.fire({
+      icon: 'warning',
+      title: '確定要隱藏此留言嗎？',
+      showCancelButton: true,
+      confirmButtonText: '確定',
+      cancelButtonText: '取消',
+    })
+    if (!confirm.isConfirmed) return
+  } else {
+    // 取消隱藏
+    const confirm = await Swal.fire({
+      icon: 'warning',
+      title: '確定要取消隱藏此留言嗎？',
+      showCancelButton: true,
+      confirmButtonText: '確定',
+      cancelButtonText: '取消',
+    })
+    if (!confirm.isConfirmed) return
+  }
+
+  try {
+    const response = await backHomeApi.post('/activity/admin_activity_review_action.php', {
+      action: 'toggle_review',
+      review_id: review.id,
+      is_visible: newStatus,
+    })
+
+    if (response.data.status === 'success') {
+      ElMessage.success(response.data.message)
+      // 更新畫面資料
+      review.isVisible = newStatus === 1
     }
-  })
+  } catch (error) {
+    ElMessage.error('操作失敗')
+  }
 }
 
-//取消隱藏
-const unhideComment = (commentId) => {
-  Swal.fire({
-    icon: 'warning',
-    title: '確定取消隱藏此留言嗎？',
-    showCancelButton: true,
-    confirmButtonText: '確定',
-    cancelButtonText: '取消',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // 調用後端 API 取消隱藏留言
-      unhideCommentApi(commentId)
+const handleReport = async (reportId, status) => {
+  try {
+    const response = await backHomeApi.post('/activity/admin_activity_review_action.php', {
+      action: 'update_report',
+      report_id: reportId,
+      status: status, // '已處理' 或 '已駁回'
+    })
+
+    if (response.data.status === 'success') {
+      ElMessage.success('檢舉狀態已更新')
+      // 重新整理評論資料
+      emit('refresh')
+    } else {
+      throw new Error(response.data.message)
     }
-  })
-}
-
-//調用後端 API 隱藏留言
-const hideCommentApi = (commentId) => {
-  // TODO: 調用後端 API 隱藏留言
-}
-
-//調用後端 API 取消隱藏留言
-const unhideCommentApi = (commentId) => {
-  // TODO: 調用後端 API 取消隱藏留言
+  } catch (error) {
+    console.error(error)
+    ElMessage.error('操作失敗')
+  }
 }
 </script>
 
@@ -106,7 +130,12 @@ const unhideCommentApi = (commentId) => {
                 <div class="r-col">檢舉理由：{{ rep.reason }}</div>
                 <div class="r-col">檢舉時間：{{ rep.time }}</div>
                 <div class="r-col">
-                  <el-select v-model="rep.status" size="small" style="width: 110px">
+                  <el-select
+                    v-model="rep.status"
+                    size="small"
+                    style="width: 110px"
+                    @change="(val) => handleReport(rep.id, rep.status)"
+                  >
                     <el-option label="待處理" value="待處理" />
                     <el-option label="已處理" value="已處理" />
                   </el-select>
@@ -155,7 +184,11 @@ const unhideCommentApi = (commentId) => {
         <template #default="scope">
           <button
             class="hide-btn"
-            @click="scope.row.isVisible ? hideComment(scope.row.id) : unhideComment(scope.row.id)"
+            @click="
+              scope.row.isVisible
+                ? toggleReviewVisibility(scope.row)
+                : toggleReviewVisibility(scope.row)
+            "
           >
             {{ scope.row.isVisible ? '隱藏留言' : '取消隱藏' }}
           </button>
