@@ -77,7 +77,7 @@ const cancelledNum = computed(
 )
 watch(() => props.activityId, initData, { immediate: true })
 
-const handleEditAttendance = () => {
+const handleEditAttendance = async () => {
   if (isEditingAttendance.value) {
     // 目前是編輯模式 -> 執行儲存
     Swal.fire({
@@ -88,11 +88,36 @@ const handleEditAttendance = () => {
       cancelButtonColor: '#d33',
       confirmButtonText: '確定',
       cancelButtonText: '取消',
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        isEditingAttendance.value = false
-        ElMessage.success('出席狀態已更新')
-        // TODO: 這裡未來可呼叫 API 將 memberList.value 的變更回寫後端
+        const updateList = memberList.value.map((member) => ({
+          user_id: member.memberId,
+          attended: member.attended ? 1 : 0,
+        }))
+        // console.log(updateList)
+
+        const attendedURL = `/activity/admin_activity_attendance_update.php`
+        try {
+          const response = await backHomeApi.post(attendedURL, {
+            activity_id: props.activityId,
+            attendance_list: updateList,
+          })
+          if (response.data.status === 'success') {
+            ElMessage.success('出席狀態已更新')
+            isEditingAttendance.value = false
+            initData()
+          } else {
+            console.log('更新出席狀態失敗', response.data.message)
+            ElMessage.error('更新出席狀態失敗')
+          }
+        } catch (error) {
+          console.error('更新出席狀態失敗', error)
+          Swal.fire({
+            title: '更新出席狀態失敗',
+            icon: 'error',
+            confirmButtonText: '確定',
+          })
+        }
       }
     })
   } else {
@@ -128,6 +153,44 @@ const toggleExpand = (row) => {
     expandedRows.value.push(row.id)
   }
 }
+
+//匯出名單
+const handleExport = async () => {
+  const targetId = props.activityId
+  if (!targetId) {
+    ElMessage.warning('無法取得活動ID')
+    return
+  }
+  const exportUrl = `/activity/admin_activity_signup_export.php?activity_id=${targetId}`
+  try {
+    Swal.fire({
+      title: '正在下載名單...',
+      text: '請稍候',
+      allowOutsideClick: false,
+      didOpen: () => {
+        Swal.showLoading()
+      },
+    })
+    const response = await backHomeApi.get(exportUrl, {
+      responseType: 'blob',
+    })
+    //建立下載連結
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', `activity_${targetId}_signups.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+
+    Swal.close()
+  } catch (error) {
+    console.error('取得活動報名列表失敗', error)
+    ElMessage.error('匯出失敗，請檢查網路或伺服器')
+    memberList.value = []
+  }
+}
 </script>
 <template>
   <div class="tab-container">
@@ -152,7 +215,7 @@ const toggleExpand = (row) => {
           {{ isEditingAttendance ? '儲存出席狀態' : '修改出席狀態' }}
         </el-button>
 
-        <el-button class="export-btn">匯出名單 (Excel)</el-button>
+        <el-button class="export-btn" @click="handleExport">匯出名單 (Excel)</el-button>
       </div>
     </div>
 
