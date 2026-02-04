@@ -7,7 +7,7 @@ import ActivityResult from '@/components/activity/ActivityResult.vue'
 import ActivitySignUpList from '@/components/activity/ActivitySignUpList.vue'
 import ActivityReviews from '@/components/activity/ActivityReviews.vue'
 import CommonTabs from '@/components/activity/CommonTabs.vue'
-
+import Swal from 'sweetalert2'
 import { backHomeApi, APIBase } from '@/utils/publicApi'
 import ResultData from '@/assets/data/activityResultData.json'
 import ReviewData from '@/assets/data/activityReview.json'
@@ -32,7 +32,7 @@ const getEmptyFormData = () => {
     region: '',
     maxVolunteers: '',
     currentVolunteers: 0,
-    publisher: 'admin_01',
+    publisher: '',
     publishTime: new Date().toLocaleString(),
     title: '',
     status: '草稿',
@@ -94,7 +94,7 @@ const transformToFormData = (data) => {
     region: data.ACTIVITY_LOCATION_AREA,
     maxVolunteers: data.ACTIVITY_MAX_PEOPLE,
     currentVolunteers: data.ACTIVITY_SIGNUP_PEOPLE,
-    publisher: `admin_${data.ADMIN_ID}`,
+    publisher: `${data.ADMIN_ID}`,
     publishTime: data.ACTIVITY_CREATED_AT,
     title: data.ACTIVITY_TITLE,
     status: mainStatus,
@@ -129,6 +129,100 @@ const fetchActivityData = async () => {
   } catch (error) {
     console.error('獲取活動資料失敗:', error)
     return []
+  }
+}
+// 日期轉換輔助函式
+const safeToISO = (val) => {
+  if (!val) return '' // 如果是空值，回傳空字串
+  const d = new Date(val)
+  // 檢查是否為有效日期
+  if (isNaN(d.getTime())) {
+    console.warn('發現無效日期:', val)
+    return ''
+  }
+  return d.toISOString()
+}
+// 新增修改活動
+const handleSave = async (formData) => {
+  try {
+    // 1. 建立 FormData 物件
+    const apiData = new FormData()
+
+    // 2. 將所有欄位 append 進去
+    const submitData = formData
+    apiData.append('id', submitData.id)
+    apiData.append('title', submitData.title)
+    apiData.append('category', submitData.category) // PHP 會自己轉成 1,2,3
+    apiData.append('region', submitData.region)
+    apiData.append('location', submitData.location)
+    apiData.append('intro', submitData.intro)
+    apiData.append('note', submitData.note)
+    apiData.append('maxVolunteers', submitData.maxVolunteers)
+    apiData.append('status', submitData.status)
+
+    // 時間處理
+    if (submitData.activityTime && submitData.activityTime[0]) {
+      // 簡單轉換為 ISO 字串，PHP 的 strtotime 通常吃得消
+      // 或者使用您原本的邏輯，但要確保不是 undefined
+      const start = safeToISO(submitData.activityTime[0])
+      const end = safeToISO(submitData.activityTime[1])
+
+      if (start && end) {
+        apiData.append('activityTime[]', start)
+        apiData.append('activityTime[]', end)
+      }
+    }
+
+    if (submitData.registrationTime && submitData.registrationTime[1]) {
+      const regStart = safeToISO(submitData.registrationTime[0])
+      const regEnd = safeToISO(submitData.registrationTime[1])
+
+      apiData.append('registrationTime[]', regStart)
+      apiData.append('registrationTime[]', regEnd)
+    }
+
+    // 3. 關鍵：處理圖片檔案
+    if (submitData.imageFile) {
+      apiData.append('imageFile', submitData.imageFile)
+    }
+
+    // 4. 發送 POST 請求
+    const response = await backHomeApi.post('/activity/admin_activity_save_post.php', apiData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+
+    if (response.data.status === 'success') {
+      // 成功後重新整理或跳轉
+      if (targetId.value) {
+        await fetchActivityData() // 重新撈取資料
+      } else {
+        // 新增後跳轉到該活動的詳情頁
+        const newId = response.data.id
+        window.location.href = `/activity/edit/${newId}`
+      }
+      Swal.fire({
+        icon: 'success',
+        title: '儲存成功',
+        showConfirmButton: false,
+        timer: 1500,
+      })
+    } else {
+      console.error('活動儲存失敗:', response.data.message)
+      Swal.fire({
+        icon: 'error',
+        title: '儲存失敗',
+        text: response.data.message,
+      })
+    }
+  } catch (error) {
+    console.error('活動儲存失敗:', error)
+    Swal.fire({
+      icon: 'error',
+      title: '系統錯誤',
+      text: '無法連接伺服器',
+    })
   }
 }
 
@@ -216,7 +310,11 @@ onMounted(() => {
         <CommonTabs v-model="activeTab" :tabs="activityTabs" />
 
         <div v-if="activeTab === 'detail'">
-          <ActivityForm :form-data="currentActivityForm" :key="currentActivityForm.id || 'new'" />
+          <ActivityForm
+            :form-data="currentActivityForm"
+            :key="currentActivityForm.id || 'new'"
+            @save="handleSave"
+          />
         </div>
 
         <div v-else-if="activeTab === 'list'">
@@ -236,8 +334,6 @@ onMounted(() => {
             :activity-id="currentActivityForm.id"
             :activity-title="currentActivityForm.title"
             :activity-status="currentActivityForm.detailStatus"
-            :results-data="currentResults"
-            :category-id="rawActivityData?.ACTIVITY_CATEGORY_ID"
             :signup-count="rawActivityData?.ACTIVITY_SIGNUP_PEOPLE"
             :cover-image="currentActivityForm.imageUrl"
           />
@@ -251,6 +347,7 @@ onMounted(() => {
             :activity-title="currentActivityForm.title"
             :activity-status="currentActivityForm.detailStatus"
             :raw-messages="currentMessages"
+            @refresh="fetchReviews"
           />
           <div v-else class="empty-msg">活動未結束，目前無人留言</div>
         </div>
