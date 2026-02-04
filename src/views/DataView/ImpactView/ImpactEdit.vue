@@ -215,7 +215,7 @@ onMounted(() => {
         </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="費漁具漁網" required>
+            <el-form-item label="廢漁具漁網" required>
           <el-input-number v-model="form.ocean_debris_removed_kg.ghost_nets_fishing_gear" :precision="2" />
         </el-form-item>
           </el-col>
