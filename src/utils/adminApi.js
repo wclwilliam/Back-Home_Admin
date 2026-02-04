@@ -318,11 +318,10 @@ export const memberAPI = {
    */
   getVolunteers: async (memberId) => {
     const response = await fetch(
-      `${normalizeApiBase(API_BASE)}/admin/member_volunteer_get.php`,
+      `${normalizeApiBase(API_BASE)}/admin/member_volunteer_get.php?member_id=${memberId}`,
       {
-        method: 'POST',
+        method: 'GET',
         headers: createHeaders(true),
-        body: JSON.stringify({ member_id: memberId }),
       },
     )
 
