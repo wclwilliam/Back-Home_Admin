@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, onMounted , computed } from 'vue'
+import { reactive, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import { backHomeApi } from '@/utils/publicApi'
@@ -112,9 +112,27 @@ const loadArticleData = async () => {
     formData.admin = data.author_id
     formData.title = data.title
     formData.category = data.category
-    formData.date = data.published_at
+    //formData.date = data.published_at
     formData.content = data.content
     formData.status = data.status || 'draft'
+
+    // 2.判斷日期
+    if (formData.status === 'draft') {
+      // 如果是草稿，將日期設為「現在時間」
+      const now = new Date();
+      const formattedDate = now.getFullYear() + '-' +
+        String(now.getMonth() + 1).padStart(2, '0') + '-' +
+        String(now.getDate()).padStart(2, '0') + ' ' +
+        String(now.getHours()).padStart(2, '0') + ':' +
+        String(now.getMinutes()).padStart(2, '0') + ':' +
+        String(now.getSeconds()).padStart(2, '0');
+
+      formData.date = formattedDate;
+    } else {
+      // 如果已經是已發布 (published)，就維持後端傳來的原始時間
+      formData.date = data.published_at;
+    }
+
     // 圖片預覽
     if (data.image_path) {
       formData.imageUrl = fileUrl + data.image_path
@@ -188,6 +206,9 @@ const submitForm = async (targetStatus) => {
 
     if (response.data.success) {
       formData.status = targetStatus;
+      if (response.data.new_date) {
+        formData.date = response.data.new_date;
+      }
       console.log('當前狀態已更新為:', formData.status);
       Swal.fire({
         title: targetStatus === 'published' ? "文章已更新!" : "草稿已儲存!",
@@ -226,17 +247,16 @@ const statusChinese = computed(() => {
 
         <el-row :gutter="40">
           <el-col :span="10">
-            <el-form-item label="文章狀態">
+            <el-form-item label="文章狀態" label-width="120px">
               <el-input v-model="formData.status" :value="statusChinese" disabled class="readOnlyInput" />
             </el-form-item>
           </el-col>
-          <el-col :span="10">
+
+          <el-col :span="10" :offset="4">
             <el-form-item label="日期" label-width="120px">
               <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
-
           </el-col>
-
         </el-row>
 
         <el-form-item label="標題">
