@@ -56,10 +56,11 @@ const fetchMemberDetail = async () => {
 const fetchVolunteerData = async () => {
     try {
         const res = await memberAPI.getVolunteers(route.params.id)
+        
         if (res.status === 'success') {
             totalVolunteerHours.value = res.total_accumulated_hours || 0
             volunteerRecords.value = (res.activity_history || []).map(item => ({
-                title: item.ACTIVITY_NAME,
+                title: item.ACTIVITY_TITLE,
                 date: formatDate(item.ACTIVITY_DATE),
                 location: '活動現場',
                 hours: item.ACTIVITY_HOURS
