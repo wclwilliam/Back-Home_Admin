@@ -135,7 +135,7 @@ onMounted(() => {
       <el-form label-width="150px">
         <el-form-item label="資料年份">
           <el-input v-model="form.year" disabled style="width: 300px" />
-          <span class="tip">年份不可修改</span>
+          <span class="tip">年份</span>
         </el-form-item>
 
         <el-divider content-position="left">核心救援數據</el-divider>

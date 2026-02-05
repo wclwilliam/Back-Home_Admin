@@ -210,6 +210,7 @@ const handleSubmit = async () => {
                 maxlength="50"
                 style="width: 250px"
                 type="number"
+                disabled
               />
           </el-form-item>
 

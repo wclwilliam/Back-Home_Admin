@@ -4,6 +4,7 @@ import { Search } from '@element-plus/icons-vue'
 import AdminHeader from '@/components/AdminHeader.vue'
 import Pagination from '@/components/Pagination.vue'
 import { backHomeApi } from '@/utils/publicApi'
+import router from '@/router'
 
 // --- 響應式狀態 ---
 const rawData = ref([]) // 1. 初始化為空陣列
@@ -126,7 +127,7 @@ onMounted(async () => {
     const res = await backHomeApi.get("donation/donation_get.php")
     // 確保 res.data 是陣列，直接賦值給 rawData.value
     rawData.value = res.data 
-    // console.log(res.data);
+    console.log(res.data);
     
   } catch (error) {
     console.error("獲取資料失敗:", error)
@@ -139,7 +140,7 @@ onMounted(async () => {
 const filteredData = computed(() => {
     let result = [...rawData.value]
 
-    // --- A. 過濾邏輯 (保持不變) ---
+    // --- A. 過濾邏輯---
     if (searchQuery.value) {
         const query = searchQuery.value.toLowerCase()
         result = result.filter(item => 
@@ -201,6 +202,21 @@ const displayData = computed(() => {
     const end = start + 10
     return filteredData.value.slice(start, end)
 })
+
+const goMember = (memberId,donationType) =>{
+    // console.log(memberId);
+    router.push({
+    name: "admin-members-detail",
+    params: {
+        id: memberId
+    },
+    query: {  //會員頁面要接query參數
+      tab: 'donation',
+      sub: donationType   
+    }
+  });
+    
+}
 </script>
 
 <template>
@@ -245,7 +261,14 @@ const displayData = computed(() => {
                 </template>
             </el-table-column>
 
-            <el-table-column prop="member_email" label="會員信箱" min-width="200" align="center" />
+            <el-table-column prop="member_email" label="會員信箱" min-width="200" align="center" >
+                <template #default="scope">
+                    <span 
+                    @click="goMember(scope.row.MEMBER_ID,scope.row.DONATION_TYPE)"
+                    style="cursor: pointer; text-decoration: underline;"
+                    >{{ scope.row.member_email }}</span>
+                </template>
+            </el-table-column>
 
             <el-table-column prop="TRANSACTION_ID" label="交易編號" min-width="180" align="center" />
 
