@@ -17,9 +17,9 @@ const fetchAdminInfo = async () => {
   try {
     // 使用正確的 token 鍵名：ADMIN_TOKEN
     const token = localStorage.getItem('ADMIN_TOKEN')
-    
+
     console.log('Token:', token ? '已找到' : '未找到') // 調試用
-    
+
     // 構建請求配置
     const config = {}
     if (token) {
@@ -27,10 +27,10 @@ const fetchAdminInfo = async () => {
         'Authorization': `Bearer ${token}`
       }
     }
-    
+
     const response = await backHomeApi.get('./news/get_admin_account.php', config)
     console.log('API 回應:', response.data) // 調試用
-    
+
     if (response.data && response.data.success && response.data.admin_account) {
       formData.admin = response.data.admin_account
       console.log('成功設置管理員:', formData.admin) // 調試用
@@ -83,8 +83,12 @@ class MyUploadAdapter {
           if (result.error) {
             reject(result.error.message);
           } else {
+            // 取得 env 裡的檔案基本路徑：http://localhost:8888/api/ 或 https://tibamef2e.com/.../api/
+            const fileBaseUrl = import.meta.env.VITE_FILE_URL;
+
             resolve({
-              default: result.url
+              // 動態拼接：Base URL + PHP 回傳的相對路徑
+              default: fileBaseUrl + result.url
             });
           }
         })
@@ -223,7 +227,7 @@ const saveDraft = () => submitForm('draft');
       <el-form :model="formData" label-width="100px" label-position="left" class="customForm">
 
         <el-row :gutter="40">
-          <el-col :span="10" >
+          <el-col :span="10">
             <el-form-item label="日期" label-width="100px">
               <el-input v-model="formData.date" disabled class="readOnlyInput" />
             </el-form-item>
@@ -254,8 +258,7 @@ const saveDraft = () => submitForm('draft');
         <el-form-item label="封面圖片">
           <div class="uploadSection">
             <el-upload class="uploadBtn" action="#" :auto-upload="false" :show-file-list="false"
-              :on-change="handleImageChange"
-              accept="image/jpeg,image/png">
+              :on-change="handleImageChange" accept="image/jpeg,image/png">
               <el-button>上傳檔案 +</el-button>
             </el-upload>
 
@@ -392,7 +395,8 @@ const saveDraft = () => submitForm('draft');
       line-height: 1.4;
     }
 
-    strong, b {
+    strong,
+    b {
       font-weight: bold !important;
     }
 
@@ -408,7 +412,8 @@ const saveDraft = () => submitForm('draft');
       margin-bottom: 1em;
     }
 
-    i, em {
+    i,
+    em {
       font-style: italic;
     }
 

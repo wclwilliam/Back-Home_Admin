@@ -36,8 +36,12 @@ class MyUploadAdapter {
           if (result.error) {
             reject(result.error.message);
           } else {
+            // 取得 env 裡的檔案基本路徑：http://localhost:8888/api/ 或 https://tibamef2e.com/.../api/
+            const fileBaseUrl = import.meta.env.VITE_FILE_URL;
+
             resolve({
-              default: result.url
+              // 動態拼接：Base URL + PHP 回傳的相對路徑
+              default: fileBaseUrl + result.url
             });
           }
         })
