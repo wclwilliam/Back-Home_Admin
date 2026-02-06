@@ -55,7 +55,11 @@ const fetchMemberList = async () => {
             sortBy: sortBy.value,
         })
 
-        tableData.value = response.items || []
+        // 確保 MEMBER_ACTIVE 是數字型別
+        tableData.value = (response.items || []).map(item => ({
+            ...item,
+            MEMBER_ACTIVE: Number(item.MEMBER_ACTIVE)
+        }))
         total.value = response.pagination?.total || 0
     } catch (error) {
         ElMessage.error(error.message || '獲取會員列表失敗，請稍後重試')

@@ -20,7 +20,8 @@ const memberData = ref({
     MEMBER_EMAIL: '',
     MEMBER_PHONE: '',
     NICKNAME: '',
-    MEMBER_ACTIVE: 1
+    MEMBER_ACTIVE: 1,
+    MEMBER_ACTIVE_TEXT: ''
 })
 
 const totalVolunteerHours = ref(0)
@@ -56,7 +57,7 @@ const fetchMemberDetail = async () => {
 const fetchVolunteerData = async () => {
     try {
         const res = await memberAPI.getVolunteers(route.params.id)
-        
+
         if (res.status === 'success') {
             totalVolunteerHours.value = res.total_accumulated_hours || 0
             volunteerRecords.value = (res.activity_history || []).map(item => ({
@@ -77,7 +78,7 @@ const fetchDonationData = async () => {
         const res = await memberAPI.getDonations(route.params.id)
         if (res.status === 'success') {
             const raw = res.data || []
-            
+
             // 單筆捐款
             singleDonations.value = raw
                 .filter(d => d.DONATION_TYPE === '單次捐款')
@@ -126,11 +127,16 @@ const statusText = (s) => s === 1 ? '啟用' : '停用'
 
         <section class="info-section" v-loading="loading">
             <div class="info-list">
-                <div class="info-item"><span class="label">姓名</span><span class="value">{{ memberData.MEMBER_REALNAME }}</span></div>
-                <div class="info-item"><span class="label">暱稱</span><span class="value">{{ memberData.NICKNAME || '-' }}</span></div>
-                <div class="info-item"><span class="label">E-MAIL</span><span class="value email">{{ memberData.MEMBER_EMAIL }}</span></div>
-                <div class="info-item"><span class="label">手機</span><span class="value">{{ memberData.MEMBER_PHONE || '-' }}</span></div>
-                <div class="info-item"><span class="label">狀態</span><span class="value">{{ statusText(memberData.MEMBER_ACTIVE) }}</span></div>
+                <div class="info-item"><span class="label">姓名</span><span class="value">{{ memberData.MEMBER_REALNAME
+                        }}</span></div>
+                <div class="info-item"><span class="label">暱稱</span><span class="value">{{ memberData.NICKNAME || '-'
+                        }}</span></div>
+                <div class="info-item"><span class="label">E-MAIL</span><span class="value email">{{
+                        memberData.MEMBER_EMAIL }}</span></div>
+                <div class="info-item"><span class="label">手機</span><span class="value">{{ memberData.MEMBER_PHONE ||
+                        '-' }}</span></div>
+                <div class="info-item"><span class="label">狀態</span><span class="value">{{ memberData.MEMBER_ACTIVE_TEXT
+                    || statusText(memberData.MEMBER_ACTIVE) }}</span></div>
             </div>
         </section>
 
@@ -166,7 +172,8 @@ const statusText = (s) => s === 1 ? '啟用' : '停用'
                             <div v-else class="regular-info-header">
                                 <p>計畫編號：{{ regularDonation.id }}</p>
                                 <p>每期金額：${{ regularDonation.amount.toLocaleString() }}</p>
-                                <div v-for="(log, idx) in regularDonation.history" :key="idx" class="record-card donation-card">
+                                <div v-for="(log, idx) in regularDonation.history" :key="idx"
+                                    class="record-card donation-card">
                                     <p>{{ log.month }} 扣款：${{ log.amount }} ({{ log.date }})</p>
                                 </div>
                             </div>
@@ -180,11 +187,90 @@ const statusText = (s) => s === 1 ? '啟用' : '停用'
 
 <style lang="scss" scoped>
 @import '@/assets/scss/base/_var.scss';
-.pageContainer { padding: 40px; background: #fff; min-height: 100vh; }
-.info-section { margin: 30px 0; .info-list { display: flex; flex-direction: column; gap: 12px; .info-item { display: flex; .label { width: 140px; font-weight: bold; color: $text-color; } .value.email { color: $primary-color; text-decoration: underline; } } } }
-.section-divider { width: 100%; height: 2px; background: $primary-color; margin: 40px 0; opacity: 0.3; }
-:deep(.el-tabs__item) { font-size: 20px; font-weight: bold; &.is-active { color: $primary-color; } }
-:deep(.el-tabs__active-bar) { background: $primary-color; height: 4px; }
-.tab-inner { padding: 20px 0; .summary-title { font-size: 18px; font-weight: bold; margin-bottom: 20px; } .empty { text-align: center; color: #999; padding: 40px; } }
-.record-card { border-bottom: 1.5px solid rgba($primary-color, 0.2); padding: 20px 0; display: flex; justify-content: space-between; align-items: center; &.donation-card { display: block; p { margin: 5px 0; font-size: 14px; } } }
+
+.pageContainer {
+    padding: 40px;
+    background: #fff;
+    min-height: 100vh;
+}
+
+.info-section {
+    margin: 30px 0;
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .info-item {
+            display: flex;
+
+            .label {
+                width: 140px;
+                font-weight: bold;
+                color: $text-color;
+            }
+
+            .value.email {
+                color: $primary-color;
+                text-decoration: underline;
+            }
+        }
+    }
+}
+
+.section-divider {
+    width: 100%;
+    height: 2px;
+    background: $primary-color;
+    margin: 40px 0;
+    opacity: 0.3;
+}
+
+:deep(.el-tabs__item) {
+    font-size: 20px;
+    font-weight: bold;
+
+    &.is-active {
+        color: $primary-color;
+    }
+}
+
+:deep(.el-tabs__active-bar) {
+    background: $primary-color;
+    height: 4px;
+}
+
+.tab-inner {
+    padding: 20px 0;
+
+    .summary-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .empty {
+        text-align: center;
+        color: #999;
+        padding: 40px;
+    }
+}
+
+.record-card {
+    border-bottom: 1.5px solid rgba($primary-color, 0.2);
+    padding: 20px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    &.donation-card {
+        display: block;
+
+        p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+    }
+}
 </style>
