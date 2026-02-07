@@ -43,7 +43,7 @@ onMounted(async () => {
       ADMIN_NAME: data.ADMIN_NAME || '',
       ADMIN_PWD: '', // 密碼不要回填
       ADMIN_ROLE: data.ADMIN_ROLE || 'general',
-      ADMIN_ACTIVE: data.ADMIN_ACTIVE ?? 1,
+      ADMIN_ACTIVE: Number(data.ADMIN_ACTIVE ?? 1), // 確保是數字型別
     }
   } catch (error) {
     console.error('獲取帳號資料失敗:', error)
