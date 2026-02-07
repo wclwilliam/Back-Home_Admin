@@ -69,8 +69,8 @@ const handleResponse = async (response, isLoginRequest = false) => {
     localStorage.removeItem('ADMIN_USER')
 
     // 導向登入頁
-    if (window.location.pathname !== '/login') {
-      window.location.href = '/login'
+    if (window.location.pathname.split('/').pop() !== 'login') {
+      window.location.href = import.meta.env.VITE_BASE +'login'
     }
 
     throw new Error('請重新登入')
