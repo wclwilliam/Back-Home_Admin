@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { SuccessFilled } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import Swal from 'sweetalert2'
 import { APIBase, backHomeApi } from '@/utils/publicApi'
 
@@ -12,7 +11,6 @@ const props = defineProps({
   activityTitle: { type: String, default: '' },
   activityStatus: { type: String, default: '' },
   signupCount: { type: Number, default: 0 },
-  coverImage: { type: String, default: '' },
 })
 const availableMetrics = ref([])
 const resultItems = ref([])
@@ -34,7 +32,10 @@ let deletedPhotosBackup = []
 //進入編輯模式
 const enterEditMode = () => {
   if (!canEditResults.value) {
-    ElMessage.warning('活動尚未結束，不能編輯成果')
+    Swal.fire({
+      icon: 'warning',
+      title: '活動尚未結束，不能編輯成果',
+    })
     return
   }
   //深拷貝原本的資料
@@ -52,7 +53,10 @@ const cancelEditMode = () => {
   photoList.value = photosBackup.map((p) => ({ ...p }))
   deletedPhotoIds.value = [...deletedPhotosBackup]
   isGlobalEditing.value = false
-  ElMessage.success('已取消編輯')
+  Swal.fire({
+    icon: 'success',
+    title: '已取消編輯',
+  })
 }
 //存放舊照片
 const oldPhotoList = ref([])
@@ -117,24 +121,11 @@ const initData = async () => {
           name: photo.PHOTO_URL || photo.photo_url,
           isOld: true,
         }))
-      } else if (props.coverImage) {
-        // 如果沒有成果照片，預設顯示封面圖 (若有需要)
-        photoList.value = [
-          {
-            src: props.coverImage,
-            selected: false,
-            isOld: false,
-          },
-        ]
       }
     }
   } catch (error) {
     console.error('獲取成果資料失敗:', error)
     return []
-  }
-
-  if (props.coverImage && photoList.value.length === 0) {
-    photoList.value = [{ src: props.coverImage, selected: true }]
   }
 }
 
@@ -156,7 +147,10 @@ const getOpts = (currentRow) => {
 const addItem = () => {
   //活動未結束，提示不能新增
   if (!canEditResults.value) {
-    ElMessage.warning('活動尚未結束，不能新增成果')
+    Swal.fire({
+      icon: 'warning',
+      title: '活動尚未結束，不能新增成果',
+    })
     return
   }
 
@@ -209,7 +203,10 @@ const removeItem = (index) => {
 const handleSave = async () => {
   // 檢查是否有正在編輯的項目
   if (resultItems.value.some((item) => item.isEditing)) {
-    ElMessage.warning('請先完成所有成果項目的編輯 (按完成)')
+    Swal.fire({
+      icon: 'warning',
+      title: '請先完成所有成果項目的編輯 (按完成)',
+    })
     return
   }
   //如果都完成挑出確認儲存的燈箱
@@ -300,7 +297,10 @@ const handlePhotoRemove = () => {
   const selectedPhotos = photoList.value.filter((p) => p.selected)
 
   if (selectedPhotos.length === 0) {
-    ElMessage.warning('請先選擇要刪除的照片')
+    Swal.fire({
+      icon: 'warning',
+      title: '請先選擇要刪除的照片',
+    })
     return
   }
 
@@ -487,7 +487,7 @@ $title-col: #153450;
 .update_btn .add-btn {
   border: 1px solid $secondary-color;
   color: $secondary-color;
-  background: transparent;
+  background: $text-white;
   &:hover {
     background-color: $secondary-color;
     color: $text-white;

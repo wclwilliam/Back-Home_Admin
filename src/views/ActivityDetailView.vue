@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { ArrowLeft } from '@element-plus/icons-vue'
 import AdminHeader from '@/components/AdminHeader.vue'
 import ActivityForm from '@/components/activity/ActivityForm.vue'
 import ActivityResult from '@/components/activity/ActivityResult.vue'
@@ -12,9 +13,6 @@ import { backHomeApi, APIBase } from '@/utils/publicApi'
 import ResultData from '@/assets/data/activityResultData.json'
 import ReviewData from '@/assets/data/activityReview.json'
 import ReportData from '@/assets/data/activityReview_Report.json'
-
-const route = useRoute()
-const activeTab = ref('detail')
 
 const url = `/activity/admin_activity_get.php`
 const rawActivityData = ref(null)
@@ -237,7 +235,7 @@ const fetchReviews = async () => {
     if (response.data.status === 'success') {
       reviewsList.value = Array.isArray(response.data.data) ? response.data.data : []
     } else {
-      console.error('留言資料獲取失敗:', response.data.message)
+      // console.error('留言資料獲取失敗:', response.data.message)
     }
   } catch (error) {
     console.error('獲取留言 API 錯誤:', error)
@@ -290,10 +288,47 @@ const activityTabs = [
   { label: '留言管理', value: 'comment' },
 ]
 
+const route = useRoute()
+const router = useRouter()
+const activeTab = ref('detail')
+
+const validTabs = ['detail', 'list', 'result', 'comment']
+
+watch(
+  () => route.params.tab,
+  (newTab) => {
+    if (newTab && validTabs.includes(newTab)) {
+      activeTab.value = newTab
+    } else {
+      activeTab.value = 'detail'
+    }
+  },
+  { immediate: true },
+)
+
+// 監聽 activeTab 變數 -> 同步修改網址
+// (使用者點擊 Tab 時觸發)
+watch(activeTab, (newTab) => {
+  // 如果目前的網址參數跟現在選的 tab 不一樣，才更新網址
+  if (route.params.tab !== newTab) {
+    router.push({
+      name: 'activityEdit',
+      params: {
+        id: route.params.id,
+        tab: newTab,
+      },
+    })
+  }
+})
+
 onMounted(() => {
   fetchActivityData()
   fetchReviews()
 })
+
+const handleBack = () => {
+  router.push({ name: 'admin-activity' })
+}
 </script>
 
 <template>
@@ -301,6 +336,10 @@ onMounted(() => {
     <el-container style="height: 100vh">
       <el-main style="background-color: #f4f4f4; padding: 0">
         <AdminHeader title="志工活動詳情管理" />
+        <el-button type="primary" @click="handleBack" class="back-btn">
+          <el-icon><ArrowLeft /></el-icon>
+          返回活動列表
+        </el-button>
         <div class="info-bar">
           <span class="label">活動編號：</span>
           <span class="val" style="margin-right: 30px">{{ currentActivityForm.id }}</span>
@@ -335,7 +374,6 @@ onMounted(() => {
             :activity-title="currentActivityForm.title"
             :activity-status="currentActivityForm.detailStatus"
             :signup-count="rawActivityData?.ACTIVITY_SIGNUP_PEOPLE"
-            :cover-image="currentActivityForm.imageUrl"
           />
           <div v-else class="empty-msg">活動未結束，請結束後輸入活動的成果</div>
         </div>
@@ -357,6 +395,18 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
+.back-btn {
+  padding: 0 10px;
+  border: none;
+  color: $secondary-color;
+  background: none;
+  margin: 0 0 10px 0;
+  &:hover {
+    padding: 0 10px;
+    background-color: $secondary-color;
+    color: $text-white;
+  }
+}
 .pageContainer {
   padding: 30px;
   min-height: 100vh;

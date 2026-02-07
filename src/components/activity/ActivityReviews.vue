@@ -3,7 +3,6 @@ import { computed, ref } from 'vue'
 import { CaretTop, CaretBottom } from '@element-plus/icons-vue'
 import Swal from 'sweetalert2'
 import { backHomeApi } from '@/utils/publicApi'
-import { ElMessage } from 'element-plus'
 
 const props = defineProps({
   activityId: { type: [String, Number], default: '' },
@@ -68,12 +67,18 @@ const toggleReviewVisibility = async (review) => {
     })
 
     if (response.data.status === 'success') {
-      ElMessage.success(response.data.message)
+      Swal.fire({
+        icon: 'success',
+        title: response.data.message,
+      })
       // 更新畫面資料
       review.isVisible = newStatus === 1
     }
   } catch (error) {
-    ElMessage.error('操作失敗')
+    Swal.fire({
+      icon: 'error',
+      title: '操作失敗',
+    })
   }
 }
 
@@ -86,7 +91,10 @@ const handleReport = async (reportId, status) => {
     })
 
     if (response.data.status === 'success') {
-      ElMessage.success('檢舉狀態已更新')
+      Swal.fire({
+        icon: 'success',
+        title: response.data.message,
+      })
       // 重新整理評論資料
       emit('refresh')
     } else {
@@ -94,7 +102,10 @@ const handleReport = async (reportId, status) => {
     }
   } catch (error) {
     console.error(error)
-    ElMessage.error('操作失敗')
+    Swal.fire({
+      icon: 'error',
+      title: '操作失敗',
+    })
   }
 }
 </script>

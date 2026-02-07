@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted, watch, computed } from 'vue'
-import { ElMessage } from 'element-plus'
 import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 
@@ -86,7 +85,6 @@ const cancelEdit = () => {
 
   //取消編輯
   isEditing.value = false
-  ElMessage.info('已取消編輯')
   Swal.fire({
     icon: 'info',
     title: '已取消編輯',
@@ -106,7 +104,6 @@ const handleImageUpload = (uploadFile) => {
 const saveEdit = () => {
   isEditing.value = false
   emit('save', localForm.value)
-  ElMessage.success('儲存成功')
   if (localForm.value.isNew) {
     localForm.value.isNew = false
   }
@@ -130,10 +127,9 @@ const saveEdit = () => {
             plain
             @click="enableEdit"
             :title="isActivityEnded ? '活動已結束，無法編輯' : ''"
+            :disabled="isActivityEnded"
           >
-            <!--  :disabled="isActivityEnded"等修改完成在加上去去-->
-            <!-- {{ isActivityEnded ? '活動已結束' : '編輯' }} -->
-            編輯
+            {{ isActivityEnded ? '無法編輯' : '編輯' }}
           </el-button>
         </template>
         <template v-else>
