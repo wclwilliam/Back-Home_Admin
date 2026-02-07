@@ -34,7 +34,8 @@ const regularDonation = ref({
     cycle: '每月',
     lastDate: '',
     nextDate: '-',
-    history: []
+    history: [],
+    orderId:''
 })
 
 const loading = ref(false)
@@ -94,6 +95,7 @@ const fetchDonationData = async () => {
             const sub = raw.find(d => d.DONATION_TYPE === '定期定額' || d.SUBSCRIPTION_ID)
             if (sub) {
                 regularDonation.value.id = sub.SUBSCRIPTION_ID || 'SUB-' + sub.TRANSACTION_ID
+                regularDonation.value.orderId = sub.ORDER_ID
                 regularDonation.value.status = '進行中'
                 regularDonation.value.amount = sub.AMOUNT
                 regularDonation.value.lastDate = formatDate(sub.DONATION_DATE)
@@ -116,6 +118,17 @@ onMounted(async () => {
     await fetchMemberDetail()
     fetchVolunteerData()
     fetchDonationData()
+})
+
+onMounted(()=>{
+    if (route.query.tab && route.query.sub) {
+        activeMainTab.value = route.query.tab
+        if (route.query.sub =="單次捐款") {
+            activeDonationTab.value = "single"
+        } else if (route.query.sub =="定期定額") {
+            activeDonationTab.value = "regular"
+        }
+    }
 })
 
 const statusText = (s) => s === 1 ? '啟用' : '停用'
@@ -171,6 +184,7 @@ const statusText = (s) => s === 1 ? '啟用' : '停用'
                             <div v-if="!regularDonation.id" class="empty">尚無紀錄</div>
                             <div v-else class="regular-info-header">
                                 <p>計畫編號：{{ regularDonation.id }}</p>
+                                <p>訂單編號：{{ regularDonation.orderId }}</p>
                                 <p>每期金額：${{ regularDonation.amount.toLocaleString() }}</p>
                                 <div v-for="(log, idx) in regularDonation.history" :key="idx"
                                     class="record-card donation-card">
