@@ -1,10 +1,11 @@
 <script setup>
 import { ref, computed,onMounted, reactive } from 'vue'
-import { Search } from '@element-plus/icons-vue'
+import { Search} from '@element-plus/icons-vue'
 import AdminHeader from '@/components/AdminHeader.vue'
 import Pagination from '@/components/Pagination.vue'
 import { backHomeApi } from '@/utils/publicApi'
 import router from '@/router'
+import Swal from 'sweetalert2'
 
 // --- 響應式狀態 ---
 const rawData = ref([]) // 1. 初始化為空陣列
@@ -127,7 +128,7 @@ onMounted(async () => {
     const res = await backHomeApi.get("donation/donation_get.php")
     // 確保 res.data 是陣列，直接賦值給 rawData.value
     rawData.value = res.data 
-    console.log(res.data);
+    // console.log(res.data);
     
   } catch (error) {
     console.error("獲取資料失敗:", error)
@@ -217,6 +218,31 @@ const goMember = (memberId,donationType) =>{
   });
     
 }
+
+const exportData = async () => {
+  try {
+    // 顯示讀取中動畫
+    Swal.fire({ title: '正在產生報表...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+    const response = await backHomeApi.get('donation/export_donations.php', {
+      responseType: 'blob' // 務必設定此項以接收檔案串流
+    });
+
+    // 建立下載 URL
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `捐款總明細_${new Date().toLocaleDateString()}.csv`);
+    
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    
+    Swal.close();
+  } catch (error) {
+    Swal.fire('匯出失敗', '無法連接伺服器或權限不足', 'error');
+  }
+}
 </script>
 
 <template>
@@ -250,6 +276,20 @@ const goMember = (memberId,donationType) =>{
                     </template>
                 </el-input>
             </div>
+            <el-button 
+              plain 
+              @click="exportData"
+              style="width:140px; border:1px solid #0E6273;"
+            >
+              匯出總明細 (CSV)
+            </el-button>
+            <!-- <el-card shadow="never" class="mb-20">
+      <div class="flex-between">
+        <span class="title">捐款明細管理</span>
+        <div class="buttons">
+        </div>
+      </div>
+    </el-card> -->
         </div>
 
         <el-table :data="displayData" style="width: 100%" class="customTable" header-row-class-name="tableHeader">
