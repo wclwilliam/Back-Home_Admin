@@ -77,12 +77,21 @@ const deleteData = async (d)=>{
   })
   if (result.isConfirmed) {
     try {
-      await backHomeApi.delete('donation/impact_delete.php',{
+      const response = await backHomeApi.delete('donation/impact_delete.php',{
         data: {
             id: d.id
         }
       })
-      fetchImpactData();  //刷新
+
+      if (response.data.status) {
+        Swal.fire({
+          title: '已刪除!',
+          text: `資料已成功刪除`,
+          icon: 'success',
+          confirmButtonColor: '#0E6273',
+        })
+        fetchImpactData();  //刷新
+      }
     } catch(error) {
       console.error('刪除失敗:', error)
       Swal.fire({
