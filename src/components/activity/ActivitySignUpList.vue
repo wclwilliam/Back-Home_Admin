@@ -1,7 +1,6 @@
 <script setup>
 import { ref, computed, reactive, watch } from 'vue'
 import { Check, CaretBottom, CaretTop, View, Hide } from '@element-plus/icons-vue'
-import { ElMessage } from 'element-plus'
 import Swal from 'sweetalert2'
 import { backHomeApi } from '@/utils/publicApi'
 
@@ -17,6 +16,13 @@ const tableRef = ref(null)
 const expandedRows = ref([]) // 紀錄目前展開的活動 ID
 const isEditingAttendance = ref(false) // 控制是否處於編輯出席狀態模式
 const memberList = ref([])
+const currentPage = ref(1)
+const pageSize = ref(10)
+const paginatedMemberList = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  const end = start + pageSize.value
+  return memberList.value.slice(start, end)
+})
 
 // 身分證遮罩處理
 const visibleIdMap = reactive({})
@@ -61,13 +67,19 @@ const initData = async () => {
         }
       })
     } else {
-      console.log('取得活動報名列表失敗', response.data.message)
-      ElMessage.error('取得活動報名列表失敗')
+      // console.log('取得活動報名列表失敗', response.data.message)
+      Swal.fire({
+        icon: 'error',
+        title: '取得活動報名列表失敗',
+      })
       memberList.value = []
     }
   } catch (error) {
-    console.error('取得活動報名列表失敗', error)
-    ElMessage.error('取得活動報名列表失敗')
+    // console.error('取得活動報名列表失敗', error)
+    Swal.fire({
+      icon: 'error',
+      title: '取得活動報名列表失敗',
+    })
     memberList.value = []
   }
 }
@@ -103,12 +115,18 @@ const handleEditAttendance = async () => {
             attendance_list: updateList,
           })
           if (response.data.status === 'success') {
-            ElMessage.success('出席狀態已更新')
+            Swal.fire({
+              icon: 'success',
+              title: '出席狀態已更新',
+            })
             isEditingAttendance.value = false
             initData()
           } else {
             console.log('更新出席狀態失敗', response.data.message)
-            ElMessage.error('更新出席狀態失敗')
+            Swal.fire({
+              icon: 'error',
+              title: '更新出席狀態失敗',
+            })
           }
         } catch (error) {
           console.error('更新出席狀態失敗', error)
@@ -124,13 +142,19 @@ const handleEditAttendance = async () => {
     // 目前是檢視模式 -> 欲切換為編輯模式
     // 檢查活動是否已結束
     if (props.activityStatus !== '已結束') {
-      ElMessage.warning('活動尚未結束，無法修改出席狀態')
+      Swal.fire({
+        icon: 'warning',
+        title: '活動尚未結束，無法修改出席狀態',
+      })
       return
     }
 
     // 通過檢查，開啟編輯模式
     isEditingAttendance.value = true
-    ElMessage.info('已開啟編輯模式，請直接點擊列表中的方框')
+    Swal.fire({
+      icon: 'info',
+      title: '已開啟編輯模式，請直接點擊列表中的方框',
+    })
   }
 }
 
@@ -158,7 +182,10 @@ const toggleExpand = (row) => {
 const handleExport = async () => {
   const targetId = props.activityId
   if (!targetId) {
-    ElMessage.warning('無法取得活動ID')
+    Swal.fire({
+      icon: 'warning',
+      title: '無法取得活動ID',
+    })
     return
   }
   const exportUrl = `/activity/admin_activity_signup_export.php?activity_id=${targetId}`
@@ -187,7 +214,10 @@ const handleExport = async () => {
     Swal.close()
   } catch (error) {
     console.error('取得活動報名列表失敗', error)
-    ElMessage.error('匯出失敗，請檢查網路或伺服器')
+    Swal.fire({
+      icon: 'error',
+      title: '匯出失敗，請檢查網路或伺服器',
+    })
     memberList.value = []
   }
 }
@@ -221,7 +251,7 @@ const handleExport = async () => {
 
     <el-table
       ref="tableRef"
-      :data="memberList"
+      :data="paginatedMemberList"
       style="width: 100%"
       header-row-class-name="custom-header"
       row-class-name="custom-row"
@@ -266,7 +296,7 @@ const handleExport = async () => {
 
       <el-table-column label="報名編號" width="80" align="center">
         <template #default="scope">
-          {{ scope.$index + 1 }}
+          {{ (currentPage - 1) * pageSize + scope.$index + 1 }}
         </template>
       </el-table-column>
       <el-table-column label="會員編號" prop="memberId" width="100" align="center" />
@@ -319,6 +349,8 @@ const handleExport = async () => {
         background
         layout="prev, pager, next"
         class="mt-4"
+        :page-size="pageSize"
+        v-model:current-page="currentPage"
         :total="memberList.length"
       />
     </div>
@@ -362,7 +394,7 @@ $title-col: #153450;
 .export-btn {
   border: 1px solid $secondary-color;
   color: $secondary-color;
-  background: transparent;
+  background: $text-white;
   &:hover {
     background-color: $secondary-color;
     color: $text-white;

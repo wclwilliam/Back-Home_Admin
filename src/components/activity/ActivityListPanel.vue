@@ -17,7 +17,10 @@ const router = useRouter()
 const handleEdit = (row) => {
   router.push({
     name: 'activityEdit',
-    params: { id: row.id },
+    params: {
+      id: row.id,
+      tab: 'detail',
+    },
   })
 }
 
@@ -36,7 +39,7 @@ const filterStatus = ref('')
 const filterType = ref('')
 const searchKeyword = ref('')
 const currentPage = ref(1)
-const pageSize = ref(7)
+const pageSize = ref(10)
 
 const categoryMap = {
   1: '淨灘',
@@ -285,7 +288,7 @@ const paginatedData = computed(() => {
 .addBtn {
   border: 1px solid $secondary-color;
   color: $secondary-color;
-  background: transparent;
+  background: $text-white;
   &:hover {
     background-color: $secondary-color;
     color: $text-white;
