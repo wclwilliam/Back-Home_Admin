@@ -1,5 +1,5 @@
 <script setup>
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import AdminHeader from '@/components/AdminHeader.vue'
 import Swal from 'sweetalert2'
@@ -10,7 +10,10 @@ const getTodayDate = () => {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
+  const hours = String(date.getHours()).padStart(2, '0')
+  const minutes = String(date.getMinutes()).padStart(2, '0')
+  const seconds = String(date.getSeconds()).padStart(2, '0')
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }
 
 const router = useRouter()
@@ -29,6 +32,7 @@ const formData = reactive({
 
 // 儲存原始檔案（用於上傳）
 let imageFile = null
+const isSubmitting = ref(false)
 
 // 表單驗證
 const validateForm = () => {
@@ -126,6 +130,7 @@ const goBack = () => {
 }
 
 const handleSubmit = async () => {
+  if (isSubmitting.value) return // 防止重複提交
   if (!validateForm()) return
 
   // 確保圖片已上傳
@@ -139,12 +144,15 @@ const handleSubmit = async () => {
     return
   }
 
+  isSubmitting.value = true
+
   const submitData = new FormData()
   submitData.append('name', formData.name)
   submitData.append('species', formData.species)
   submitData.append('location', formData.location)
   submitData.append('status', formData.status)
   submitData.append('description', formData.description)
+  submitData.append('uploadDate', formData.uploadDate) // 加入上傳日期
   submitData.append('image', imageFile)
 
   try {
@@ -178,6 +186,8 @@ const handleSubmit = async () => {
       icon: 'error',
       confirmButtonColor: '#E14720',
     })
+  } finally {
+    isSubmitting.value = false
   }
 }
 </script>
@@ -282,7 +292,9 @@ const handleSubmit = async () => {
         </el-form-item>
 
         <div class="formFooter">
-          <el-button class="actionBtn" plain @click="handleSubmit">儲存</el-button>
+          <el-button class="actionBtn" plain @click="handleSubmit" :loading="isSubmitting"
+            >儲存</el-button
+          >
           <el-button class="actionBtn" plain @click="goBack">取消</el-button>
         </div>
       </el-form>
