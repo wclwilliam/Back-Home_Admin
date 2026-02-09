@@ -389,6 +389,10 @@ const handleBack = () => {
 </template>
 
 <style scoped lang="scss">
+//消除卷軸
+:deep(.el-main) {
+  overflow: visible;
+}
 .back-btn {
   padding: 0 10px;
   border: none;
