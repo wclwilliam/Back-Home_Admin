@@ -87,6 +87,11 @@ const initData = async () => {
 const cancelledNum = computed(
   () => memberList.value.filter((item) => item.isCancelled === '是').length,
 )
+//取得未取消，但缺席的人數
+const absentNum = computed(
+  () =>
+    memberList.value.filter((item) => item.attended === false && item.isCancelled === '否').length,
+)
 watch(() => props.activityId, initData, { immediate: true })
 
 const handleEditAttendance = async () => {
@@ -232,7 +237,9 @@ const handleExport = async () => {
         <span class="val">報名:</span>
         <span class="label">{{ memberList.length }}</span>
         <span class="val">出席:</span>
-        <span class="label">{{ memberList.length - cancelledNum }}</span>
+        <span class="label">{{ memberList.length - cancelledNum - absentNum }}</span>
+        <span class="val">缺席:</span>
+        <span class="label">{{ absentNum }}</span>
         <span class="val">取消:</span>
         <span class="label">{{ cancelledNum }}</span>
       </div>

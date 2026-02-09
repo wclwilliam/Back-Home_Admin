@@ -21,8 +21,8 @@ const targetId = computed(() => (route.params.id ? parseInt(route.params.id) : n
 
 const categoryMap = {
   1: '淨灘',
-  2: '巡守',
-  3: '照護',
+  2: '照護',
+  3: '巡守',
 }
 const getEmptyFormData = () => {
   return {
@@ -248,12 +248,6 @@ const currentResults = computed(() => {
   return ResultData.filter((item) => item.ACTIVITY_ID === targetId.value)
 })
 
-const reportReasonMap = {
-  1: '含有仇恨、歧視性內容',
-  2: '商業廣告或垃圾訊息',
-  3: '內容與事實不符',
-  4: '其他原因',
-}
 // 處理留言資料
 const currentMessages = computed(() => {
   if (!reviewsList.value || reviewsList.value.length === 0) return []
@@ -264,7 +258,7 @@ const currentMessages = computed(() => {
     const processedReports = (r.reports || []).map((rep) => ({
       id: rep.REPORT_ID,
       reporter: rep.USER_ID,
-      reason: reportReasonMap[rep.REASON] || '其他',
+      reason: rep.REASON,
       time: rep.CREATED_AT,
       status: rep.REPORT_STATUS, // "待處理", "已駁回", "已處理"
     }))

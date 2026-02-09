@@ -16,13 +16,6 @@ const emit = defineEmits(['refresh'])
 const messages = computed(() => props.rawMessages)
 const tableRef = ref(null)
 
-// 計算平均評分
-const averageRating = computed(() => {
-  if (messages.value.length === 0) return 0
-  const sum = messages.value.reduce((acc, curr) => acc + (curr.rating || 0), 0)
-  return (sum / messages.value.length).toFixed(1)
-})
-
 // 控制展開邏輯
 const expandedRows = ref([])
 const toggleExpand = (row) => {
@@ -108,13 +101,21 @@ const handleReport = async (reportId, status) => {
     })
   }
 }
+//評分計算
+const calculateAverageRating = () => {
+  if (messages.value.length === 0) return 0
+  const sum = messages.value.reduce((acc, curr) => acc + (curr.rating || 0), 0)
+  return (sum / messages.value.length).toFixed(1)
+}
 </script>
 
 <template>
   <div class="tab-container">
     <div class="info-bar">
       <span class="label">活動評分</span>
-      <span class="val">{{ averageRating }} / 5.0 (共 {{ messages.length }} 則評論)</span>
+      <span class="val"
+        >{{ calculateAverageRating() }} / 5.0 (共 {{ messages.length }} 則評論)</span
+      >
     </div>
 
     <el-table
@@ -134,17 +135,14 @@ const handleReport = async (reportId, status) => {
 
             <div v-if="props.row.reports.length > 0" class="report-list">
               <div v-for="(rep, idx) in props.row.reports" :key="idx" class="report-row">
-                <div class="r-col r-id">
-                  <strong>{{ idx + 1 }}</strong>
-                </div>
-                <div class="r-col">檢舉會員：{{ rep.reporter }}</div>
+                <div class="r-col">檢舉編號：{{ idx + 1 }}</div>
                 <div class="r-col">檢舉理由：{{ rep.reason }}</div>
                 <div class="r-col">檢舉時間：{{ rep.time }}</div>
                 <div class="r-col">
                   <el-select
                     v-model="rep.status"
                     size="small"
-                    style="width: 110px"
+                    style="width: 110px; margin-left: 40px"
                     @change="(val) => handleReport(rep.id, rep.status)"
                   >
                     <el-option label="待處理" value="待處理" />
@@ -268,7 +266,9 @@ $title-col: #153450;
 .report-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  // justify-content: space-between;
+  width: 100%;
+  text-align: left;
   margin-bottom: 10px;
   padding: 10px 0;
   border-bottom: 1px dashed $btn-bg;
@@ -276,11 +276,19 @@ $title-col: #153450;
 .report-row:last-child {
   border-bottom: none;
 }
-
 .r-col {
   font-size: 14px;
   color: $text-color;
+  text-align: left;
+  width: 40%;
 }
+.r-col:first-child {
+  font-size: 14px;
+  color: $text-color;
+  text-align: left;
+  width: 15%;
+}
+
 .r-id {
   width: 30px;
 }
