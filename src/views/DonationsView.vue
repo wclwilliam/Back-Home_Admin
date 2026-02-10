@@ -157,6 +157,7 @@ const filteredData = computed(() => {
     if (filterPayment.value) {
         result = result.filter(item => item.PAYMENT_METHOD === filterPayment.value)
     }
+    
 
     // --- B. 擴充排序邏輯 ---
     result.sort((a, b) => {
@@ -267,7 +268,7 @@ const exportData = async () => {
                 <el-select v-model="filterPayment" placeholder="金流篩選" style="width: 140px; margin-right: 12px;">
                     <el-option label="全部" value="" />
                     <el-option label="信用卡" value="信用卡" />
-                    <el-option label="LINE Pay" value="LINE_Pay" />
+                    <el-option label="LINE PAY" value="LINE_PAY" />
                 </el-select>
 
                 <el-input v-model="searchQuery" placeholder="搜尋" style="width: 220px">
