@@ -198,7 +198,7 @@ const handleSave = async (formData) => {
       } else {
         // 新增後跳轉到該活動的詳情頁
         const newId = response.data.id
-        window.location.href = `/activity/edit/${newId}`
+        window.location.href = `/activity/edit/${newId}/detail`
       }
       Swal.fire({
         icon: 'success',
@@ -314,6 +314,8 @@ watch(activeTab, (newTab) => {
     })
   }
 })
+
+//創建完新的活動跳轉到tab為detail的頁面
 
 onMounted(() => {
   fetchActivityData()
