@@ -288,6 +288,22 @@ const activeTab = ref('detail')
 
 const validTabs = ['detail', 'list', 'result', 'comment']
 
+// 監聽路由ID變化，重新抓取資料 (處理 新增 -> 編輯 的跳轉)
+watch(
+  () => route.params.id,
+  async (newId) => {
+    targetId.value = newId
+    if (newId) {
+      await fetchActivityData()
+      await fetchReviews()
+    } else {
+      // 如果沒有ID (create mode)，清空資料
+      rawActivityData.value = null
+      reviewsList.value = []
+    }
+  },
+  { immediate: true },
+)
 watch(
   () => route.params.tab,
   (newTab) => {
