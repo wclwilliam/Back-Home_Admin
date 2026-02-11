@@ -39,3 +39,6 @@ admin
 __screenshots__/
 
 package-lock.json
+
+.env
+.env.prod
